@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lucid Dreams – виртуальные AI-подруги</title>
-  <meta name="description" content="Lucid Dreams — виртуальные AI-подруги 18+. Анонимно, безопасно и увлекательно: текст, голос, видео. Запусти бота в Telegram и открой новую реальность общения." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Canonical -->
+  <title>Lucid Dreams – виртуальные AI-подруги (анонимный чат 18+)</title>
+  <meta name="description" content="Lucid Dreams — виртуальные AI-подруги 18+. Анонимный и безопасный чат: текст, голос и видео. Запусти бота в Telegram и открой новую реальность общения." />
+
   <link rel="canonical" href="https://gorod-legends.ru/" />
 
   <!-- Icons -->
@@ -15,7 +15,7 @@
   <link rel="alternate icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-  <!-- Open Graph -->
+  <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Lucid Dreams">
   <meta property="og:url" content="https://gorod-legends.ru/">
@@ -26,98 +26,66 @@
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Preload hero image -->
-  <link rel="preload" as="image" href="/assets/img/hero-1.webp" />
+  <!-- RSS + Sitemap (ссылка на rss полезна, sitemap — опционально) -->
+  <link rel="alternate" type="application/rss+xml" title="Lucid Dreams — RSS" href="/rss.xml">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+  <!-- Preload hero images -->
+  <link rel="preload" as="image" href="assets/img/hero-1.webp.jpg">
+  <link rel="preload" as="image" href="assets/img/hero-2.webp.jpg">
+  <link rel="preload" as="image" href="assets/img/hero-3.webp.jpg">
 
   <style>
-    /* Reset */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --hero: url('/assets/img/hero-1.webp'); }
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      color: #f5f5f5;
-      background-color: #0d0d17;
-    }
-    a { color: #e56fc6; text-decoration: none; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{ --hero: url('assets/img/hero-1.webp.jpg'); }
+    body{font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;line-height:1.6;color:#f5f5f5;background:#0d0d17}
+    a{color:#e56fc6;text-decoration:none}
 
-    /* Header */
-    header {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 20px;
-      position: fixed; top: 0; left: 0; width: 100%;
-      z-index: 1000;
-      display: flex; justify-content: space-between; align-items: center;
-      backdrop-filter: saturate(150%) blur(6px);
-      border-bottom: 1px solid rgba(255,255,255,.06);
+    header{
+      position:fixed;top:0;left:0;width:100%;z-index:1000;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:20px;background:rgba(0,0,0,.6);backdrop-filter:saturate(150%) blur(6px);
+      border-bottom:1px solid rgba(255,255,255,.06)
     }
-    header h1 { font-size: 1.5rem; font-weight: bold; color: #fff; }
-    nav ul { list-style: none; display: flex; gap: 20px; }
-    nav li a { color: #fff; font-weight: 600; transition: color .3s; }
-    nav li a:hover { color: #e56fc6; }
+    header h1{font-size:1.5rem;font-weight:700;color:#fff}
+    nav ul{list-style:none;display:flex;gap:20px}
+    nav a{color:#fff;font-weight:600} nav a:hover{color:#e56fc6}
 
-    /* Hero */
-    .hero {
-      position: relative;
-      width: 100%;
-      height: 90vh;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; overflow: hidden;
-      padding-top: 64px; /* фикс-хедер */
+    .hero{
+      position:relative;height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;
+      padding-top:64px
     }
-    .hero::before{
-      content:""; position:absolute; inset:0; z-index:-2;
-      background-image: var(--hero);
-      background-size: cover; background-position: center;
-      transition: background-image .4s ease-in-out, opacity .4s;
-      filter: brightness(.6);
+    /* Фон через <img> с alt */
+    .hero img.bg{
+      position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.6);z-index:-2
     }
     .hero::after{
-      content:""; position:absolute; inset:0; z-index:-1;
-      background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45));
+      content:"";position:absolute;inset:0;z-index:-1;
+      background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.45))
     }
-    .hero-content { max-width: 800px; padding: 20px; }
-    .hero-content h2 { font-size: 3rem; margin-bottom: 20px; }
-    .hero-content p  { font-size: 1.2rem; margin-bottom: 30px; line-height: 1.4; }
+    .hero-content{max-width:800px;padding:20px}
+    .hero-content h2{font-size:3rem;margin-bottom:20px}
+    .hero-content p{font-size:1.2rem;margin-bottom:30px}
 
-    .btn {
-      display: inline-block; padding: 12px 30px; border-radius: 30px;
-      background-color: #e56fc6; color: #fff; font-size: 1rem; font-weight: bold;
-      transition: background-color .3s, transform .3s;
-    }
-    .btn:hover { background-color: #c850aa; transform: translateY(-1px); }
+    .btn{display:inline-block;padding:12px 30px;border-radius:30px;background:#e56fc6;color:#fff;font-weight:700}
+    .btn:hover{background:#c850aa;transform:translateY(-1px)}
 
-    /* Sections */
-    section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
-    .section-title { font-size: 2rem; margin-bottom: 20px; text-align: center; color: #e56fc6; }
+    section{padding:60px 20px;max-width:1200px;margin:0 auto}
+    .section-title{font-size:2rem;margin-bottom:20px;text-align:center;color:#e56fc6}
 
-    .features { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-    .feature-item {
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 15px; padding: 30px; flex: 1 1 250px; max-width: 300px; text-align: center;
-    }
-    .feature-item h3 { font-size: 1.3rem; margin-bottom: 10px; color: #e56fc6; }
-    .feature-item p  { font-size: 0.95rem; line-height: 1.4; }
+    .features{display:flex;flex-wrap:wrap;gap:30px;justify-content:center}
+    .feature-item{background:rgba(255,255,255,.05);border-radius:15px;padding:30px;flex:1 1 250px;max-width:300px;text-align:center}
+    .feature-item h3{font-size:1.3rem;margin-bottom:10px;color:#e56fc6}
+    .steps{display:flex;flex-wrap:wrap;gap:30px;justify-content:center}
+    .step{flex:1 1 250px;max-width:300px;background:rgba(255,255,255,.05);border-radius:15px;padding:20px;text-align:center}
 
-    .steps { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-    .step {
-      flex: 1 1 250px; max-width: 300px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 15px; padding: 20px; text-align: center;
-    }
-    .step h4 { margin-bottom: 10px; font-size: 1.2rem; color: #e56fc6; }
-    .step p  { font-size: 0.9rem; line-height: 1.4; }
+    footer{background:#000;padding:40px 20px;text-align:center}
+    footer p{font-size:.8rem;color:#777}
 
-    /* Footer */
-    footer { background-color: #000; padding: 40px 20px; text-align: center; }
-    footer p { font-size: 0.8rem; color: #777; }
-    footer a { color: #e56fc6; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .hero-content h2 { font-size: 2.2rem; }
-      .hero-content p  { font-size: 1rem; }
-      .feature-item, .step { max-width: 100%; }
+    @media (max-width:768px){
+      .hero-content h2{font-size:2.2rem}
+      .hero-content p{font-size:1rem}
+      .feature-item,.step{max-width:100%}
     }
   </style>
 </head>
@@ -129,76 +97,57 @@
         <li><a href="#about">О сервисе</a></li>
         <li><a href="#features">Возможности</a></li>
         <li><a href="#steps">Как начать</a></li>
-        <!-- Контакты ведут на реф-ссылку -->
         <li><a data-ref="tg" target="_blank" rel="nofollow noopener">Контакты</a></li>
       </ul>
     </nav>
   </header>
 
   <div class="hero" role="img" aria-label="Фон Lucid Dreams">
+    <!-- Фоновое изображение с alt -->
+    <img id="heroBg" class="bg"
+         src="assets/img/hero-1.webp.jpg"
+         alt="Неоновый фон Lucid Dreams: тёмный градиент с розово-фиолетовым свечением" loading="eager" fetchpriority="high">
     <div class="hero-content">
       <h2>Открой для себя новую реальность общения</h2>
-      <p>Lucid Dreams — виртуальные AI-подруги для тех, кто ищет яркие эмоции, поддержку и приватность. Передовые технологии ИИ обеспечивают анонимный и безопасный опыт общения 18+.</p>
+      <p>Lucid Dreams — виртуальные AI-подруги 18+. Анонимный и безопасный чат: текст, голос, видео. Запусти бота в Telegram и начни общение.</p>
       <a class="btn" data-ref="tg" target="_blank" rel="nofollow noopener">Запустить бот в Телеграм</a>
     </div>
+    <noscript>
+      <img src="assets/img/hero-1.webp.jpg" alt="Фон Lucid Dreams" style="display:none">
+    </noscript>
   </div>
 
   <section id="about">
     <h2 class="section-title">О Lucid Dreams</h2>
-    <p style="text-align:center; max-width:800px; margin:0 auto; font-size:1rem; line-height:1.5;">
-      Наши AI-подруги — виртуальные сущности, созданные алгоритмами ИИ для имитации живого общения.
-      Доступны текст, голос и видео — выбирайте формат и создавайте образ под себя.
+    <p style="text-align:center; max-width:800px; margin:0 auto;">
+      Наши AI-подруги — виртуальные собеседницы, созданные алгоритмами ИИ для имитации живого общения.
+      Доступны текст, голос и видео — выбирай формат и создавай образ под себя.
     </p>
   </section>
 
   <section id="features">
     <h2 class="section-title">Возможности сервиса</h2>
     <div class="features">
-      <div class="feature-item">
-        <h3>Персонализация</h3>
-        <p>Внешность, характер и сценарии — настраивайте как хотите. Модель подстраивается под ваши предпочтения.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Многоформатный чат</h3>
-        <p>Текст, голос и видео — выбирайте удобный формат и создавайте атмосферу настоящей встречи.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Приватность</h3>
-        <p>Анонимность и конфиденциальность. Вы контролируете данные и доступ.</p>
-      </div>
-      <div class="feature-item">
-        <h3>18+ Контент</h3>
-        <p>Для взрослых пользователей. Мир флирта и фантазий с чувством безопасности и контроля.</p>
-      </div>
+      <div class="feature-item"><h3>Персонализация</h3><p>Внешность, характер и сценарии — настраивай под себя.</p></div>
+      <div class="feature-item"><h3>Многоформатность</h3><p>Текст, голос и видео — выбирай удобный формат.</p></div>
+      <div class="feature-item"><h3>Приватность</h3><p>Анонимность и конфиденциальность по умолчанию.</p></div>
+      <div class="feature-item"><h3>18+ Контент</h3><p>Мир флирта и фантазий с чувством безопасности и контроля.</p></div>
     </div>
   </section>
 
   <section id="steps">
     <h2 class="section-title">Как начать</h2>
     <div class="steps">
-      <div class="step">
-        <h4>1. Перейдите в Телеграм</h4>
-        <p>Нажмите «Запустить бот в Телеграм» и откройте чат с ботом.</p>
-      </div>
-      <div class="step">
-        <h4>2. Зарегистрируйтесь</h4>
-        <p>Подтвердите возраст 18+ и примите условия использования.</p>
-      </div>
-      <div class="step">
-        <h4>3. Создайте подругу</h4>
-        <p>Выберите внешность, характер и сценарий. Пара минут — и готово.</p>
-      </div>
-      <div class="step">
-        <h4>4. Общайтесь</h4>
-        <p>Стартуйте переписку, голос или видео — как удобнее.</p>
-      </div>
+      <div class="step"><h4>1. Перейди в Telegram</h4><p>Нажми «Запустить бот в Телеграм» и открой чат с ботом.</p></div>
+      <div class="step"><h4>2. Подтверди 18+</h4><p>Прими условия использования и подтвердии возраст.</p></div>
+      <div class="step"><h4>3. Создай образ</h4><p>Выбери внешность, характер и сценарий общения.</p></div>
+      <div class="step"><h4>4. Общайся</h4><p>Стартуй переписку, голос или видео — как удобнее.</p></div>
     </div>
   </section>
 
   <footer id="footer">
     <p>© 2025 Lucid Dreams. Все права защищены.</p>
     <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank" rel="noopener">Правила и политика конфиденциальности</a></p>
-    <!-- Почту удалили по твоей просьбе -->
   </footer>
 
   <!-- Реферальная ссылка: меняется в одном месте -->
@@ -206,18 +155,16 @@
     const REF_URL = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi";
     document.querySelectorAll('a[data-ref="tg"]').forEach(a => a.href = REF_URL);
 
-    // Слайд-шоу фона
+    // Слайд-шоу фона через <img>
     const heroImages = [
-      "/assets/img/hero-1.webp",
-      "/assets/img/hero-2.webp",
-      "/assets/img/hero-3.webp"
+      "assets/img/hero-1.webp.jpg",
+      "assets/img/hero-2.webp.jpg",
+      "assets/img/hero-3.webp.jpg"
     ];
-    let hi = 0;
-    function setHero(i){
-      document.documentElement.style.setProperty('--hero', `url('${heroImages[i]}')`);
-    }
-    setHero(0);
-    setInterval(() => { hi = (hi + 1) % heroImages.length; setHero(hi); }, 6000);
+    const heroAlt = "Неоновый фон Lucid Dreams: тёмный градиент с розово-фиолетовым свечением";
+    let idx = 0;
+    const el = document.getElementById('heroBg');
+    setInterval(()=>{ idx=(idx+1)%heroImages.length; el.src=heroImages[idx]; el.alt=heroAlt; }, 6000);
   </script>
 
   <!-- Yandex.Metrika counter -->
