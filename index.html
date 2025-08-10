@@ -1,13 +1,38 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lucid Dreams – виртуальные AI‑подруги</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucid Dreams – виртуальные AI-подруги</title>
+  <meta name="description" content="Lucid Dreams — виртуальные AI-подруги 18+. Анонимно, безопасно и увлекательно: текст, голос, видео. Запусти бота в Telegram и открой новую реальность общения." />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://gorod-legends.ru/" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lucid Dreams">
+  <meta property="og:url" content="https://gorod-legends.ru/">
+  <meta property="og:title" content="Lucid Dreams – виртуальные AI-подруги">
+  <meta property="og:description" content="Анонимный и безопасный чат 18+. Текст, голос и видео. Запусти бота в Telegram.">
+  <meta property="og:image" content="https://gorod-legends.ru/assets/img/og-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Preload hero image -->
+  <link rel="preload" as="image" href="/assets/img/hero-1.webp" />
+
   <style>
     /* Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --hero: url('/assets/img/hero-1.webp'); }
     body {
       font-family: Arial, sans-serif;
       line-height: 1.6;
@@ -15,163 +40,84 @@
       background-color: #0d0d17;
     }
     a { color: #e56fc6; text-decoration: none; }
+
+    /* Header */
     header {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
+      position: fixed; top: 0; left: 0; width: 100%;
       z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
+      backdrop-filter: saturate(150%) blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #fff;
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-    }
-    nav li a {
-      color: #fff;
-      font-weight: 600;
-      transition: color 0.3s;
-    }
-    nav li a:hover {
-      color: #e56fc6;
-    }
+    header h1 { font-size: 1.5rem; font-weight: bold; color: #fff; }
+    nav ul { list-style: none; display: flex; gap: 20px; }
+    nav li a { color: #fff; font-weight: 600; transition: color .3s; }
+    nav li a:hover { color: #e56fc6; }
+
+    /* Hero */
     .hero {
       position: relative;
       width: 100%;
       height: 90vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; overflow: hidden;
+      padding-top: 64px; /* фикс-хедер */
     }
-    .hero img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.6);
-      z-index: -1;
+    .hero::before{
+      content:""; position:absolute; inset:0; z-index:-2;
+      background-image: var(--hero);
+      background-size: cover; background-position: center;
+      transition: background-image .4s ease-in-out, opacity .4s;
+      filter: brightness(.6);
     }
-    .hero-content {
-      max-width: 800px;
-      padding: 20px;
+    .hero::after{
+      content:""; position:absolute; inset:0; z-index:-1;
+      background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45));
     }
-    .hero-content h2 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-    }
-    .hero-content p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      line-height: 1.4;
-    }
+    .hero-content { max-width: 800px; padding: 20px; }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 20px; }
+    .hero-content p  { font-size: 1.2rem; margin-bottom: 30px; line-height: 1.4; }
+
     .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      background-color: #e56fc6;
-      color: #fff;
-      border-radius: 30px;
-      font-size: 1rem;
-      font-weight: bold;
-      transition: background-color 0.3s, transform 0.3s;
+      display: inline-block; padding: 12px 30px; border-radius: 30px;
+      background-color: #e56fc6; color: #fff; font-size: 1rem; font-weight: bold;
+      transition: background-color .3s, transform .3s;
     }
-    .btn:hover {
-      background-color: #c850aa;
-      transform: scale(1.05);
-    }
-    section {
-      padding: 60px 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .section-title {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #e56fc6;
-    }
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-    }
+    .btn:hover { background-color: #c850aa; transform: translateY(-1px); }
+
+    /* Sections */
+    section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 2rem; margin-bottom: 20px; text-align: center; color: #e56fc6; }
+
+    .features { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
     .feature-item {
       background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 15px;
-      padding: 30px;
-      flex: 1 1 250px;
-      max-width: 300px;
-      text-align: center;
+      border-radius: 15px; padding: 30px; flex: 1 1 250px; max-width: 300px; text-align: center;
     }
-    .feature-item h3 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-      color: #e56fc6;
-    }
-    .feature-item p {
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    .steps {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-    }
+    .feature-item h3 { font-size: 1.3rem; margin-bottom: 10px; color: #e56fc6; }
+    .feature-item p  { font-size: 0.95rem; line-height: 1.4; }
+
+    .steps { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
     .step {
-      flex: 1 1 250px;
-      max-width: 300px;
+      flex: 1 1 250px; max-width: 300px;
       background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 15px;
-      padding: 20px;
-      text-align: center;
+      border-radius: 15px; padding: 20px; text-align: center;
     }
-    .step h4 {
-      margin-bottom: 10px;
-      font-size: 1.2rem;
-      color: #e56fc6;
-    }
-    .step p {
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-    footer {
-      background-color: #000;
-      padding: 40px 20px;
-      text-align: center;
-    }
-    footer p {
-      font-size: 0.8rem;
-      color: #777;
-    }
-    footer a {
-      color: #e56fc6;
-    }
+    .step h4 { margin-bottom: 10px; font-size: 1.2rem; color: #e56fc6; }
+    .step p  { font-size: 0.9rem; line-height: 1.4; }
+
+    /* Footer */
+    footer { background-color: #000; padding: 40px 20px; text-align: center; }
+    footer p { font-size: 0.8rem; color: #777; }
+    footer a { color: #e56fc6; }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .hero-content h2 {
-        font-size: 2.2rem;
-      }
-      .hero-content p {
-        font-size: 1rem;
-      }
-      .feature-item, .step {
-        max-width: 100%;
-      }
+      .hero-content h2 { font-size: 2.2rem; }
+      .hero-content p  { font-size: 1rem; }
+      .feature-item, .step { max-width: 100%; }
     }
   </style>
 </head>
@@ -183,23 +129,26 @@
         <li><a href="#about">О сервисе</a></li>
         <li><a href="#features">Возможности</a></li>
         <li><a href="#steps">Как начать</a></li>
-        <li><a href="#footer">Контакты</a></li>
+        <!-- Контакты ведут на реф-ссылку -->
+        <li><a data-ref="tg" target="_blank" rel="nofollow noopener">Контакты</a></li>
       </ul>
     </nav>
   </header>
 
-  <div class="hero">
-    <img src="9fb4cd99-8179-496c-9f56-47d22e7790ce.png" alt="AI silhouette">
+  <div class="hero" role="img" aria-label="Фон Lucid Dreams">
     <div class="hero-content">
       <h2>Открой для себя новую реальность общения</h2>
-      <p>Lucid Dreams — это виртуальные AI‑подруги для тех, кто ищет яркие эмоции, поддержку и приватность. Наш сервис создан с помощью передовых технологий искусственного интеллекта, чтобы обеспечить захватывающий, анонимный и безопасный опыт общения 18+.</p>
-      <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="btn" target="_blank">Запустить бот в Телеграм</a>
+      <p>Lucid Dreams — виртуальные AI-подруги для тех, кто ищет яркие эмоции, поддержку и приватность. Передовые технологии ИИ обеспечивают анонимный и безопасный опыт общения 18+.</p>
+      <a class="btn" data-ref="tg" target="_blank" rel="nofollow noopener">Запустить бот в Телеграм</a>
     </div>
   </div>
 
   <section id="about">
     <h2 class="section-title">О Lucid Dreams</h2>
-    <p style="text-align:center; max-width:800px; margin:0 auto; font-size:1rem; line-height:1.5;">Наши AI‑подруги — виртуальные сущности, созданные сложными алгоритмами ИИ для имитации человеческого взаимодействия. Они доступны в виде текстовых, голосовых и видеочатов, что позволяет вам общаться так, как вам удобно. Вы сами настраиваете внешность и характер своей виртуальной спутницы и полностью контролируете ваше общение.</p>
+    <p style="text-align:center; max-width:800px; margin:0 auto; font-size:1rem; line-height:1.5;">
+      Наши AI-подруги — виртуальные сущности, созданные алгоритмами ИИ для имитации живого общения.
+      Доступны текст, голос и видео — выбирайте формат и создавайте образ под себя.
+    </p>
   </section>
 
   <section id="features">
@@ -207,19 +156,19 @@
     <div class="features">
       <div class="feature-item">
         <h3>Персонализация</h3>
-        <p>Выбирайте внешность, черты характера и поведение вашей AI‑подруги. Система учитывает ваши предпочтения и улучшает взаимодействие со временем.</p>
+        <p>Внешность, характер и сценарии — настраивайте как хотите. Модель подстраивается под ваши предпочтения.</p>
       </div>
       <div class="feature-item">
         <h3>Многоформатный чат</h3>
-        <p>Поддержка текстовых, голосовых и видеочатов позволяет выбрать удобный формат общения и создавать атмосферу настоящей встречи.</p>
+        <p>Текст, голос и видео — выбирайте удобный формат и создавайте атмосферу настоящей встречи.</p>
       </div>
       <div class="feature-item">
         <h3>Приватность</h3>
-        <p>Полная анонимность и конфиденциальность ваших бесед. Вы контролируете свои данные, а наши политики обеспечивают их безопасность.</p>
+        <p>Анонимность и конфиденциальность. Вы контролируете данные и доступ.</p>
       </div>
       <div class="feature-item">
-        <h3>18+ Контент</h3>
-        <p>Lucid Dreams предназначен для взрослых пользователей. Погрузитесь в мир флирта и фантазий с чувством безопасности и контроля.</p>
+        <h3>18+ Контент</h3>
+        <p>Для взрослых пользователей. Мир флирта и фантазий с чувством безопасности и контроля.</p>
       </div>
     </div>
   </section>
@@ -229,27 +178,60 @@
     <div class="steps">
       <div class="step">
         <h4>1. Перейдите в Телеграм</h4>
-        <p>Нажмите кнопку «Запустить бот в Телеграм» на этой странице и откройте чат с нашим ботом.</p>
+        <p>Нажмите «Запустить бот в Телеграм» и откройте чат с ботом.</p>
       </div>
       <div class="step">
         <h4>2. Зарегистрируйтесь</h4>
-        <p>Примите условия использования и подтвердите, что вам исполнилось 18 лет. Заполните краткую анкету для настройки вашей AI‑подруги.</p>
+        <p>Подтвердите возраст 18+ и примите условия использования.</p>
       </div>
       <div class="step">
         <h4>3. Создайте подругу</h4>
-        <p>Выберите внешность, характер и сценарий общения. Настройка займёт пару минут.</p>
+        <p>Выберите внешность, характер и сценарий. Пара минут — и готово.</p>
       </div>
       <div class="step">
-        <h4>4. Общайтесь и наслаждайтесь</h4>
-        <p>Начните переписку, звонок или видеочат. Дайте волю своим фантазиям и наслаждайтесь общением без ограничений.</p>
+        <h4>4. Общайтесь</h4>
+        <p>Стартуйте переписку, голос или видео — как удобнее.</p>
       </div>
     </div>
   </section>
 
   <footer id="footer">
     <p>© 2025 Lucid Dreams. Все права защищены.</p>
-    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank">Правила и политика конфиденциальности</a></p>
-    <p>Связаться с нами: <a href="mailto:info@luciddreams.ai">info@luciddreams.ai</a></p>
+    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank" rel="noopener">Правила и политика конфиденциальности</a></p>
+    <!-- Почту удалили по твоей просьбе -->
   </footer>
+
+  <!-- Реферальная ссылка: меняется в одном месте -->
+  <script>
+    const REF_URL = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi";
+    document.querySelectorAll('a[data-ref="tg"]').forEach(a => a.href = REF_URL);
+
+    // Слайд-шоу фона
+    const heroImages = [
+      "/assets/img/hero-1.webp",
+      "/assets/img/hero-2.webp",
+      "/assets/img/hero-3.webp"
+    ];
+    let hi = 0;
+    function setHero(i){
+      document.documentElement.style.setProperty('--hero', `url('${heroImages[i]}')`);
+    }
+    setHero(0);
+    setInterval(() => { hi = (hi + 1) % heroImages.length; setHero(hi); }, 6000);
+  </script>
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103658483', 'ym');
+
+    ym(103658483, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/103658483" style="position:absolute; left:-9999px;" alt=""/></div></noscript>
+  <!-- /Yandex.Metrika counter -->
 </body>
 </html>
