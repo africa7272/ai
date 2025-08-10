@@ -1,4 +1,4 @@
-name: Build static indexes
+name: Build static lists (year archives)
 
 on:
   push:
@@ -9,11 +9,17 @@ on:
       - '.github/workflows/build.yml'
   workflow_dispatch:
 
+# даём токену права на запись независимо от настроек по умолчанию
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # чтобы можно было делать pull --rebase
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -21,13 +27,25 @@ jobs:
           python-version: '3.11'
 
       - name: Run builder
-        run: |
-          python tools/build.py
+        run: python tools/build.py
 
       - name: Commit & push generated files
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # подтянем удалённые коммиты на всякий случай
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          git fetch origin "$BRANCH"
+          git checkout "$BRANCH"
+          git pull --rebase origin "$BRANCH"
+
           git add -A
-          git commit -m "chore(build): regenerate lists, sitemap, rss" || echo "Nothing to commit"
-          git push
+          # коммитим только если есть изменения
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(build): update indexes, year archives, sitemap, rss"
+            git push origin HEAD:"$BRANCH"
+          else
+            echo "No changes to commit"
+          fi
