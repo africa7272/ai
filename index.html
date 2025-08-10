@@ -169,39 +169,41 @@
   </section>
 
   <footer id="footer">
-    <p>© 2025 Lucid Dreams. Все права защищены.</p>
-    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank" rel="noopener">Правила и политика конфиденциальности</a></p>
-    <!-- === Guides sidebar (bottom) === -->
+    <!-- === Guides sidebar (buttons) === -->
 <section id="guides" class="guides">
   <div class="wrap">
     <h2>Гид и FAQ</h2>
+
     <div class="guides-grid">
       <aside class="tabs" role="tablist" aria-label="Гид">
-        <button class="tab is-active" data-tab="new" role="tab" aria-selected="true">Новое</button>
-        <button class="tab" data-tab="start" role="tab" aria-selected="false">Старт</button>
-        <button class="tab" data-tab="format" role="tab" aria-selected="false">Форматы</button>
-        <button class="tab" data-tab="safe" role="tab" aria-selected="false">Безопасность/FAQ</button>
+        <button class="tab is-active" data-tab="new"  role="tab" aria-selected="true">Новое</button>
+        <button class="tab"            data-tab="start" role="tab">Старт</button>
+        <button class="tab"            data-tab="format" role="tab">Форматы</button>
+        <button class="tab"            data-tab="safe" role="tab">Безопасность/FAQ</button>
       </aside>
 
       <div class="panes">
-        <div class="pane is-active" id="pane-new" role="tabpanel" aria-labelledby="new">
+        <div class="pane is-active" id="pane-new" role="tabpanel">
           <ul class="links" id="guides-new"></ul>
         </div>
+
         <div class="pane" id="pane-start" role="tabpanel">
           <ul class="links">
-            <li><a href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
-            <li><a href="/articles/kak-ustanovit-obnovit-telegram.html">Как установить/обновить Telegram</a></li>
+            <li><a class="btn-pill" href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
+            <li><a class="btn-pill" href="/articles/kak-ustanovit-obnovit-telegram.html">Как установить/обновить Telegram</a></li>
           </ul>
         </div>
+
         <div class="pane" id="pane-format" role="tabpanel">
           <ul class="links">
-            <li><a href="/articles/tekst-golos-video.html">Текст, голос или видео — что выбрать?</a></li>
+            <li><a class="btn-pill" href="/articles/tekst-golos-video.html">Текст, голос или видео — что выбрать?</a></li>
           </ul>
         </div>
+
         <div class="pane" id="pane-safe" role="tabpanel">
           <ul class="links">
-            <li><a href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность (18+)</a></li>
-            <li><a href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
+            <li><a class="btn-pill" href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность (18+)</a></li>
+            <li><a class="btn-pill" href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
           </ul>
         </div>
       </div>
@@ -215,15 +217,28 @@
   .guides{padding:60px 20px;border-top:1px solid #262636}
   .guides .wrap{max-width:1200px;margin:0 auto}
   .guides h2{font-size:2rem;margin:0 0 16px;color:#e56fc6;text-align:center}
-  .guides-grid{display:grid;gap:18px;grid-template-columns:220px 1fr}
-  .tabs{display:flex;flex-direction:column;gap:8px}
-  .tab{background:#10101a;border:1px solid #262636;color:#f5f5f5;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer}
-  .tab.is-active{border-color:#e56fc6}
-  .panes .pane{display:none;border:1px solid #262636;background:#10101a;border-radius:12px;padding:12px}
+
+  .guides-grid{display:grid;gap:18px;grid-template-columns:240px 1fr}
+  .tabs{display:flex;flex-direction:column;gap:10px}
+  .tab{background:#10101a;border:1px solid #262636;color:#f5f5f5;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;transition:.2s}
+  .tab.is-active{border-color:#e56fc6;box-shadow:0 0 0 2px rgba(229,111,198,.15) inset}
+
+  .panes .pane{display:none;border:1px solid #262636;background:#10101a;border-radius:16px;padding:16px}
   .panes .pane.is-active{display:block}
-  .links{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-  .links li a{color:#e56fc6}
-  .more{text-align:center;margin-top:12px}
+
+  /* кнопки-плитки */
+  .links{list-style:none;margin:0;padding:0;display:grid;gap:12px;
+         grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .links .btn-pill{
+    display:block;text-align:center;padding:12px 14px;border-radius:14px;
+    border:1px solid #e56fc6;background:#0f0f19;color:#e56fc6;font-weight:700;
+    transition:transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .links .btn-pill:hover{background:#e56fc6;color:#0d0d17;transform:translateY(-1px);
+    box-shadow:0 6px 20px rgba(229,111,198,.18)}
+  .more{text-align:center;margin-top:14px}
+  .more a{color:#e56fc6;text-decoration:underline}
+
   @media (max-width:900px){
     .guides-grid{grid-template-columns:1fr}
     .tabs{flex-direction:row;overflow:auto}
@@ -242,7 +257,7 @@
     });
   });
 
-  // Автоподбор "Нового": берём первые 6 ссылок из /articles/
+  // «Новое»: подтягиваем первые 6 ссылок из /articles/ и рисуем как кнопки
   (async function(){
     try{
       const res = await fetch('/articles/');
@@ -256,36 +271,26 @@
           const link = document.createElement('a');
           link.href = a.getAttribute('href');
           link.textContent = a.textContent.trim();
+          link.className = 'btn-pill';
           li.appendChild(link);
           ul.appendChild(li);
         });
       } else {
-        document.getElementById('guides-new').innerHTML = `
-          <li><a href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
-          <li><a href="/articles/tekst-golos-video.html">Текст, голос или видео</a></li>
-          <li><a href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность</a></li>
-          <li><a href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
-          <li><a href="/articles/kak-ustanovit-obnovit-telegram.html">Установка/обновление Telegram</a></li>`;
+        // запасной вариант
+        ul.innerHTML = `
+          <li><a class="btn-pill" href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
+          <li><a class="btn-pill" href="/articles/tekst-golos-video.html">Текст, голос или видео</a></li>
+          <li><a class="btn-pill" href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность</a></li>
+          <li><a class="btn-pill" href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
+          <li><a class="btn-pill" href="/articles/kak-ustanovit-obnovit-telegram.html">Установка/обновление Telegram</a></li>`;
       }
     }catch(e){ console.warn('Guides fetch failed', e); }
   })();
 </script>
+<!-- === /Guides sidebar (buttons) === -->
 
-<!-- Микроразметка списка (необязательно, но приятно для SEO) -->
-<script type="application/ld+json">
-{
- "@context":"https://schema.org",
- "@type":"ItemList",
- "itemListElement":[
-  {"@type":"ListItem","position":1,"url":"https://gorod-legends.ru/articles/kak-nachat-lucid-dreams.html"},
-  {"@type":"ListItem","position":2,"url":"https://gorod-legends.ru/articles/tekst-golos-video.html"},
-  {"@type":"ListItem","position":3,"url":"https://gorod-legends.ru/articles/bezopasnost-i-privatnost-18.html"},
-  {"@type":"ListItem","position":4,"url":"https://gorod-legends.ru/articles/faq-bot-cache-vpn.html"},
-  {"@type":"ListItem","position":5,"url":"https://gorod-legends.ru/articles/kak-ustanovit-obnovit-telegram.html"}
- ]
-}
-</script>
-<!-- === /Guides sidebar === -->
+    <p>© 2025 Lucid Dreams. Все права защищены.</p>
+    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank" rel="noopener">Правила и политика конфиденциальности</a></p>
 
   </footer>
 
