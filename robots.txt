@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gorod-legends.ru/sitemap.xml
+Host: gorod-legends.ru
