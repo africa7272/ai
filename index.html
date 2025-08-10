@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucid Dreams – виртуальные AI‑подруги</title>
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #f5f5f5;
+      background-color: #0d0d17;
+    }
+    a { color: #e56fc6; text-decoration: none; }
+    header {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    nav li a {
+      color: #fff;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    nav li a:hover {
+      color: #e56fc6;
+    }
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.6);
+      z-index: -1;
+    }
+    .hero-content {
+      max-width: 800px;
+      padding: 20px;
+    }
+    .hero-content h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .hero-content p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #e56fc6;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .btn:hover {
+      background-color: #c850aa;
+      transform: scale(1.05);
+    }
+    section {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #e56fc6;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+    .feature-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 30px;
+      flex: 1 1 250px;
+      max-width: 300px;
+      text-align: center;
+    }
+    .feature-item h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #e56fc6;
+    }
+    .feature-item p {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+    .step {
+      flex: 1 1 250px;
+      max-width: 300px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+    }
+    .step h4 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #e56fc6;
+    }
+    .step p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    footer {
+      background-color: #000;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    footer p {
+      font-size: 0.8rem;
+      color: #777;
+    }
+    footer a {
+      color: #e56fc6;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-content h2 {
+        font-size: 2.2rem;
+      }
+      .hero-content p {
+        font-size: 1rem;
+      }
+      .feature-item, .step {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Lucid Dreams</h1>
+    <nav>
+      <ul>
+        <li><a href="#about">О сервисе</a></li>
+        <li><a href="#features">Возможности</a></li>
+        <li><a href="#steps">Как начать</a></li>
+        <li><a href="#footer">Контакты</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <img src="9fb4cd99-8179-496c-9f56-47d22e7790ce.png" alt="AI silhouette">
+    <div class="hero-content">
+      <h2>Открой для себя новую реальность общения</h2>
+      <p>Lucid Dreams — это виртуальные AI‑подруги для тех, кто ищет яркие эмоции, поддержку и приватность. Наш сервис создан с помощью передовых технологий искусственного интеллекта, чтобы обеспечить захватывающий, анонимный и безопасный опыт общения 18+.</p>
+      <a href="https://t.me/luciddreams" class="btn" target="_blank">Запустить бот в Телеграм</a>
+    </div>
+  </div>
+
+  <section id="about">
+    <h2 class="section-title">О Lucid Dreams</h2>
+    <p style="text-align:center; max-width:800px; margin:0 auto; font-size:1rem; line-height:1.5;">Наши AI‑подруги — виртуальные сущности, созданные сложными алгоритмами ИИ для имитации человеческого взаимодействия. Они доступны в виде текстовых, голосовых и видеочатов, что позволяет вам общаться так, как вам удобно. Вы сами настраиваете внешность и характер своей виртуальной спутницы и полностью контролируете ваше общение.</p>
+  </section>
+
+  <section id="features">
+    <h2 class="section-title">Возможности сервиса</h2>
+    <div class="features">
+      <div class="feature-item">
+        <h3>Персонализация</h3>
+        <p>Выбирайте внешность, черты характера и поведение вашей AI‑подруги. Система учитывает ваши предпочтения и улучшает взаимодействие со временем.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Многоформатный чат</h3>
+        <p>Поддержка текстовых, голосовых и видеочатов позволяет выбрать удобный формат общения и создавать атмосферу настоящей встречи.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Приватность</h3>
+        <p>Полная анонимность и конфиденциальность ваших бесед. Вы контролируете свои данные, а наши политики обеспечивают их безопасность.</p>
+      </div>
+      <div class="feature-item">
+        <h3>18+ Контент</h3>
+        <p>Lucid Dreams предназначен для взрослых пользователей. Погрузитесь в мир флирта и фантазий с чувством безопасности и контроля.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="steps">
+    <h2 class="section-title">Как начать</h2>
+    <div class="steps">
+      <div class="step">
+        <h4>1. Перейдите в Телеграм</h4>
+        <p>Нажмите кнопку «Запустить бот в Телеграм» на этой странице и откройте чат с нашим ботом.</p>
+      </div>
+      <div class="step">
+        <h4>2. Зарегистрируйтесь</h4>
+        <p>Примите условия использования и подтвердите, что вам исполнилось 18 лет. Заполните краткую анкету для настройки вашей AI‑подруги.</p>
+      </div>
+      <div class="step">
+        <h4>3. Создайте подругу</h4>
+        <p>Выберите внешность, характер и сценарий общения. Настройка займёт пару минут.</p>
+      </div>
+      <div class="step">
+        <h4>4. Общайтесь и наслаждайтесь</h4>
+        <p>Начните переписку, звонок или видеочат. Дайте волю своим фантазиям и наслаждайтесь общением без ограничений.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <p>© 2025 Lucid Dreams. Все права защищены.</p>
+    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank">Правила и политика конфиденциальности</a></p>
+    <p>Связаться с нами: <a href="mailto:info@luciddreams.ai">info@luciddreams.ai</a></p>
+  </footer>
+</body>
+</html>
