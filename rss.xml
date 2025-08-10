@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Lucid Dreams — обновления</title>
+    <link>https://gorod-legends.ru/</link>
+    <description>Новости и обновления Lucid Dreams: функции, акции, важные изменения.</description>
+    <language>ru-ru</language>
+    <lastBuildDate>Mon, 11 Aug 2025 00:00:00 +0300</lastBuildDate>
+    <ttl>180</ttl>
+
+    <item>
+      <title>Запуск сайта Lucid Dreams</title>
+      <link>https://gorod-legends.ru/</link>
+      <guid isPermaLink="true">https://gorod-legends.ru/</guid>
+      <pubDate>Mon, 11 Aug 2025 00:00:00 +0300</pubDate>
+      <description>Мы запустили сайт Lucid Dreams — виртуальные AI-подруги 18+. Подписывайтесь на обновления.</description>
+    </item>
+  </channel>
+</rss>
