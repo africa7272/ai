@@ -6,4 +6,22 @@
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
+  <url>
+    <loc>https://gorod-legends.ru/articles/kak-nachat-lucid-dreams.html</loc>
+    <lastmod>2025-08-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://gorod-legends.ru/articles/tekst-golos-video.html</loc>
+    <lastmod>2025-08-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://gorod-legends.ru/articles/personalizaciya-obraza.html</loc>
+    <lastmod>2025-08-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
 </urlset>
