@@ -9,43 +9,43 @@ on:
       - '.github/workflows/build.yml'
   workflow_dispatch:
 
-# даём токену права на запись независимо от настроек по умолчанию
+# даём токену экшена право писать в репозиторий
 permissions:
   contents: write
+
+# не запускать несколько билдов одновременно
+concurrency:
+  group: build-static
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # чтобы можно было делать pull --rebase
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Run builder
+      - name: Run builder (generate /articles index, year archives, sitemap, rss)
         run: python tools/build.py
 
       - name: Commit & push generated files
         run: |
           set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # подтянем удалённые коммиты на всякий случай
-          BRANCH="${GITHUB_REF_NAME:-main}"
-          git fetch origin "$BRANCH"
-          git checkout "$BRANCH"
-          git pull --rebase origin "$BRANCH"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          # коммитим только если есть изменения
           if ! git diff --cached --quiet; then
             git commit -m "chore(build): update indexes, year archives, sitemap, rss"
-            git push origin HEAD:"$BRANCH"
+            git push origin HEAD:main
           else
             echo "No changes to commit"
           fi
