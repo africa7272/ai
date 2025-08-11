@@ -4,6 +4,55 @@ import re, html, datetime
 from pathlib import Path
 from email.utils import format_datetime
 
+# === Нормализация ссылок на Telegram-бота по всему сайту ===
+def normalize_tg_links():
+    """
+    Во всех .html:
+      - любые href на https://t.me/luciddreams?start=... → заменяем на каноническую
+      - добавляем target="_blank" и rel="nofollow noopener" на эти ссылки
+    Другие t.me (например, SafeNetVpn_bot) не трогаем.
+    """
+    import re
+    from pathlib import Path
+
+    TG_URL = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi"
+    root = Path(__file__).resolve().parents[1]  # корень репозитория
+
+    changed = 0
+    # любые варианты ссылки на нашего бота
+    href_any = re.compile(r'https://t\.me/luciddreams\?start=[^"\s<]+', re.I)
+    # <a ... href="TG_URL" ...> и <a ... href='TG_URL' ...>
+    href_canonical_dq = re.compile(r'<a\b([^>]*?)href="' + re.escape(TG_URL) + r'"([^>]*)>', re.I)
+    href_canonical_sq = re.compile(r"<a\b([^>]*?)href='" + re.escape(TG_URL) + r"'([^>]*)>", re.I)
+
+    def add_attrs(m, quote='"'):
+        before, after = m.group(1), m.group(2)
+        tag = f"<a{before}href={quote}{TG_URL}{quote}{after}>"
+        low = tag.lower()
+        if "target=" not in low:
+            tag = tag[:-1] + ' target="_blank">'
+        if "rel=" not in low:
+            tag = tag[:-1] + ' rel="nofollow noopener">'
+        return tag
+
+    for p in root.rglob("*.html"):
+        txt = p.read_text(encoding="utf-8", errors="ignore")
+        orig = txt
+
+        # 1) заменить любые варианты ссылки на каноническую
+        txt = href_any.sub(TG_URL, txt)
+
+        # 2) добавить target/rel, если их нет
+        txt = href_canonical_dq.sub(lambda m: add_attrs(m, '"'), txt)
+        txt = href_canonical_sq.sub(lambda m: add_attrs(m, "'"), txt)
+
+        if txt != orig:
+            p.write_text(txt, encoding="utf-8")
+            changed += 1
+
+    print(f"Normalized Telegram links in {changed} files.")
+
+
 ROOT = Path(__file__).resolve().parents[1]
 SITE = "https://gorod-legends.ru"
 ART_DIR = ROOT / "articles"
@@ -144,6 +193,13 @@ def build_rss(items, limit=20):
     write(ROOT / "rss.xml", "\n".join(parts))
 
 def main():
+        normalize_tg_links()  # <-- добавить эту строку
+    items = collect_articles()
+    build_articles_index(items)
+    build_year_archives(items)
+    build_sitemap(items)
+    build_rss(items)
+    print(f"Built {len(items)} articles → index, year archives, sitemap, rss.")
     items = collect_articles()
     build_articles_index(items)
     build_year_archives(items)
