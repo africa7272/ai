@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import re, html, datetime
 from pathlib import Path
 from email.utils import format_datetime
+
+# ---- базовые константы ----
+ROOT = Path(__file__).resolve().parents[1]
+SITE = "https://gorod-legends.ru"
+ART_DIR = ROOT / "articles"
+LATEST_LIMIT = 50
+BUILD_AT = datetime.datetime.utcnow()
 
 # === Нормализация ссылок на Telegram-бота по всему сайту ===
 def normalize_tg_links():
     """
     Во всех .html:
-      - любые href на https://t.me/luciddreams?start=... → заменяем на каноническую
+      - любые href на https://t.me/luciddreams?start=... → на каноническую
       - добавляем target="_blank" и rel="nofollow noopener" на эти ссылки
-    Другие t.me (например, SafeNetVpn_bot) не трогаем.
+    Другие t.me (например SafeNetVpn_bot) не трогаем.
     """
-    import re
-    from pathlib import Path
-
     TG_URL = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi"
-    root = Path(__file__).resolve().parents[1]  # корень репозитория
 
     changed = 0
-    # любые варианты ссылки на нашего бота
     href_any = re.compile(r'https://t\.me/luciddreams\?start=[^"\s<]+', re.I)
-    # <a ... href="TG_URL" ...> и <a ... href='TG_URL' ...>
     href_canonical_dq = re.compile(r'<a\b([^>]*?)href="' + re.escape(TG_URL) + r'"([^>]*)>', re.I)
     href_canonical_sq = re.compile(r"<a\b([^>]*?)href='" + re.escape(TG_URL) + r"'([^>]*)>", re.I)
 
@@ -35,13 +37,12 @@ def normalize_tg_links():
             tag = tag[:-1] + ' rel="nofollow noopener">'
         return tag
 
-    for p in root.rglob("*.html"):
+    for p in ROOT.rglob("*.html"):
         txt = p.read_text(encoding="utf-8", errors="ignore")
         orig = txt
 
         # 1) заменить любые варианты ссылки на каноническую
         txt = href_any.sub(TG_URL, txt)
-
         # 2) добавить target/rel, если их нет
         txt = href_canonical_dq.sub(lambda m: add_attrs(m, '"'), txt)
         txt = href_canonical_sq.sub(lambda m: add_attrs(m, "'"), txt)
@@ -52,27 +53,22 @@ def normalize_tg_links():
 
     print(f"Normalized Telegram links in {changed} files.")
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SITE = "https://gorod-legends.ru"
-ART_DIR = ROOT / "articles"
-LATEST_LIMIT = 50
-BUILD_AT = datetime.datetime.utcnow()
-
+# ---- утилиты и сборка ----
 def read_meta(text: str):
     def m(name):
-        mo = re.search(rf'<meta\s+name=["\']{re.escape(name)}["\']\s+content=["\'](.*?)["\']', text, flags=re.I|re.S)
+        mo = re.search(
+            rf'<meta\s+name=["\']{re.escape(name)}["\']\s+content=["\'](.*?)["\']',
+            text, flags=re.I | re.S
+        )
         return mo.group(1).strip() if mo else ""
-    tmo = re.search(r"<title>(.*?)</title>", text, flags=re.I|re.S)
+    tmo = re.search(r"<title>(.*?)</title>", text, flags=re.I | re.S)
     title = html.unescape(tmo.group(1).strip()) if tmo else ""
-    desc  = m("description")
-    date  = m("date")  # ожидаем YYYY-MM-DD
-    # Фолбек, если даты нет — ставим текущую
+    desc = m("description")
+    date = m("date")  # ожидаем YYYY-MM-DD
     if not date:
         date = BUILD_AT.strftime("%Y-%m-%d")
-    # h1 как фолбек заголовка
     if not title:
-        h1 = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.I|re.S)
+        h1 = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.I | re.S)
         if h1:
             title = re.sub("<.*?>", "", h1.group(1)).strip()
     return {"title": title, "desc": desc, "date": date}
@@ -93,7 +89,6 @@ def collect_articles():
             "date": meta["date"],
             "year": y,
         })
-    # Новые первыми
     items.sort(key=lambda x: x["date"], reverse=True)
     return items
 
@@ -136,7 +131,10 @@ nav a{{margin-right:10px}}
 
 def build_articles_index(items):
     latest = items[:LATEST_LIMIT]
-    html_out = layout_list("Статьи Lucid Dreams — последние материалы", latest, f"{SITE}/articles/")
+    html_out = layout_list(
+        "Статьи Lucid Dreams — последние материалы",
+        latest, f"{SITE}/articles/"
+    )
     write(ROOT / "articles" / "index.html", html_out)
 
 def build_year_archives(items):
@@ -144,7 +142,6 @@ def build_year_archives(items):
     for it in items:
         by_year.setdefault(it["year"], []).append(it)
     for y, arr in by_year.items():
-        # уже отсортированы по дате убыв.
         title = f"Архив {y} — статьи Lucid Dreams"
         url = f"{SITE}/articles/{y}/"
         html_out = layout_list(title, arr, url)
@@ -152,14 +149,14 @@ def build_year_archives(items):
 
 def build_sitemap(items):
     urls = [
-        {"loc": f"{SITE}/", "prio":"0.9"},
-        {"loc": f"{SITE}/articles/", "prio":"0.7"},
+        {"loc": f"{SITE}/", "prio": "0.9"},
+        {"loc": f"{SITE}/articles/", "prio": "0.7"},
     ]
     years = sorted({it["year"] for it in items})
     for y in years:
-        urls.append({"loc": f"{SITE}/articles/{y}/", "prio":"0.6"})
+        urls.append({"loc": f"{SITE}/articles/{y}/", "prio": "0.6"})
     for it in items:
-        urls.append({"loc": f"{SITE}{it['path']}", "prio":"0.75"})
+        urls.append({"loc": f"{SITE}{it['path']}", "prio": "0.75"})
     today = BUILD_AT.strftime("%Y-%m-%d")
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
@@ -193,13 +190,7 @@ def build_rss(items, limit=20):
     write(ROOT / "rss.xml", "\n".join(parts))
 
 def main():
-        normalize_tg_links()  # <-- добавить эту строку
-    items = collect_articles()
-    build_articles_index(items)
-    build_year_archives(items)
-    build_sitemap(items)
-    build_rss(items)
-    print(f"Built {len(items)} articles → index, year archives, sitemap, rss.")
+    normalize_tg_links()
     items = collect_articles()
     build_articles_index(items)
     build_year_archives(items)
