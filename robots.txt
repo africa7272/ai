@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
 
+# Sitemap
 Sitemap: https://gorod-legends.ru/sitemap.xml
-Host: gorod-legends.ru
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /.git/
