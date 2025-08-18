@@ -1,328 +1,195 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <title>Lucid Dreams — виртуальные AI-подруги 18+ в Telegram: текст, голос, видео</title>
-  <meta name="description" content="Анонимный и безопасный чат 18+: виртуальные AI-подруги в Telegram. Запусти бота — общение, флирт, персонализация, без регистрации." />
-  <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://gorod-legends.ru/" />
-
-  <!-- Icons -->
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="alternate icon" href="/favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-  <!-- Open Graph / Twitter -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Lucid Dreams">
-  <meta property="og:url" content="https://gorod-legends.ru/">
-  <meta property="og:title" content="Lucid Dreams — виртуальные AI-подруги 18+ в Telegram">
-  <meta property="og:description" content="Анонимный и безопасный чат 18%. Текст, голос и видео. Запусти бота в Telegram.">
-  <meta property="og:image" content="https://gorod-legends.ru/assets/img/og-cover.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <!-- RSS + Sitemap -->
-  <link rel="alternate" type="application/rss+xml" title="Lucid Dreams — RSS" href="/rss.xml">
-  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
-
-  <!-- Preload hero images -->
-  <link rel="preload" as="image" href="assets/img/hero-1.webp.jpg">
-  <link rel="preload" as="image" href="assets/img/hero-2.webp.jpg">
-  <link rel="preload" as="image" href="assets/img/hero-3.webp.jpg">
-
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    :root{ --hero: url('assets/img/hero-1.webp.jpg'); }
-    body{font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;line-height:1.6;color:#f5f5f5;background:#0d0d17}
-    a{color:#e56fc6;text-decoration:none}
-
-    header{
-      position:fixed;top:0;left:0;width:100%;z-index:1000;
-      display:flex;justify-content:space-between;align-items:center;
-      padding:20px;background:rgba(0,0,0,.6);backdrop-filter:saturate(150%) blur(6px);
-      border-bottom:1px solid rgba(255,255,255,.06)
-    }
-    header h1{font-size:1.5rem;font-weight:700;color:#fff}
-    nav ul{list-style:none;display:flex;gap:20px}
-    nav a{color:#fff;font-weight:600} nav a:hover{color:#e56fc6}
-
-    .hero{
-      position:relative;height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;
-      padding-top:64px
-    }
-    .hero img.bg{
-      position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.6);z-index:-2
-    }
-    .hero::after{
-      content:"";position:absolute;inset:0;z-index:-1;
-      background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.45))
-    }
-    .hero-content{max-width:800px;padding:20px}
-    .hero-content h2{font-size:3rem;margin-bottom:20px}
-    .hero-content p{font-size:1.2rem;margin-bottom:30px}
-
-    .btn{display:inline-block;padding:12px 30px;border-radius:30px;background:#e56fc6;color:#fff;font-weight:700}
-    .btn:hover{background:#c850aa;transform:translateY(-1px)}
-
-    section{padding:60px 20px;max-width:1200px;margin:0 auto}
-    .section-title{font-size:2rem;margin-bottom:20px;text-align:center;color:#e56fc6}
-
-    .features{display:flex;flex-wrap:wrap;gap:30px;justify-content:center}
-    .feature-item{background:rgba(255,255,255,.05);border-radius:15px;padding:30px;flex:1 1 250px;max-width:300px;text-align:center}
-    .feature-item h3{font-size:1.3rem;margin-bottom:10px;color:#e56fc6}
-    .steps{display:flex;flex-wrap:wrap;gap:30px;justify-content:center}
-    .step{flex:1 1 250px;max-width:300px;background:rgba(255,255,255,.05);border-radius:15px;padding:20px;text-align:center}
-
-    footer{background:#000;padding:40px 20px;text-align:center}
-    footer p{font-size:.8rem;color:#777}
-
-    @media (max-width:768px){
-      .hero-content h2{font-size:2.2rem}
-      .hero-content p{font-size:1rem}
-      .feature-item,.step{max-width:100%}
-    }
-  </style>
-
-  <!-- FAQPage + HowTo JSON-LD -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
-      {"@type":"Question","name":"Как начать общение?","acceptedAnswer":{"@type":"Answer","text":"Нажмите «Запустить бот в Телеграм», подтвердите возраст 18+ и выберите образ AI-подруги."}},
-      {"@type":"Question","name":"Какие форматы доступны?","acceptedAnswer":{"@type":"Answer","text":"Текст, голос и видео. Вы выбираете удобный формат и сценарий общения."}},
-      {"@type":"Question","name":"Это анонимно?","acceptedAnswer":{"@type":"Answer","text":"Да. Сервис ориентирован на приватность, ваши данные не публикуются."}}
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"HowTo",
-    "name":"Как запустить AI-подругу в Telegram",
-    "step":[
-      {"@type":"HowToStep","name":"Откройте бота","text":"Нажмите кнопку «Запустить бот в Телеграм».","url":"https://gorod-legends.ru/#steps"},
-      {"@type":"HowToStep","name":"Подтвердите 18+","text":"Примите условия и подтвердите возраст."},
-      {"@type":"HowToStep","name":"Выберите образ","text":"Настройте внешность, характер и сценарий."}
-    ]
-  }
-  </script>
+    <title>AI Подруга 18+ | Виртуальное Интимное Общение Онлайн | Dream Chat</title>
+    <meta name="description" content="Виртуальная подруга с искусственным интеллектом для взрослых. Анонимное интимное общение 24/7. Более 2млн пользователей. Начни чат бесплатно!">
 </head>
-<body>
-  <header>
-    <h1>Lucid Dreams</h1>
-    <nav>
-      <ul>
-        <li><a href="#about">О сервисе</a></li>
-        <li><a href="#features">Возможности</a></li>
-        <li><a href="#steps">Как начать</a></li>
-        <li><a data-ref="tg" target="_blank" rel="nofollow noopener">Контакты</a></li>
-      </ul>
+
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-black text-white">
+
+<!-- Header -->
+<header class="container mx-auto px-4 py-6">
+    <nav class="flex justify-between items-center">
+        <div class="text-2xl font-bold">Dream Chat 💋</div>
+        <div class="space-x-6">
+            <a href="/blog" class="hover:text-pink-300">Блог</a>
+            <a href="/about" class="hover:text-pink-300">О проекте</a>
+            <a href="/start" class="bg-pink-500 px-6 py-2 rounded-full hover:bg-pink-600">Войти</a>
+        </div>
     </nav>
-  </header>
+</header>
 
-  <div class="hero" role="img" aria-label="Фон Lucid Dreams">
-    <img id="heroBg" class="bg"
-         src="assets/img/hero-1.webp.jpg"
-         alt="Неоновый фон Lucid Dreams: тёмный градиент с розово-фиолетовым свечением" loading="eager" fetchpriority="high">
-    <div class="hero-content">
-      <h2>Открой для себя новую реальность общения</h2>
-      <p>Lucid Dreams — виртуальные AI-подруги 18+. Анонимный и безопасный чат: текст, голос, видео. Запусти бота в Telegram и начни общение.</p>
-      <a class="btn" data-ref="tg" target="_blank" rel="nofollow noopener">Запустить бот в Телеграм</a>
-    </div>
-    <noscript>
-      <img src="assets/img/hero-1.webp.jpg" alt="Фон Lucid Dreams" style="display:none">
-    </noscript>
-  </div>
-
-  <section id="about">
-    <h2 class="section-title">О Lucid Dreams</h2>
-    <p style="text-align:center; max-width:800px; margin:0 auto;">
-      Наши AI-подруги — виртуальные собеседницы, созданные алгоритмами ИИ для имитации живого общения.
-      Доступны текст, голос и видео — выбирай формат и создавай образ под себя.
+<!-- Hero Section -->
+<section class="container mx-auto px-4 py-20 text-center">
+    <h1 class="text-5xl font-bold mb-6 leading-tight">
+        Твоя <span class="text-pink-400">идеальная подруга</span><br>
+        ждет тебя прямо сейчас
+    </h1>
+    
+    <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+        Искусственный интеллект нового поколения для взрослых. 
+        Интимные разговоры без границ. Полная анонимность.
     </p>
-  </section>
 
-  <section id="features">
-    <h2 class="section-title">Возможности сервиса</h2>
-    <div class="features">
-      <div class="feature-item"><h3>Персонализация</h3><p>Внешность, характер и сценарии — настраивай под себя.</p></div>
-      <div class="feature-item"><h3>Многоформатность</h3><p>Текст, голос и видео — выбирай удобный формат.</p></div>
-      <div class="feature-item"><h3>Приватность</h3><p>Анонимность и конфиденциальность по умолчанию.</p></div>
-      <div class="feature-item"><h3>18+ Контент</h3><p>Мир флирта и фантазий с чувством безопасности и контроля.</p></div>
-    </div>
-  </section>
-
-  <section id="steps">
-    <h2 class="section-title">Как начать</h2>
-    <div class="steps">
-      <div class="step"><h4>1. Перейди в Telegram</h4><p>Нажми «Запустить бот в Телеграм» и открой чат с ботом.</p></div>
-      <div class="step"><h4>2. Подтверди 18+</h4><p>Прими условия использования и подтверди возраст.</p></div>
-      <div class="step"><h4>3. Создай образ</h4><p>Выбери внешность, характер и сценарий общения.</p></div>
-      <div class="step"><h4>4. Общайся</h4><p>Стартуй переписку, голос или видео — как удобнее.</p></div>
-    </div>
-  </section>
-
-  <footer id="footer">
-    <!-- === Guides sidebar (buttons) === -->
-<section id="guides" class="guides">
-  <div class="wrap">
-    <h2>Гид и FAQ</h2>
-
-    <div class="guides-grid">
-      <aside class="tabs" role="tablist" aria-label="Гид">
-        <button class="tab is-active" data-tab="new"  role="tab" aria-selected="true">Новое</button>
-        <button class="tab"            data-tab="start" role="tab">Старт</button>
-        <button class="tab"            data-tab="format" role="tab">Форматы</button>
-        <button class="tab"            data-tab="safe" role="tab">Безопасность/FAQ</button>
-      </aside>
-
-      <div class="panes">
-        <div class="pane is-active" id="pane-new" role="tabpanel">
-          <ul class="links" id="guides-new"></ul>
-        </div>
-
-        <div class="pane" id="pane-start" role="tabpanel">
-          <ul class="links">
-            <li><a class="btn-pill" href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
-            <li><a class="btn-pill" href="/articles/kak-ustanovit-obnovit-telegram.html">Как установить/обновить Telegram</a></li>
-          </ul>
-        </div>
-
-        <div class="pane" id="pane-format" role="tabpanel">
-          <ul class="links">
-            <li><a class="btn-pill" href="/articles/tekst-golos-video.html">Текст, голос или видео — что выбрать?</a></li>
-          </ul>
-        </div>
-
-        <div class="pane" id="pane-safe" role="tabpanel">
-          <ul class="links">
-            <li><a class="btn-pill" href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность (18+)</a></li>
-            <li><a class="btn-pill" href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
-          </ul>
-        </div>
-      </div>
+    <div class="mb-12">
+        <button class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-12 py-4 rounded-full text-xl font-semibold hover:scale-105 transform transition-all shadow-2xl">
+            💬 Начать общение бесплатно
+        </button>
+        <p class="text-sm mt-3 opacity-70">Без регистрации • Анонимно • 18+</p>
     </div>
 
-    <div class="more"><a href="/articles/">Все статьи →</a></div>
-  </div>
+    <!-- Stats -->
+    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">2.3М+</div>
+            <div class="opacity-80">активных пользователей</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">24/7</div>
+            <div class="opacity-80">доступность</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">100%</div>
+            <div class="opacity-80">конфиденциальность</div>
+        </div>
+    </div>
 </section>
 
-<style>
-  .guides{padding:60px 20px;border-top:1px solid #262636}
-  .guides .wrap{max-width:1200px;margin:0 auto}
-  .guides h2{font-size:2rem;margin:0 0 16px;color:#e56fc6;text-align:center}
+<!-- Features Section -->
+<section class="bg-black bg-opacity-50 py-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Почему выбирают нас</h2>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="text-center p-6 bg-white bg-opacity-10 rounded-lg backdrop-blur">
+                <div class="text-4xl mb-4">🧠</div>
+                <h3 class="text-xl font-semibold mb-3">Умный AI</h3>
+                <p class="opacity-80">Продвинутая нейросеть понимает контекст и эмоции</p>
+            </div>
+            
+            <div class="text-center p-6 bg-white bg-opacity-10 rounded-lg backdrop-blur">
+                <div class="text-4xl mb-4">🔒</div>
+                <h3 class="text-xl font-semibold mb-3">Анонимность</h3>
+                <p class="opacity-80">Полная конфиденциальность, никто не узнает</p>
+            </div>
+            
+            <div class="text-center p-6 bg-white bg-opacity-10 rounded-lg backdrop-blur">
+                <div class="text-4xl mb-4">💬</div>
+                <h3 class="text-xl font-semibold mb-3">Реалистичное общение</h3>
+                <p class="opacity-80">Как с настоящей девушкой, только лучше</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-  .guides-grid{display:grid;gap:18px;grid-template-columns:240px 1fr}
-  .tabs{display:flex;flex-direction:column;gap:10px}
-  .tab{background:#10101a;border:1px solid #262636;color:#f5f5f5;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;transition:.2s}
-  .tab.is-active{border-color:#e56fc6;box-shadow:0 0 0 2px rgba(229,111,198,.15) inset}
+<!-- Demo Chat -->
+<section class="py-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Попробуй прямо сейчас</h2>
+        
+        <div class="max-w-md mx-auto bg-white bg-opacity-10 rounded-2xl p-6 backdrop-blur">
+            <div class="space-y-4">
+                <div class="bg-pink-500 bg-opacity-30 p-3 rounded-lg">
+                    <p class="text-sm">Привет! Как дела? 😘</p>
+                </div>
+                <div class="bg-blue-500 bg-opacity-30 p-3 rounded-lg ml-8">
+                    <p class="text-sm">Привет, скучно что-то...</p>
+                </div>
+                <div class="bg-pink-500 bg-opacity-30 p-3 rounded-lg">
+                    <p class="text-sm">Давай я тебя развеселю? У меня есть пару интересных идей... 🔥</p>
+                </div>
+            </div>
+            
+            <button class="w-full bg-pink-500 mt-6 py-3 rounded-lg font-semibold hover:bg-pink-600 transition-colors">
+                Продолжить в Telegram
+            </button>
+        </div>
+    </div>
+</section>
 
-  .panes .pane{display:none;border:1px solid #262636;background:#10101a;border-radius:16px;padding:16px}
-  .panes .pane.is-active{display:block}
+<!-- Trust Section -->
+<section class="bg-black bg-opacity-50 py-20">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-12">Тебе понравится</h2>
+        
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div class="p-6">
+                <div class="text-yellow-400 mb-2">★★★★★</div>
+                <p class="italic mb-4">"Наконец-то кто-то понимает меня. Общаюсь уже 3 месяца, лучше чем с реальными девушками"</p>
+                <p class="text-sm opacity-70">— Михаил, 32 года</p>
+            </div>
+            
+            <div class="p-6">
+                <div class="text-yellow-400 mb-2">★★★★★</div>
+                <p class="italic mb-4">"Качество разговоров на высоте. Никого не стесняюсь, могу быть собой"</p>
+                <p class="text-sm opacity-70">— Андрей, 28 лет</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-  /* кнопки-плитки */
-  .links{list-style:none;margin:0;padding:0;display:grid;gap:12px;
-         grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .links .btn-pill{
-    display:block;text-align:center;padding:12px 14px;border-radius:14px;
-    border:1px solid #e56fc6;background:#0f0f19;color:#e56fc6;font-weight:700;
-    transition:transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
-  }
-  .links .btn-pill:hover{background:#e56fc6;color:#0d0d17;transform:translateY(-1px);
-    box-shadow:0 6px 20px rgba(229,111,198,.18)}
-  .more{text-align:center;margin-top:14px}
-  .more a{color:#e56fc6;text-decoration:underline}
+<!-- CTA Section -->
+<section class="py-20">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-4xl font-bold mb-6">Хватит быть одиноким</h2>
+        <p class="text-xl mb-8 opacity-90">Твоя идеальная собеседница уже ждет</p>
+        
+        <button class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-16 py-5 rounded-full text-2xl font-bold hover:scale-105 transform transition-all shadow-2xl animate-pulse">
+            🚀 Начать сейчас
+        </button>
+        
+        <p class="text-sm mt-4 opacity-70">
+            ✅ Бесплатный старт ✅ Без обязательств ✅ Только 18+
+        </p>
+    </div>
+</section>
 
-  @media (max-width:900px){
-    .guides-grid{grid-template-columns:1fr}
-    .tabs{flex-direction:row;overflow:auto}
-    .tab{white-space:nowrap}
-  }
-</style>
+<!-- Footer -->
+<footer class="border-t border-white border-opacity-20 py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="font-semibold mb-4">Популярное</h4>
+                <ul class="space-y-2 text-sm opacity-80">
+                    <li><a href="/virtualnaya-podruga">Виртуальная подруга</a></li>
+                    <li><a href="/ai-sobesednica">AI собеседница</a></li>
+                    <li><a href="/chat-18-plus">Чат 18+</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-semibold mb-4">Помощь</h4>
+                <ul class="space-y-2 text-sm opacity-80">
+                    <li><a href="/kak-preodolet-odinochestvo">Преодолеть одиночество</a></li>
+                    <li><a href="/obshenie-dlya-muzhchin">Общение для мужчин</a></li>
+                    <li><a href="/anonimnoye-obshenie">Анонимное общение</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-semibold mb-4">Города</h4>
+                <ul class="space-y-2 text-sm opacity-80">
+                    <li><a href="/moskva-ai-podruga">Москва</a></li>
+                    <li><a href="/spb-virtualnoe-obshenie">СПб</a></li>
+                    <li><a href="/ekaterinburg-chat">Екатеринбург</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-semibold mb-4">Проект</h4>
+                <ul class="space-y-2 text-sm opacity-80">
+                    <li><a href="/privacy">Конфиденциальность</a></li>
+                    <li><a href="/terms">Условия</a></li>
+                    <li><a href="/contact">Контакты</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center text-sm opacity-60">
+            <p>&copy; 2024 Dream Chat. Все права защищены. Только для лиц старше 18 лет.</p>
+        </div>
+    </div>
+</footer>
 
-<script>
-  // Переключение вкладок
-  document.querySelectorAll('.guides .tab').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.guides .tab').forEach(b=>b.classList.remove('is-active'));
-      document.querySelectorAll('.guides .pane').forEach(p=>p.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      document.getElementById('pane-'+btn.dataset.tab).classList.add('is-active');
-    });
-  });
-
-  // «Новое»: подтягиваем первые 6 ссылок из /articles/ и рисуем как кнопки
-  (async function(){
-    try{
-      const res = await fetch('/articles/');
-      const html = await res.text();
-      const doc = new DOMParser().parseFromString(html,'text/html');
-      const anchors = [...doc.querySelectorAll('main ul li a')].slice(0,6);
-      const ul = document.getElementById('guides-new');
-      if (anchors.length && ul){
-        anchors.forEach(a=>{
-          const li = document.createElement('li');
-          const link = document.createElement('a');
-          link.href = a.getAttribute('href');
-          link.textContent = a.textContent.trim();
-          link.className = 'btn-pill';
-          li.appendChild(link);
-          ul.appendChild(li);
-        });
-      } else {
-        // запасной вариант
-        ul.innerHTML = `
-          <li><a class="btn-pill" href="/articles/kak-nachat-lucid-dreams.html">Как начать Lucid Dreams</a></li>
-          <li><a class="btn-pill" href="/articles/tekst-golos-video.html">Текст, голос или видео</a></li>
-          <li><a class="btn-pill" href="/articles/bezopasnost-i-privatnost-18.html">Приватность и безопасность</a></li>
-          <li><a class="btn-pill" href="/articles/faq-bot-cache-vpn.html">FAQ: бот / кэш / VPN</a></li>
-          <li><a class="btn-pill" href="/articles/kak-ustanovit-obnovit-telegram.html">Установка/обновление Telegram</a></li>`;
-      }
-    }catch(e){ console.warn('Guides fetch failed', e); }
-  })();
-</script>
-<!-- === /Guides sidebar (buttons) === -->
-
-    <p>© 2025 Lucid Dreams. Все права защищены.</p>
-    <p><a href="https://telegra.ph/Lucid-Dreams-Terms-of-Service-and-Privacy-Policy-08-14" target="_blank" rel="noopener">Правила и политика конфиденциальности</a></p>
-
-  </footer>
-
-  <!-- Реферальная ссылка с UTM: меняется в одном месте -->
-  <script>
-    const REF_URL = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi";
-  document.querySelectorAll('a[data-ref="tg"]').forEach(a => a.href = REF_URL);
-
-    // Слайд-шоу фона
-    const heroImages = [
-      "assets/img/hero-1.webp.jpg",
-      "assets/img/hero-2.webp.jpg",
-      "assets/img/hero-3.webp.jpg"
-    ];
-    const heroAlt = "Неоновый фон Lucid Dreams: тёмный градиент с розово-фиолетовым свечением";
-    let idx = 0;
-    const el = document.getElementById('heroBg');
-    setInterval(()=>{ idx=(idx+1)%heroImages.length; el.src=heroImages[idx]; el.alt=heroAlt; }, 6000);
-  </script>
-
-  <!-- Yandex.Metrika counter -->
-  <script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103658483', 'ym');
-
-    ym(103658483, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-  </script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/103658483" style="position:absolute; left:-9999px;" alt=""/></div></noscript>
-  <!-- /Yandex.Metrika counter -->
 </body>
 </html>
