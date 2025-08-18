@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Clean URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^.]+)$ pages/$1.html [L]
+
+# Specific redirects
+RewriteRule ^ai-sobesednica/?$ pages/ai-sobesednica.html [L]
+RewriteRule ^virtualnaya-podruga/?$ pages/virtualnaya-podruga.html [L]
