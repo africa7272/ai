@@ -6,8 +6,8 @@ plugins:
 # SEO settings
 title: "Dream Chat - AI Подруга для Взрослых"
 description: "Виртуальная подруга с искусственным интеллектом. Интимное общение 24/7. Анонимно и безопасно."
-url: "https://alice2772.github.io"
-baseurl: "/ai"
+url: "https://gorod-legends.ru"          # ← Ваш домен
+baseurl: ""                             # ← Пустой, так как сайт в корне
 
 # Build settings
 markdown: kramdown
