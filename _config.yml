@@ -19,3 +19,12 @@ collections:
   pages:
     output: true
     permalink: /:name/
+
+# Permalink structure
+permalink: /:basename/
+
+# Collections for pages
+collections:
+  pages:
+    output: true
+    permalink: /:name/
