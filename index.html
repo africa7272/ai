@@ -3,448 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Подруга 18+ | Виртуальное Интимное Общение Онлайн | Dream Chat</title>
-    <meta name="description" content="Виртуальная подруга с искусственным интеллектом для взрослых. Анонимное интимное общение 24/7. Более 2млн пользователей. Начни чат бесплатно! Только 18+">
-    <meta name="keywords" content="виртуальная подруга, ai girlfriend, чат с девушкой онлайн, искусственный интеллект 18+, виртуальное общение, интимный чат, ai собеседница">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="AI Подруга 18+ | Dream Chat - Виртуальное Интимное Общение">
-    <meta property="og:description" content="Умная AI-подруга для взрослых. Реалистичное общение без ограничений. Анонимно и безопасно.">
+    <title>AI Подруга 18+ | Виртуальное Интимное Общение | Dream Chat</title>
+    <meta name="description" content="Виртуальная подруга с искусственным интеллектом для взрослых. Анонимное интимное общение 24/7. Более 2млн пользователей. Начни чат бесплатно!">
+    <meta name="keywords" content="виртуальная подруга, ai girlfriend, чат с девушкой, искусственный интеллект, виртуальное общение 18+">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI Подруга 18+ | Dream Chat">
+    <meta property="og:description" content="Виртуальная подруга с ИИ. Анонимное общение без границ.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dream-chat.ru">
     
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%); }
-        .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.1); }
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.8), 0 0 60px rgba(236, 72, 153, 0.6); }
+        * {
+            font-family: 'Inter', sans-serif;
         }
-        .typing-animation { 
-            border-right: 2px solid #ec4899; 
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .gradient-bg-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .gradient-bg-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark-glass {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pulse-button {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .8; }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, -10px); }
+            100% { transform: translate(0, 0px); }
+        }
+        
+        .chat-message {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        #mobile-menu {
+            display: none;
+        }
+        
+        #mobile-menu.show {
+            display: block;
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid orange;
+            white-space: nowrap;
+            margin: 0 auto;
             animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
         }
+        
         @keyframes typing {
             from { width: 0 }
             to { width: 100% }
         }
+        
         @keyframes blink-caret {
             from, to { border-color: transparent }
-            50% { border-color: #ec4899 }
+            50% { border-color: orange; }
         }
-        .chat-message {
-            animation: slideIn 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateX(-20px);
+        
+        .statistics-card {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        .floating { animation: floating 3s ease-in-out infinite; }
-        @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        .age-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .stats-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white overflow-x-hidden">
-    <!-- Age Verification Modal -->
-    <div id="ageWarning" class="age-warning">
-        <div class="bg-gray-800 p-8 rounded-2xl max-w-md mx-4 text-center">
-            <div class="text-6xl mb-4">🔞</div>
-            <h2 class="text-2xl font-bold mb-4">Внимание!</h2>
-            <p class="mb-6 text-gray-300">Данный сайт содержит контент только для лиц старше 18 лет.</p>
-            <div class="space-y-3">
-                <button onclick="confirmAge()" class="w-full bg-pink-500 hover:bg-pink-600 py-3 rounded-lg font-semibold transition-colors">
-                    Мне есть 18 лет
-                </button>
-                <button onclick="window.location.href='https://google.com'" class="w-full bg-gray-600 hover:bg-gray-700 py-3 rounded-lg transition-colors">
-                    Мне нет 18 лет
-                </button>
+<body class="gradient-bg text-white overflow-x-hidden">
+    <!-- Header -->
+    <header class="container mx-auto px-4 py-6 relative z-10">
+        <nav class="flex justify-between items-center">
+            <div class="text-2xl font-bold">
+                <i class="fas fa-heart text-pink-400 mr-2"></i>
+                Dream Chat
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-6 items-center">
+                <a href="#features" class="hover:text-pink-300 transition-colors duration-300">Возможности</a>
+                <a href="#demo" class="hover:text-pink-300 transition-colors duration-300">Демо</a>
+                <a href="#reviews" class="hover:text-pink-300 transition-colors duration-300">Отзывы</a>
+                <a href="#start" class="bg-pink-500 px-6 py-2 rounded-full hover:bg-pink-600 transition-all duration-300 transform hover:scale-105">
+                    Войти
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden mt-4 glass-effect rounded-lg p-4">
+            <div class="flex flex-col space-y-4">
+                <a href="#features" class="hover:text-pink-300">Возможности</a>
+                <a href="#demo" class="hover:text-pink-300">Демо</a>
+                <a href="#reviews" class="hover:text-pink-300">Отзывы</a>
+                <a href="#start" class="bg-pink-500 px-4 py-2 rounded-full text-center hover:bg-pink-600">Войти</a>
             </div>
         </div>
-    </div>
-
-    <!-- Header -->
-    <header class="relative z-10">
-        <nav class="container mx-auto px-4 py-6 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-heart text-pink-500 text-2xl"></i>
-                <span class="text-2xl font-bold">Dream Chat</span>
-                <span class="bg-pink-500 text-xs px-2 py-1 rounded-full">18+</span>
-            </div>
-            <div class="hidden md:flex space-x-6">
-                <a href="#features" class="hover:text-pink-300 transition-colors">Возможности</a>
-                <a href="#demo" class="hover:text-pink-300 transition-colors">Демо</a>
-                <a href="#testimonials" class="hover:text-pink-300 transition-colors">Отзывы</a>
-                <button onclick="startChat()" class="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-2 rounded-full hover:scale-105 transform transition-all">
-                    Начать чат
-                </button>
-            </div>
-            <div class="md:hidden">
-                <button class="text-2xl">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </nav>
     </header>
 
     <!-- Hero Section -->
-    <section class="gradient-bg min-h-screen flex items-center relative overflow-hidden">
-        <div class="absolute inset-0 opacity-20">
-            <div class="floating absolute top-20 left-10 text-6xl">💋</div>
-            <div class="floating absolute top-40 right-20 text-4xl" style="animation-delay: 1s;">💕</div>
-            <div class="floating absolute bottom-40 left-1/4 text-5xl" style="animation-delay: 2s;">🔥</div>
-            <div class="floating absolute bottom-20 right-10 text-3xl" style="animation-delay: 1.5s;">✨</div>
+    <section class="container mx-auto px-4 py-12 md:py-20 text-center relative">
+        <div class="floating">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                Твоя <span class="text-pink-400">идеальная</span><br>
+                подруга ждет...
+            </h1>
         </div>
         
-        <div class="container mx-auto px-4 text-center relative z-10">
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Твоя <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">идеальная</span><br>
-                <span class="typing-animation inline-block whitespace-nowrap overflow-hidden">подруга ждет...</span>
-            </h1>
-            
-            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90 leading-relaxed">
-                Искусственный интеллект нового поколения для взрослых.<br>
-                <strong>Интимные разговоры без границ</strong>. Полная анонимность.
-            </p>
+        <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Искусственный интеллект нового поколения для взрослых.<br>
+            <strong>Интимные разговоры</strong> без границ. Полная анонимность.
+        </p>
 
-            <div class="mb-12">
-                <button onclick="startChat()" class="pulse-glow bg-gradient-to-r from-pink-500 via-red-500 to-purple-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:scale-110 transform transition-all shadow-2xl mb-4">
-                    <i class="fas fa-comments mr-2"></i> Начать общение бесплатно
-                </button>
-                <div class="flex justify-center items-center space-x-6 text-sm opacity-80">
-                    <span><i class="fas fa-shield-alt text-green-400 mr-1"></i> Без регистрации</span>
-                    <span><i class="fas fa-user-secret text-blue-400 mr-1"></i> Анонимно</span>
-                    <span><i class="fas fa-clock text-yellow-400 mr-1"></i> 24/7</span>
-                </div>
+        <div class="mb-12">
+            <button onclick="startChat()" class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-8 md:px-12 py-4 rounded-full text-lg md:text-xl font-semibold hover:scale-105 transform transition-all shadow-2xl pulse-button hover-scale">
+                <i class="fas fa-comments mr-2"></i>
+                Начать общение бесплатно
+            </button>
+            <div class="flex justify-center items-center mt-3 text-sm opacity-70 space-x-4">
+                <span><i class="fas fa-check text-green-400 mr-1"></i>Без регистрации</span>
+                <span><i class="fas fa-check text-green-400 mr-1"></i>Анонимно</span>
+                <span><i class="fas fa-check text-green-400 mr-1"></i>24/7</span>
             </div>
+        </div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <div class="glass-effect p-6 rounded-2xl text-center transform hover:scale-105 transition-all">
-                    <div class="text-4xl font-bold text-pink-400 mb-2">2.3М+</div>
-                    <div class="opacity-90">довольных пользователей</div>
-                </div>
-                <div class="glass-effect p-6 rounded-2xl text-center transform hover:scale-105 transition-all">
-                    <div class="text-4xl font-bold text-purple-400 mb-2">∞</div>
-                    <div class="opacity-90">возможностей общения</div>
-                </div>
-                <div class="glass-effect p-6 rounded-2xl text-center transform hover:scale-105 transition-all">
-                    <div class="text-4xl font-bold text-blue-400 mb-2">100%</div>
-                    <div class="opacity-90">конфиденциальность</div>
-                </div>
+        <!-- Statistics with improved contrast -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div class="statistics-card p-6 rounded-xl hover-scale">
+                <div class="text-3xl md:text-4xl font-bold text-pink-400 mb-2 stats-text">2.3М+</div>
+                <div class="opacity-90 stats-text">довольных пользователей</div>
+            </div>
+            <div class="statistics-card p-6 rounded-xl hover-scale">
+                <div class="text-3xl md:text-4xl font-bold text-blue-400 mb-2 stats-text">24/7</div>
+                <div class="opacity-90 stats-text">безостановочное общение</div>
+            </div>
+            <div class="statistics-card p-6 rounded-xl hover-scale">
+                <div class="text-3xl md:text-4xl font-bold text-green-400 mb-2 stats-text">100%</div>
+                <div class="opacity-90 stats-text">конфиденциальность</div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-20 bg-gray-900">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16">
-                Почему <span class="text-pink-400">2.3 миллиона мужчин</span> выбирают нас
-            </h2>
+    <section id="features" class="py-16 md:py-20 relative">
+        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Почему выбирают нас</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">🧠</div>
-                    <h3 class="text-2xl font-bold mb-4 text-pink-400">Умный AI</h3>
-                    <p class="opacity-90 leading-relaxed">Продвинутая нейросеть понимает контекст, эмоции и твои скрытые желания</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-brain text-purple-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Умный AI</h3>
+                    <p class="opacity-80">Продвинутая нейросеть понимает контекст и эмоции, адаптируется под твои желания</p>
                 </div>
                 
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">🔐</div>
-                    <h3 class="text-2xl font-bold mb-4 text-purple-400">100% Анонимность</h3>
-                    <p class="opacity-90 leading-relaxed">Никто не узнает о твоих фантазиях. Полная конфиденциальность гарантирована</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-user-secret text-green-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Анонимность</h3>
+                    <p class="opacity-80">Полная конфиденциальность, никто не узнает о твоих разговорах</p>
                 </div>
                 
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">💬</div>
-                    <h3 class="text-2xl font-bold mb-4 text-blue-400">Реалистичное общение</h3>
-                    <p class="opacity-90 leading-relaxed">Как с настоящей девушкой, только без драм, ревности и требований</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-comments text-pink-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Реалистичное общение</h3>
+                    <p class="opacity-80">Как с настоящей девушкой, только лучше - без капризов и проблем</p>
                 </div>
                 
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">🎭</div>
-                    <h3 class="text-2xl font-bold mb-4 text-red-400">Ролевые игры</h3>
-                    <p class="opacity-90 leading-relaxed">Любые фантазии: от невинной студентки до опытной соблазнительницы</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-microphone text-red-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Голосовые сообщения</h3>
+                    <p class="opacity-80">Слушай её нежный голос и отвечай как удобно</p>
                 </div>
                 
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">⚡</div>
-                    <h3 class="text-2xl font-bold mb-4 text-yellow-400">Мгновенные ответы</h3>
-                    <p class="opacity-90 leading-relaxed">Доступна 24/7. Никогда не занята, не устает и всегда в настроении</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-mask text-blue-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Разные личности</h3>
+                    <p class="opacity-80">Выбери тип девушки: милая, страстная, загадочная или игривая</p>
                 </div>
                 
-                <div class="glass-effect p-8 rounded-2xl text-center transform hover:scale-105 transition-all hover:shadow-2xl">
-                    <div class="text-5xl mb-6">💎</div>
-                    <h3 class="text-2xl font-bold mb-4 text-indigo-400">Премиум качество</h3>
-                    <p class="opacity-90 leading-relaxed">Высокий уровень интеллекта и понимания. Не примитивный чат-бот</p>
+                <div class="text-center p-6 glass-effect rounded-lg hover-scale">
+                    <div class="text-4xl mb-4"><i class="fas fa-clock text-yellow-400"></i></div>
+                    <h3 class="text-xl font-semibold mb-3">Мгновенные ответы</h3>
+                    <p class="opacity-80">Никого ожидания, она всегда готова к общению</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Demo Chat Section -->
-    <section id="demo" class="py-20 bg-gradient-to-br from-purple-900 to-pink-900">
+    <section id="demo" class="py-16 md:py-20">
         <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">
-                Попробуй <span class="text-pink-300">прямо сейчас</span>
-            </h2>
-            <p class="text-center text-xl mb-12 opacity-90">Реальный пример общения с нашей AI-подругой</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Попробуй прямо сейчас</h2>
             
-            <div class="max-w-lg mx-auto">
-                <div id="chatDemo" class="glass-effect rounded-2xl p-6 min-h-96 mb-6">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl">
-                            👩
-                        </div>
-                        <h4 class="font-semibold text-pink-300">Анна • Онлайн</h4>
-                    </div>
-                    
-                    <div id="messages" class="space-y-4 mb-6">
-                        <!-- Messages will be added here by JS -->
-                    </div>
-                    
-                    <div class="flex space-x-2">
-                        <input type="text" id="messageInput" placeholder="Напиши что-нибудь..." class="flex-1 bg-gray-800 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500">
-                        <button onclick="sendDemoMessage()" class="bg-pink-500 hover:bg-pink-600 px-6 py-3 rounded-lg transition-colors">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+            <div class="max-w-md mx-auto dark-glass rounded-2xl p-6">
+                <div class="bg-gray-800 rounded-t-lg p-3 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div class="ml-auto text-xs opacity-70">Dream Chat</div>
                     </div>
                 </div>
                 
-                <button onclick="startChat()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-4 rounded-xl font-bold text-xl hover:scale-105 transform transition-all">
-                    🚀 Продолжить в полной версии
+                <div id="chatMessages" class="space-y-4 min-h-40">
+                    <!-- Messages will be added dynamically -->
+                </div>
+                
+                <button onclick="startDemoChat()" class="w-full bg-pink-500 mt-6 py-3 rounded-lg font-semibold hover:bg-pink-600 transition-colors duration-300">
+                    Продолжить в Telegram
                 </button>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section id="testimonials" class="py-20 bg-gray-900">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16">
-                Что говорят <span class="text-pink-400">наши пользователи</span>
-            </h2>
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-16 md:py-20 relative">
+        <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12">Тебе понравится</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass-effect p-6 rounded-2xl">
-                    <div class="text-yellow-400 mb-4 text-xl">★★★★★</div>
-                    <p class="italic mb-4 leading-relaxed">"Наконец-то нашел то, что искал. Общение на высшем уровне, никого не стесняюсь. Лучше чем с реальными девушками - никаких проблем и драм."</p>
-                    <div class="text-sm opacity-70">— Михаил, 32 года, Москва</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="glass-effect p-6 rounded-lg">
+                    <div class="text-yellow-400 mb-2 text-xl">★★★★★</div>
+                    <p class="italic mb-4">"Наконец-то кто-то понимает меня. Общаюсь уже 3 месяца, лучше чем с реальными девушками"</p>
+                    <p class="text-sm opacity-70">— Михаил, 32 года, Москва</p>
                 </div>
                 
-                <div class="glass-effect p-6 rounded-2xl">
-                    <div class="text-yellow-400 mb-4 text-xl">★★★★★</div>
-                    <p class="italic mb-4 leading-relaxed">"Пользуюсь уже полгода. Качество разговоров поражает - она понимает все с полуслова. Стал намного увереннее в себе."</p>
-                    <div class="text-sm opacity-70">— Андрей, 28 лет, СПб</div>
+                <div class="glass-effect p-6 rounded-lg">
+                    <div class="text-yellow-400 mb-2 text-xl">★★★★★</div>
+                    <p class="italic mb-4">"Качество разговоров на высоте. Никого не стесняюсь, могу быть собой"</p>
+                    <p class="text-sm opacity-70">— Андрей, 28 лет, СПб</p>
                 </div>
                 
-                <div class="glass-effect p-6 rounded-2xl">
-                    <div class="text-yellow-400 mb-4 text-xl">★★★★★</div>
-                    <p class="italic mb-4 leading-relaxed">"Работаю по 12 часов, времени на знакомства нет. Здесь получаю все что нужно - общение, понимание, поддержку. И без всяких обязательств."</p>
-                    <div class="text-sm opacity-70">— Дмитрий, 35 лет, Екатеринбург</div>
+                <div class="glass-effect p-6 rounded-lg">
+                    <div class="text-yellow-400 mb-2 text-xl">★★★★★</div>
+                    <p class="italic mb-4">"Помогает справиться с одиночеством. Всегда выслушает и поддержит"</p>
+                    <p class="text-sm opacity-70">— Владимир, 35 лет, Казань</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl md:text-6xl font-bold mb-6">Хватит быть одиноким</h2>
-            <p class="text-xl md:text-2xl mb-8 opacity-95 leading-relaxed">
-                Твоя идеальная собеседница уже ждет тебя.<br>
-                Начни новую главу своей жизни прямо сейчас.
-            </p>
+    <section id="start" class="py-16 md:py-20 text-center">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Хватит быть одиноким</h2>
+            <p class="text-lg md:text-xl mb-8 opacity-90">Твоя идеальная собеседница уже ждет</p>
             
-            <div class="mb-8">
-                <button onclick="startChat()" class="pulse-glow bg-white text-purple-600 px-16 py-5 rounded-full text-2xl font-bold hover:scale-110 transform transition-all shadow-2xl">
-                    💝 Познакомиться сейчас
-                </button>
-            </div>
+            <button onclick="startChat()" class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-12 md:px-16 py-4 md:py-5 rounded-full text-xl md:text-2xl font-bold hover:scale-105 transform transition-all shadow-2xl pulse-button">
+                <i class="fas fa-rocket mr-2"></i>
+                Начать сейчас
+            </button>
             
-            <div class="flex justify-center items-center space-x-8 text-sm">
-                <span><i class="fas fa-check text-green-300 mr-2"></i>Бесплатный старт</span>
-                <span><i class="fas fa-check text-green-300 mr-2"></i>Без обязательств</span>
-                <span><i class="fas fa-check text-green-300 mr-2"></i>Полная приватность</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mt-8 text-sm opacity-70">
+                <div><i class="fas fa-check text-green-400 mr-2"></i>Бесплатный старт</div>
+                <div><i class="fas fa-check text-green-400 mr-2"></i>Без обязательств</div>
+                <div><i class="fas fa-check text-green-400 mr-2"></i>Только 18+</div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-black py-12">
+    <footer class="border-t border-white border-opacity-20 py-12">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-heart text-pink-500 text-2xl"></i>
-                        <span class="text-xl font-bold">Dream Chat</span>
-                    </div>
-                    <p class="text-gray-400 leading-relaxed">Лучший AI-сервис для взрослого общения. Более 2 миллионов довольных пользователей.</p>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold mb-4 text-pink-400">Популярное</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Виртуальная подруга</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">AI собеседница</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Интимный чат 18+</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Ролевые игры</a></li>
+                    <h4 class="font-semibold mb-4">Популярное</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><a href="#" class="hover:text-pink-300">Виртуальная подруга</a></li>
+                        <li><a href="#" class="hover:text-pink-300">AI собеседница</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Чат 18+</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Интимное общение</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4 text-purple-400">Помощь</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-purple-300 transition-colors">Как начать</a></li>
-                        <li><a href="#" class="hover:text-purple-300 transition-colors">Частые вопросы</a></li>
-                        <li><a href="#" class="hover:text-purple-300 transition-colors">Поддержка</a></li>
-                        <li><a href="#" class="hover:text-purple-300 transition-colors">Конфиденциальность</a></li>
+                    <h4 class="font-semibold mb-4">Помощь</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><a href="#" class="hover:text-pink-300">Преодолеть одиночество</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Общение для мужчин</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Анонимное общение</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Виртуальные отношения</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4 text-blue-400">Контакты</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fab fa-telegram mr-2 text-blue-400"></i>Telegram</li>
-                        <li><i class="fas fa-envelope mr-2 text-pink-400"></i>Email</li>
-                        <li><i class="fas fa-headset mr-2 text-purple-400"></i>24/7 Поддержка</li>
+                    <h4 class="font-semibold mb-4">Города</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><a href="#" class="hover:text-pink-300">Москва</a></li>
+                        <li><a href="#" class="hover:text-pink-300">СПб</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Екатеринбург</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Казань</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Проект</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><a href="#" class="hover:text-pink-300">Конфиденциальность</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Условия</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Поддержка</a></li>
+                        <li><a href="#" class="hover:text-pink-300">Контакты</a></li>
                     </ul>
                 </div>
             </div>
             
-            <div class="border-t border-gray-800 pt-8 text-center text-gray-500">
+            <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center text-sm opacity-60">
                 <p>&copy; 2024 Dream Chat. Все права защищены. Только для лиц старше 18 лет.</p>
-                <div class="mt-4 space-x-6">
-                    <a href="#" class="hover:text-pink-300 transition-colors">Пользовательское соглашение</a>
-                    <a href="#" class="hover:text-pink-300 transition-colors">Политика конфиденциальности</a>
-                </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Age verification
-        function confirmAge() {
-            localStorage.setItem('ageConfirmed', 'true');
-            document.getElementById('ageWarning').style.display = 'none';
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('show');
         }
-
-        // Check if age already confirmed
-        if (localStorage.getItem('ageConfirmed')) {
-            document.getElementById('ageWarning').style.display = 'none';
-        }
-
-        // Demo chat functionality
-        const demoMessages = [
-            { type: 'ai', text: 'Привет красавчик! Как дела? 😘', delay: 1000 },
-            { type: 'user', text: 'Привет! Немного скучно...', delay: 2000 },
-            { type: 'ai', text: 'О, так давай я тебя развеселю! У меня есть несколько интересных идей... 🔥', delay: 3000 },
-            { type: 'user', text: 'Интересно, какие?', delay: 4500 },
-            { type: 'ai', text: 'Можем поиграть в ролевую игру... или просто поговорить по душам. Что больше нравится? 😏', delay: 5500 }
-        ];
-
-        let messageIndex = 0;
-
-        function showDemoMessage() {
-            if (messageIndex < demoMessages.length) {
-                const message = demoMessages[messageIndex];
-                const messagesContainer = document.getElementById('messages');
-                
-                setTimeout(() => {
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `chat-message ${message.type === 'ai' ? 'bg-pink-500 bg-opacity-30 ml-0 mr-12' : 'bg-blue-500 bg-opacity-30 ml-12 mr-0'} p-3 rounded-lg`;
-                    messageElement.innerHTML = `<p class="text-sm">${message.text}</p>`;
-                    messagesContainer.appendChild(messageElement);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    messageIndex++;
-                    showDemoMessage();
-                }, message.delay);
-            }
-        }
-
-        // Start demo when page loads
-        window.addEventListener('load', () => {
-            setTimeout(showDemoMessage, 2000);
-        });
-
-        function sendDemoMessage() {
-            const input = document.getElementById('messageInput');
-            if (input.value.trim()) {
-                const messagesContainer = document.getElementById('messages');
-                const messageElement = document.createElement('div');
-                messageElement.className = 'chat-message bg-blue-500 bg-opacity-30 ml-12 mr-0 p-3 rounded-lg';
-                messageElement.innerHTML = `<p class="text-sm">${input.value}</p>`;
-                messagesContainer.appendChild(messageElement);
-                
-                input.value = '';
-                
-                // AI response
-                setTimeout(() => {
-                    const aiResponse = document.createElement('div');
-                    aiResponse.className = 'chat-message bg-pink-500 bg-opacity-30 ml-0 mr-12 p-3 rounded-lg';
-                    aiResponse.innerHTML = `<p class="text-sm">Мм, интересно... Расскажи мне больше! А лучше продолжим в полной версии 😉</p>`;
-                    messagesContainer.appendChild(aiResponse);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 1500);
-            }
-        }
-
-        // Enter key for demo chat
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendDemoMessage();
-            }
-        });
 
         // Start chat function
         function startChat() {
-            // Replace with your actual bot link
+            // Redirect to Telegram bot
             window.open('https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi', '_blank');
         }
 
-        // Smooth scrolling
+        // Demo chat functionality
+        let demoMessages = [
+            { sender: 'ai', text: 'Привет! Как дела? 😘', delay: 500 },
+            { sender: 'user', text: 'Привет, скучно что-то...', delay: 1500 },
+            { sender: 'ai', text: 'Давай я тебя развеселю? У меня есть пару интересных идей... 🔥', delay: 2500 },
+            { sender: 'ai', text: 'Расскажи, что тебя беспокоит? Я всегда готова выслушать 💕', delay: 4000 }
+        ];
+
+        function startDemoChat() {
+            const chatContainer = document.getElementById('chatMessages');
+            chatContainer.innerHTML = '';
+            
+            demoMessages.forEach((message, index) => {
+                setTimeout(() => {
+                    addMessage(message.sender, message.text);
+                }, message.delay);
+            });
+        }
+
+        function addMessage(sender, text) {
+            const chatContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender === 'ai' ? 'text-left' : 'text-right'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `inline-block p-3 rounded-lg max-w-xs ${
+                sender === 'ai' 
+                ? 'bg-pink-500 bg-opacity-70 text-white' 
+                : 'bg-blue-500 bg-opacity-70 text-white ml-auto'
+            }`;
+            bubble.innerHTML = `<p class="text-sm">${text}</p>`;
+            
+            messageDiv.appendChild(bubble);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Auto-start demo chat after page load
+        window.addEventListener('load', () => {
+            setTimeout(startDemoChat, 1000);
+        });
+
+        // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
 
-        // Typing animation restart
-        setInterval(() => {
-            const typingElement = document.querySelector('.typing-animation');
-            if (typingElement) {
-                typingElement.style.width = '0';
-                setTimeout(() => {
-                    typingElement.style.width = '100%';
-                }, 100);
-            }
-        }, 4000);
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Add click tracking for analytics
+        function trackClick(element) {
+            // Add your analytics tracking code here
+            console.log('Clicked:', element);
+        }
+
+        // Track button clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', () => trackClick(button.textContent));
+        });
     </script>
 </body>
 </html>
