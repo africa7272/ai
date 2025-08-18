@@ -1,0 +1,21 @@
+# GitHub Pages configuration
+plugins:
+  - jekyll-redirect-from
+  - jekyll-sitemap
+
+# SEO settings
+title: "Dream Chat - AI Подруга для Взрослых"
+description: "Виртуальная подруга с искусственным интеллектом. Интимное общение 24/7. Анонимно и безопасно."
+url: "https://alice2772.github.io"
+baseurl: "/ai"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:title/
+
+# Collections
+collections:
+  pages:
+    output: true
+    permalink: /:name/
