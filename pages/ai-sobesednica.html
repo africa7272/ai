@@ -542,105 +542,54 @@
                 <p class="mt-2">Искусственный интеллект для взрослого общения • Полная конфиденциальность • Работаем 24/7</p>
             </div>
         </div>
-    </footer>
-
-    <script>
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('active');
-            ym(103602117,'reachGoal','MOBILE_MENU_TOGGLE');
-        }
-        
-        function closeMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.remove('active');
-        }
-        
-        // FAQ functionality
-        function toggleFAQ(button) {
-            const content = button.nextElementSibling;
-            const icon = button.querySelector('i');
+<!-- Footer -->
+<footer class="bg-black py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="font-bold mb-4 text-purple-400">AI Технологии</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="pages/ai-sobesednica.html" class="hover:text-white">AI Собеседница</a></li>
+                    <li><a href="pages/virtualnaya-podruga.html" onclick="ym(103602117,'reachGoal','FOOTER_VIRTUAL');" class="hover:text-white">Виртуальная подруга</a></li>
+                    <li><a href="pages/chat-s-devushkoi-online.html" onclick="ym(103602117,'reachGoal','FOOTER_CHAT');" class="hover:text-white">Чат с девушкой</a></li>
+                    <li><a href="pages/iskusstvennyi-intellekt-2024.html" onclick="ym(103602117,'reachGoal','FOOTER_AI_2024');" class="hover:text-white">AI 2024</a></li>
+                </ul>
+            </div>
             
-            content.classList.toggle('hidden');
-            icon.classList.toggle('rotate-180');
-        }
-        
-        // Chat demo animation
-        function startDemoAnimation() {
-            const messages = document.querySelectorAll('#aiDemoChat [data-delay]');
-            messages.forEach(msg => {
-                const delay = parseInt(msg.dataset.delay);
-                setTimeout(() => {
-                    msg.style.display = 'block';
-                    msg.style.opacity = '0';
-                    msg.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        msg.style.transition = 'all 0.5s ease';
-                        msg.style.opacity = '1';
-                        msg.style.transform = 'translateY(0)';
-                    }, 100);
-                }, delay);
-            });
-        }
-        
-        // Start chat function
-        function startChat(source) {
-            ym(103602117,'reachGoal','START_CHAT_' + source);
-            // Replace with your actual Telegram bot link
-            window.open('https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi', '_blank');
-        }
-        
-        function showDemo() {
-            ym(103602117,'reachGoal','AI_DEMO_SHOW');
-            startDemoAnimation();
-        }
-        
-        // Auto-start demo animation on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(startDemoAnimation, 3000);
+            <div>
+                <h4 class="font-bold mb-4 text-purple-400">Помощь</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="pages/kak-preodolet-odinochestvo.html" onclick="ym(103602117,'reachGoal','FOOTER_LONELINESS');" class="hover:text-white">Преодолеть одиночество</a></li>
+                    <li><a href="pages/obshenie-dlya-muzhchin.html" onclick="ym(103602117,'reachGoal','FOOTER_MEN');" class="hover:text-white">Общение для мужчин</a></li>
+                    <li><a href="pages/anonimnoye-obshenie.html" onclick="ym(103602117,'reachGoal','FOOTER_ANON');" class="hover:text-white">Анонимное общение</a></li>
+                    <li><a href="pages/kak-nauchitsya-obshchatsya.html" onclick="ym(103602117,'reachGoal','FOOTER_LEARN');" class="hover:text-white">Как научиться общаться</a></li>
+                </ul>
+            </div>
             
-            // Track time on page
-            setTimeout(function() {
-                ym(103602117,'reachGoal','AI_TIME_30SEC');
-            }, 30000);
+            <div>
+                <h4 class="font-bold mb-4 text-purple-400">Города</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="pages/moskva-ai-podruga.html" onclick="ym(103602117,'reachGoal','FOOTER_MOSCOW');" class="hover:text-white">Москва</a></li>
+                    <li><a href="pages/spb-virtualnoe-obshenie.html" onclick="ym(103602117,'reachGoal','FOOTER_SPB');" class="hover:text-white">Санкт-Петербург</a></li>
+                    <li><a href="pages/ekaterinburg-chat.html" onclick="ym(103602117,'reachGoal','FOOTER_EKB');" class="hover:text-white">Екатеринбург</a></li>
+                    <li><a href="pages/kazan-ai-sobesednica.html" onclick="ym(103602117,'reachGoal','FOOTER_KAZAN');" class="hover:text-white">Казань</a></li>
+                </ul>
+            </div>
             
-            setTimeout(function() {
-                ym(103602117,'reachGoal','AI_TIME_60SEC');
-            }, 60000);
-            
-            // Track scroll
-            let hasScrolled50 = false;
-            let hasScrolledFeatures = false;
-            
-            window.addEventListener('scroll', function() {
-                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-                
-                if (scrollPercent > 50 && !hasScrolled50) {
-                    hasScrolled50 = true;
-                    ym(103602117,'reachGoal','AI_SCROLL_50');
-                }
-                
-                const featuresSection = document.getElementById('features');
-                if (featuresSection && !hasScrolledFeatures) {
-                    const rect = featuresSection.getBoundingClientRect();
-                    if (rect.top <= window.innerHeight && rect.bottom >= 0) {
-                        hasScrolledFeatures = true;
-                        ym(103602117,'reachGoal','AI_FEATURES_VIEW');
-                    }
-                }
-            });
-        });
+            <div>
+                <h4 class="font-bold mb-4 text-purple-400">Информация</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="pages/about.html" onclick="ym(103602117,'reachGoal','FOOTER_ABOUT');" class="hover:text-white">О проекте</a></li>
+                    <li><a href="pages/privacy.html" onclick="ym(103602117,'reachGoal','FOOTER_PRIVACY');" class="hover:text-white">Конфиденциальность</a></li>
+                    <li><a href="pages/terms.html" onclick="ym(103602117,'reachGoal','FOOTER_TERMS');" class="hover:text-white">Условия использования</a></li>
+                    <li><a href="pages/contact.html" onclick="ym(103602117,'reachGoal','FOOTER_CONTACT');" class="hover:text-white">Контакты</a></li>
+                </ul>
+            </div>
+        </div>
         
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('mobileMenu');
-            const toggle = document.querySelector('.mobile-menu-toggle');
-            
-            if (!menu.contains(event.target) && !toggle.contains(event.target)) {
-                closeMobileMenu();
-            }
-        });
-    </script>
-</body>
-</html>
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+            <p>&copy; 2024 Gorod Legends AI. Все права защищены. Сервис предназначен только для лиц старше 18 лет.</p>
+            <p class="mt-2">Искусственный интеллект для взрослого общения • Полная конфиденциальность • Работаем 24/7</p>
+        </div>
+    </div>
+</footer>
