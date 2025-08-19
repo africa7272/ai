@@ -2,12 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gorod-legends.ru/</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2024-08-19</lastmod>
     <priority>1.0</priority>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://gorod-legends.ru/virtualnaya-podruga</loc>
-    <lastmod>2024-01-15</lastmod>
+    <loc>https://gorod-legends.ru/chat-s-devushkami</loc>
+    <lastmod>2024-08-19</lastmod>
     <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://gorod-legends.ru/seks-bot</loc>
+    <lastmod>2024-08-19</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
   </url>
 </urlset>
