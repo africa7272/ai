@@ -7,3 +7,4 @@ Sitemap: https://gorod-legends.ru/sitemap.xml
 # Block admin areas
 Disallow: /admin/
 Disallow: /.git/
+Disallow: /pages/404.html
