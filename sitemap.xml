@@ -59,5 +59,12 @@
         <changefreq>monthly</changefreq>
         <priority>0.3</priority>
     </url>
+
+    <url>
+    <loc>https://gorod-legends.ru/pages/besplatny-chat-s-devushkami.html</loc>
+    <lastmod>2025-01-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
     
 </urlset>
