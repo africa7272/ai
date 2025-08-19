@@ -28,11 +28,11 @@
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103602117', 'ym');
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103658483', 'ym');
 
-        ym(103602117, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+        ym(103658483, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/103602117" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <noscript><div><img src="https://mc.yandex.ru/watch/103658483" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
     
     <!-- Schema.org -->
@@ -192,7 +192,7 @@
                     <button onclick="startChat('hero')" class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold transition-all hover-glow pulse-animation">
                         <i class="fas fa-heart mr-2"></i>Найти виртуальную подругу
                     </button>
-                    <button onclick="ym(103602117,'reachGoal','VIRTUAL_GF_DEMO'); window.open('chat-s-devushkami.html', '_blank');" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-bold transition-all hover-glow">
+                    <button onclick="ym(103658483,'reachGoal','VIRTUAL_GF_DEMO'); window.open('chat-s-devushkami.html', '_blank');" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-bold transition-all hover-glow">
                         <i class="fas fa-play mr-2"></i>Попробовать демо
                     </button>
                 </div>
@@ -686,24 +686,24 @@
                 localStorage.setItem('ageConfirmed', 'true');
                 localStorage.setItem('ageConfirmDate', today);
                 modal.classList.add('hidden');
-                ym(103602117,'reachGoal','AGE_CONFIRMED_VIRTUAL_GF');
+                ym(103658483,'reachGoal','AGE_CONFIRMED_VIRTUAL_GF');
             });
             
             rejectBtn.addEventListener('click', function() {
-                ym(103602117,'reachGoal','AGE_REJECTED');
+                ym(103658483,'reachGoal','AGE_REJECTED');
                 window.location.href = 'https://www.yandex.ru/';
             });
         });
         
         // Start chat function with source tracking
         function startChat(source) {
-            ym(103602117,'reachGoal','START_CHAT_VIRTUAL_GF_' + source.toUpperCase());
+            ym(103658483,'reachGoal','START_CHAT_VIRTUAL_GF_' + source.toUpperCase());
             window.open('https://t.me/luciddreams?start=virtualgf_' + source, '_blank');
         }
         
         // Track page engagement
-        setTimeout(() => ym(103602117,'reachGoal','TIME_30SEC_VIRTUAL_GF'), 30000);
-        setTimeout(() => ym(103602117,'reachGoal','TIME_60SEC_VIRTUAL_GF'), 60000);
+        setTimeout(() => ym(103658483,'reachGoal','TIME_30SEC_VIRTUAL_GF'), 30000);
+        setTimeout(() => ym(103658483,'reachGoal','TIME_60SEC_VIRTUAL_GF'), 60000);
         
         // Scroll tracking
         let scrollTracked = false;
@@ -712,7 +712,7 @@
             
             if (scrollPercent > 50 && !scrollTracked) {
                 scrollTracked = true;
-                ym(103602117,'reachGoal','SCROLL_50_VIRTUAL_GF');
+                ym(103658483,'reachGoal','SCROLL_50_VIRTUAL_GF');
             }
         });
     </script>
