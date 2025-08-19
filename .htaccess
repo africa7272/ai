@@ -1,10 +1,20 @@
 RewriteEngine On
 
-# Clean URLs
+# Основные мегастраницы
+RewriteRule ^chat-s-devushkami/?$ pages/chat-s-devushkami.html [L]
+RewriteRule ^seks-bot/?$ pages/seks-bot.html [L]
+RewriteRule ^virtualnaya-podruga/?$ pages/virtualnaya-podruga.html [L]
+RewriteRule ^ai-sobesednica/?$ pages/ai-sobesednica.html [L]
+
+# Служебные страницы  
+RewriteRule ^about/?$ pages/about.html [L]
+RewriteRule ^privacy/?$ pages/privacy.html [L]
+RewriteRule ^contact/?$ pages/contact.html [L]
+
+# Общее правило для остальных страниц
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([^.]+)$ pages/$1.html [L]
+RewriteRule ^([^.]+)/?$ pages/$1.html [L]
 
-# Specific redirects
-RewriteRule ^ai-sobesednica/?$ pages/ai-sobesednica.html [L]
-RewriteRule ^virtualnaya-podruga/?$ pages/virtualnaya-podruga.html [L]
+# Security
+RewriteRule ^\.git - [F,L]
