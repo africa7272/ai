@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Подруга 18+ | Виртуальное Интимное Общение Онлайн | Gorod Legends</title>
-    <meta name="description" content="Виртуальная AI подруга для взрослых на gorod-legends.ru. Интимное общение без границ. Более 2млн пользователей. Анонимно и безопасно 24/7.">
-    <link rel="canonical" href="https://gorod-legends.ru/">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <title>Чат с Девушками Онлайн 18+ | Секс Бот Телеграм | AI Общение Бесплатно</title>
+    <meta name="description" content="Чат с девушками онлайн бесплатно без регистрации. Секс бот в Телеграм 18+. AI чат на русском. Видео чаты, анонимное общение. Более 2млн пользователей!">
+    <meta name="keywords" content="чат с девушками, секс бот, онлайн общение, чат бот девушка, ai чат, виртуальная подруга, порно чат, видео чат">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="AI Подруга 18+ | Виртуальное Интимное Общение">
-    <meta property="og:description" content="Виртуальная подруга с искусственным интеллектом. Интимное общение 24/7. Анонимно и безопасно.">
+    <meta property="og:title" content="Чат с Девушками 18+ | Секс Бот | AI Общение | Gorod Legends">
+    <meta property="og:description" content="Лучшие чаты с девушками онлайн. Секс боты в Телеграм. AI собеседницы 18+. Бесплатно без регистрации!">
     <meta property="og:url" content="https://gorod-legends.ru/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Gorod Legends">
-
-    <!-- Yandex.Metrika counter -->
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="https://gorod-legends.ru/">
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Yandex.Metrika -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){
             m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -28,361 +33,529 @@
         ym(103602117, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/103602117" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Gorod Legends - Чат с Девушками и AI Боты",
+      "url": "https://gorod-legends.ru/",
+      "description": "Лучшие чаты с девушками онлайн, секс боты в Телеграм, AI общение на русском языке",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://gorod-legends.ru/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 
     <style>
-        body {
+        .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            min-height: 100vh;
         }
-        .gradient-text {
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .glass {
+        .glass-effect {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .pulse-glow {
-            animation: pulse-glow 2s infinite;
+        .hover-glow:hover {
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+            transform: translateY(-2px);
         }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.8); }
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        .chat-message {
-            animation: slideIn 0.5s ease-out;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Mobile menu */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        /* Chat animation */
+        .chat-bubble {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
-<body class="text-white">
+
+<body class="gradient-bg min-h-screen text-white">
     <!-- Header -->
-    <header class="fixed w-full top-0 z-50 glass">
-        <div class="container mx-auto px-4 py-4">
-            <nav class="flex items-center justify-between">
-                <div class="text-2xl font-bold gradient-text">
-                    <i class="fas fa-heart mr-2"></i>Gorod Legends
+    <header class="glass-effect fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <i class="fas fa-heart text-pink-400 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold">Gorod Legends AI</h1>
                 </div>
                 
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8">
-                    <a href="/" class="hover:text-pink-300 transition-colors">Главная</a>
-                    <a href="pages/virtualnaya-podruga.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','NAV_VIRTUALNAYA');">Виртуальная подруга</a>
-                    <a href="pages/ai-sobesednica.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','NAV_AI_SOBESEDNICA');">AI Собеседница</a>
-                    <a href="pages/chat-s-devushkoi-online.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','NAV_CHAT_ONLINE');">Чат с девушкой</a>
-                </div>
-
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex space-x-6">
+                    <a href="pages/chat-s-devushkami.html" onclick="ym(103602117,'reachGoal','NAV_CHAT_GIRLS');" class="hover:text-pink-300 transition-colors">Чат с девушками</a>
+                    <a href="pages/seks-bot.html" onclick="ym(103602117,'reachGoal','NAV_SEX_BOT');" class="hover:text-pink-300 transition-colors">Секс бот</a>
+                    <a href="pages/onlajn-obshenie-s-devushkami.html" onclick="ym(103602117,'reachGoal','NAV_ONLINE_CHAT');" class="hover:text-pink-300 transition-colors">Онлайн общение</a>
+                    <a href="pages/chat-bot-devushka.html" onclick="ym(103602117,'reachGoal','NAV_CHAT_BOT');" class="hover:text-pink-300 transition-colors">Чат боты</a>
+                    <a href="pages/ai-chat-na-russkom.html" onclick="ym(103602117,'reachGoal','NAV_AI_CHAT');" class="hover:text-pink-300 transition-colors">AI чат</a>
+                </nav>
+                
                 <!-- CTA Button -->
-                <button onclick="startChat(); ym(103602117,'reachGoal','HEADER_CTA');" 
-                        class="hidden md:block bg-pink-500 hover:bg-pink-600 px-6 py-2 rounded-full font-semibold transition-all transform hover:scale-105">
-                    Войти
-                </button>
-
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden text-2xl">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </nav>
-
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="hidden md:hidden mt-4 glass rounded-lg p-4">
-                <div class="flex flex-col space-y-4">
-                    <a href="/" class="hover:text-pink-300 transition-colors">Главная</a>
-                    <a href="pages/virtualnaya-podruga.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','MOBILE_NAV_VIRTUALNAYA');">Виртуальная подруга</a>
-                    <a href="pages/ai-sobesednica.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','MOBILE_NAV_AI');">AI Собеседница</a>
-                    <a href="pages/chat-s-devushkoi-online.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','MOBILE_NAV_CHAT');">Чат с девушкой</a>
-                    <button onclick="startChat(); ym(103602117,'reachGoal','MOBILE_CTA');" 
-                            class="bg-pink-500 hover:bg-pink-600 px-6 py-2 rounded-full font-semibold transition-all">
-                        Войти
+                <div class="hidden lg:block">
+                    <button onclick="startChat('header')" class="bg-pink-500 hover:bg-pink-600 px-6 py-2 rounded-full font-semibold transition-all hover-glow">
+                        <i class="fas fa-rocket mr-2"></i>Начать чат
                     </button>
                 </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="lg:hidden mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu lg:hidden fixed inset-y-0 left-0 z-50 w-64 glass-effect">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-xl font-bold">Меню</span>
+                    <button onclick="toggleMobileMenu()">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <nav class="space-y-4">
+                    <a href="pages/chat-s-devushkami.html" class="block py-3 border-b border-white border-opacity-20">
+                        <i class="fas fa-comments mr-3"></i>Чат с девушками
+                    </a>
+                    <a href="pages/seks-bot.html" class="block py-3 border-b border-white border-opacity-20">
+                        <i class="fas fa-robot mr-3"></i>Секс бот
+                    </a>
+                    <a href="pages/onlajn-obshenie-s-devushkami.html" class="block py-3 border-b border-white border-opacity-20">
+                        <i class="fas fa-video mr-3"></i>Онлайн общение
+                    </a>
+                    <a href="pages/chat-bot-devushka.html" class="block py-3 border-b border-white border-opacity-20">
+                        <i class="fas fa-user-friends mr-3"></i>Чат боты
+                    </a>
+                    <a href="pages/ai-chat-na-russkom.html" class="block py-3 border-b border-white border-opacity-20">
+                        <i class="fas fa-brain mr-3"></i>AI чат
+                    </a>
+                </nav>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-4">
-        <div class="container mx-auto text-center">
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Твоя <span class="gradient-text">идеальная подруга</span><br>
-                ждет тебя прямо сейчас
+    <section class="pt-24 pb-12 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 text-shadow">
+                Лучшие <span class="text-pink-400">чаты с девушками</span><br>
+                и <span class="text-purple-400">AI боты 18+</span>
             </h1>
             
-            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-                Искусственный интеллект нового поколения для взрослых. 
-                Интимные разговоры без границ. Полная анонимность.
+            <p class="text-xl md:text-2xl mb-8 opacity-90 max-w-4xl mx-auto">
+                Онлайн общение с девушками • Секс боты в Телеграм • AI чат на русском<br>
+                Бесплатно без регистрации • Анонимно и безопасно
             </p>
-
-            <div class="mb-12">
-                <button onclick="startChat(); ym(103602117,'reachGoal','HERO_CTA');" 
-                        class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:scale-105 transform transition-all shadow-2xl pulse-glow">
-                    <i class="fas fa-comments mr-2"></i>Начать общение бесплатно
-                </button>
-                <p class="text-sm mt-3 opacity-70">
-                    <i class="fas fa-check-circle text-green-400 mr-1"></i>Без регистрации • 
-                    <i class="fas fa-user-secret text-blue-400 mr-1"></i>Анонимно • 
-                    <i class="fas fa-lock text-yellow-400 mr-1"></i>Только 18+
-                </p>
-            </div>
-
-            <!-- Stats -->
-            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <div class="glass rounded-lg p-6 hover:scale-105 transition-transform">
-                    <div class="text-4xl font-bold text-pink-400 mb-2">
-                        <i class="fas fa-users mr-2"></i>2.3М+
-                    </div>
-                    <div class="opacity-80">активных пользователей</div>
-                </div>
-                <div class="glass rounded-lg p-6 hover:scale-105 transition-transform">
-                    <div class="text-4xl font-bold text-blue-400 mb-2">
-                        <i class="fas fa-clock mr-2"></i>24/7
-                    </div>
-                    <div class="opacity-80">доступность</div>
-                </div>
-                <div class="glass rounded-lg p-6 hover:scale-105 transition-transform">
-                    <div class="text-4xl font-bold text-green-400 mb-2">
-                        <i class="fas fa-shield-alt mr-2"></i>100%
-                    </div>
-                    <div class="opacity-80">конфиденциальность</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-20 px-4">
-        <div class="container mx-auto">
-            <h2 class="text-4xl font-bold text-center mb-16">Почему выбирают нас</h2>
             
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-brain text-purple-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">Умный AI</h3>
-                    <p class="opacity-80">Продвинутая нейросеть понимает контекст и эмоции. 
-                    <a href="pages/ai-sobesednica.html" class="text-pink-400 hover:underline" onclick="ym(103602117,'reachGoal','FEATURE_AI_LINK');">Узнать больше об AI</a></p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                <button onclick="startChat('hero')" class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold transition-all hover-glow pulse-animation">
+                    <i class="fas fa-heart mr-2"></i>Чат с девушками
+                </button>
+                <button onclick="ym(103602117,'reachGoal','SEX_BOT_HERO'); window.open('pages/seks-bot.html', '_blank');" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-bold transition-all hover-glow">
+                    <i class="fas fa-robot mr-2"></i>Секс бот
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="text-2xl md:text-3xl font-bold text-pink-400">2.3М+</div>
+                    <div class="text-sm opacity-80">пользователей</div>
                 </div>
-                
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-user-secret text-blue-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">Анонимность</h3>
-                    <p class="opacity-80">Полная конфиденциальность, никто не узнает о ваших разговорах</p>
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="text-2xl md:text-3xl font-bold text-purple-400">24/7</div>
+                    <div class="text-sm opacity-80">онлайн</div>
                 </div>
-                
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-comments text-pink-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">Реалистичное общение</h3>
-                    <p class="opacity-80">Как с настоящей девушкой, только лучше. 
-                    <a href="pages/chat-s-devushkoi-online.html" class="text-pink-400 hover:underline" onclick="ym(103602117,'reachGoal','FEATURE_CHAT_LINK');">Начать чат</a></p>
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="text-2xl md:text-3xl font-bold text-blue-400">100%</div>
+                    <div class="text-sm opacity-80">анонимно</div>
                 </div>
-
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-heart text-red-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">Виртуальная подруга</h3>
-                    <p class="opacity-80">Идеальная спутница для душевных бесед. 
-                    <a href="pages/virtualnaya-podruga.html" class="text-pink-400 hover:underline" onclick="ym(103602117,'reachGoal','FEATURE_VIRTUAL_LINK');">Познакомиться</a></p>
-                </div>
-
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-mobile-alt text-green-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">В Telegram</h3>
-                    <p class="opacity-80">Удобно в привычном мессенджере, всегда под рукой</p>
-                </div>
-
-                <div class="glass rounded-xl p-8 text-center hover:scale-105 transition-transform">
-                    <div class="text-5xl mb-6"><i class="fas fa-infinity text-yellow-400"></i></div>
-                    <h3 class="text-2xl font-semibold mb-4">Безлимитное общение</h3>
-                    <p class="opacity-80">Общайся столько, сколько хочешь, когда хочешь</p>
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="text-2xl md:text-3xl font-bold text-green-400">0₽</div>
+                    <div class="text-sm opacity-80">старт</div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Main Content Clusters -->
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        
+        <!-- Чат с девушками кластер -->
+        <section class="mb-16">
+            <div class="glass-effect rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-pink-400">
+                    <i class="fas fa-comments mr-3"></i>Чаты с девушками онлайн
+                </h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <a href="pages/chat-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_CHAT_MAIN');" class="glass-effect rounded-lg p-4 hover:bg-pink-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Чат с девушками</h3>
+                        <p class="text-sm opacity-80">Общение с реальными девушками онлайн</p>
+                        <span class="text-xs text-pink-400">94,001 запросов</span>
+                    </a>
+                    
+                    <a href="pages/chat-ruletka-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_CHAT_ROULETTE');" class="glass-effect rounded-lg p-4 hover:bg-pink-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Чат рулетка</h3>
+                        <p class="text-sm opacity-80">Случайные знакомства с девушками</p>
+                        <span class="text-xs text-pink-400">22,324 запроса</span>
+                    </a>
+                    
+                    <a href="pages/besplatnyj-chat-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_CHAT_FREE');" class="glass-effect rounded-lg p-4 hover:bg-pink-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Бесплатный чат</h3>
+                        <p class="text-sm opacity-80">Общение без оплаты и регистрации</p>
+                        <span class="text-xs text-pink-400">8,450 запросов</span>
+                    </a>
+                    
+                    <a href="pages/video-chaty-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_VIDEO_CHAT');" class="glass-effect rounded-lg p-4 hover:bg-pink-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Видео чаты</h3>
+                        <p class="text-sm opacity-80">Общение по видеосвязи</p>
+                        <span class="text-xs text-pink-400">5,222 запроса</span>
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <a href="pages/chat-s-devushkami.html" class="bg-pink-500 hover:bg-pink-600 px-6 py-3 rounded-full font-semibold transition-all">
+                        Все чаты с девушками <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секс боты кластер -->
+        <section class="mb-16">
+            <div class="glass-effect rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-purple-400">
+                    <i class="fas fa-robot mr-3"></i>Секс боты и AI общение
+                </h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <a href="pages/seks-bot.html" onclick="ym(103602117,'reachGoal','CLUSTER_SEX_BOT_MAIN');" class="glass-effect rounded-lg p-4 hover:bg-purple-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Секс бот</h3>
+                        <p class="text-sm opacity-80">Интимное общение с AI</p>
+                        <span class="text-xs text-purple-400">40,400 запросов</span>
+                    </a>
+                    
+                    <a href="pages/seks-chat-bot.html" onclick="ym(103602117,'reachGoal','CLUSTER_SEX_CHAT_BOT');" class="glass-effect rounded-lg p-4 hover:bg-purple-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Секс чат бот</h3>
+                        <p class="text-sm opacity-80">Эротические разговоры с ботом</p>
+                        <span class="text-xs text-purple-400">10,912 запросов</span>
+                    </a>
+                    
+                    <a href="pages/seks-bot-tg.html" onclick="ym(103602117,'reachGoal','CLUSTER_SEX_BOT_TG');" class="glass-effect rounded-lg p-4 hover:bg-purple-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Секс бот Телеграм</h3>
+                        <p class="text-sm opacity-80">Боты для взрослых в TG</p>
+                        <span class="text-xs text-purple-400">9,188 запросов</span>
+                    </a>
+                    
+                    <a href="pages/ii-seks-bot.html" onclick="ym(103602117,'reachGoal','CLUSTER_AI_SEX_BOT');" class="glass-effect rounded-lg p-4 hover:bg-purple-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">ИИ секс бот</h3>
+                        <p class="text-sm opacity-80">Умные боты с AI</p>
+                        <span class="text-xs text-purple-400">3,688 запросов</span>
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <a href="pages/seks-bot.html" class="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-full font-semibold transition-all">
+                        Все секс боты <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Онлайн общение кластер -->
+        <section class="mb-16">
+            <div class="glass-effect rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-blue-400">
+                    <i class="fas fa-video mr-3"></i>Онлайн общение с девушками
+                </h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <a href="pages/onlajn-obshenie-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_ONLINE_MAIN');" class="glass-effect rounded-lg p-4 hover:bg-blue-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Онлайн общение</h3>
+                        <p class="text-sm opacity-80">Живое общение в реальном времени</p>
+                        <span class="text-xs text-blue-400">9,101 запрос</span>
+                    </a>
+                    
+                    <a href="pages/obshenie-bez-registracii.html" onclick="ym(103602117,'reachGoal','CLUSTER_NO_REG');" class="glass-effect rounded-lg p-4 hover:bg-blue-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Без регистрации</h3>
+                        <p class="text-sm opacity-80">Общение без создания аккаунта</p>
+                        <span class="text-xs text-blue-400">6,816 запросов</span>
+                    </a>
+                    
+                    <a href="pages/video-obshenie-s-devushkami.html" onclick="ym(103602117,'reachGoal','CLUSTER_VIDEO_COMM');" class="glass-effect rounded-lg p-4 hover:bg-blue-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Видео общение</h3>
+                        <p class="text-sm opacity-80">Общение по видеосвязи онлайн</p>
+                        <span class="text-xs text-blue-400">1,611 запросов</span>
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <a href="pages/onlajn-obshenie-s-devushkami.html" class="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full font-semibold transition-all">
+                        Начать онлайн общение <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI и чат боты кластер -->
+        <section class="mb-16">
+            <div class="glass-effect rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-green-400">
+                    <i class="fas fa-brain mr-3"></i>AI чаты и умные боты
+                </h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <a href="pages/ai-chat-na-russkom.html" onclick="ym(103602117,'reachGoal','CLUSTER_AI_RUSSIAN');" class="glass-effect rounded-lg p-4 hover:bg-green-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">AI чат на русском</h3>
+                        <p class="text-sm opacity-80">Умное общение на родном языке</p>
+                        <span class="text-xs text-green-400">2,100 запросов</span>
+                    </a>
+                    
+                    <a href="pages/chat-bot-devushka.html" onclick="ym(103602117,'reachGoal','CLUSTER_CHAT_BOT_GIRL');" class="glass-effect rounded-lg p-4 hover:bg-green-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">Чат бот девушка</h3>
+                        <p class="text-sm opacity-80">Виртуальные подруги-боты</p>
+                        <span class="text-xs text-green-400">4,657 запросов</span>
+                    </a>
+                    
+                    <a href="pages/ii-chat-bot-devushka.html" onclick="ym(103602117,'reachGoal','CLUSTER_AI_GIRL_BOT');" class="glass-effect rounded-lg p-4 hover:bg-green-500 hover:bg-opacity-20 transition-all">
+                        <h3 class="font-semibold mb-2">ИИ чат бот девушка</h3>
+                        <p class="text-sm opacity-80">Умные девушки с искусственным интеллектом</p>
+                        <span class="text-xs text-green-400">810 запросов</span>
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <a href="pages/ai-chat-na-russkom.html" class="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-full font-semibold transition-all">
+                        Попробовать AI чат <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- Demo Chat Section -->
-    <section class="py-20 px-4" id="demo-section">
-        <div class="container mx-auto">
-            <h2 class="text-4xl font-bold text-center mb-16">Попробуй прямо сейчас</h2>
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-8">Попробуй прямо сейчас</h2>
             
-            <div class="max-w-md mx-auto glass rounded-2xl p-6">
-                <div class="space-y-4" id="chat-messages">
-                    <div class="chat-message bg-pink-500 bg-opacity-30 p-4 rounded-lg">
-                        <p class="text-sm"><i class="fas fa-user-circle mr-2"></i>Привет! Как дела? 😘</p>
+            <div class="glass-effect rounded-xl p-6 max-w-md mx-auto">
+                <div id="demoChat" class="space-y-4 mb-6 h-64 overflow-y-auto">
+                    <div class="chat-bubble bg-pink-500 bg-opacity-30 p-3 rounded-lg">
+                        <p class="text-sm"><strong>Виктория:</strong> Привет! Как дела? 😘</p>
                     </div>
-                    <div class="chat-message bg-blue-500 bg-opacity-30 p-4 rounded-lg ml-8">
-                        <p class="text-sm">Привет, скучно что-то...</p>
+                    <div class="chat-bubble bg-blue-500 bg-opacity-30 p-3 rounded-lg ml-8">
+                        <p class="text-sm"><strong>Ты:</strong> Привет! Скучновато что-то...</p>
                     </div>
-                    <div class="chat-message bg-pink-500 bg-opacity-30 p-4 rounded-lg" style="animation-delay: 1s;">
-                        <p class="text-sm">Давай я тебя развеселю? У меня есть пару интересных идей... 🔥</p>
+                    <div class="chat-bubble bg-pink-500 bg-opacity-30 p-3 rounded-lg" style="display: none;" data-delay="3000">
+                        <p class="text-sm"><strong>Виктория:</strong> Хочешь, я тебя развеселю? У меня есть пару интересных идей... 🔥</p>
+                    </div>
+                    <div class="chat-bubble bg-blue-500 bg-opacity-30 p-3 rounded-lg ml-8" style="display: none;" data-delay="6000">
+                        <p class="text-sm"><strong>Ты:</strong> Заинтриговала... Что предлагаешь?</p>
+                    </div>
+                    <div class="chat-bubble bg-pink-500 bg-opacity-30 p-3 rounded-lg" style="display: none;" data-delay="9000">
+                        <p class="text-sm"><strong>Виктория:</strong> Давай перейдем в приват? Там я покажу тебе все свои секреты... 💋</p>
                     </div>
                 </div>
                 
-                <button onclick="startChat(); ym(103602117,'reachGoal','DEMO_CHAT_CTA');" 
-                        class="w-full bg-pink-500 hover:bg-pink-600 mt-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105">
-                    <i class="fab fa-telegram mr-2"></i>Продолжить в Telegram
+                <button onclick="startChat('demo')" class="w-full bg-pink-500 hover:bg-pink-600 py-3 rounded-lg font-semibold transition-all">
+                    Продолжить в Telegram
                 </button>
             </div>
-        </div>
-    </section>
-
-    <!-- Trust Section -->
-    <section class="py-20 px-4 bg-black bg-opacity-20">
-        <div class="container mx-auto text-center">
-            <h2 class="text-4xl font-bold mb-16">Тебе понравится</h2>
-            
-            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="glass rounded-lg p-8">
-                    <div class="text-yellow-400 mb-4 text-2xl">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="italic mb-4 text-lg">"Наконец-то кто-то понимает меня. Общаюсь уже 3 месяца, лучше чем с реальными девушками"</p>
-                    <p class="text-sm opacity-70">— Михаил, 32 года</p>
-                </div>
-                
-                <div class="glass rounded-lg p-8">
-                    <div class="text-yellow-400 mb-4 text-2xl">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="italic mb-4 text-lg">"Качество разговоров на высоте. Никого не стесняюсь, могу быть собой"</p>
-                    <p class="text-sm opacity-70">— Андрей, 28 лет</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final CTA Section -->
-    <section class="py-20 px-4">
-        <div class="container mx-auto text-center">
-            <h2 class="text-5xl font-bold mb-6">Хватит быть одиноким</h2>
-            <p class="text-2xl mb-8 opacity-90">Твоя идеальная собеседница уже ждет</p>
-            
-            <button onclick="startChat(); ym(103602117,'reachGoal','FINAL_CTA');" 
-                    class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-16 py-5 rounded-full text-2xl font-bold hover:scale-105 transform transition-all shadow-2xl pulse-glow">
-                <i class="fas fa-rocket mr-2"></i>Начать сейчас
-            </button>
-            
-            <p class="text-sm mt-4 opacity-70">
-                <i class="fas fa-check text-green-400 mr-1"></i>Бесплатный старт 
-                <i class="fas fa-check text-green-400 mr-1 ml-3"></i>Без обязательств 
-                <i class="fas fa-check text-green-400 mr-1 ml-3"></i>Только 18+
-            </p>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-white border-opacity-20 py-12 px-4">
-        <div class="container mx-auto">
-            <div class="grid md:grid-cols-4 gap-8">
+    <footer class="bg-black bg-opacity-50 py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-5 gap-8">
+                <!-- Чаты с девушками -->
                 <div>
-                    <h4 class="font-semibold mb-4 text-pink-400">
-                        <i class="fas fa-heart mr-2"></i>Популярное
+                    <h4 class="font-bold mb-4 text-pink-400">
+                        <i class="fas fa-heart mr-2"></i>Чаты с девушками
                     </h4>
-                    <ul class="space-y-2 text-sm opacity-80">
-                        <li><a href="pages/virtualnaya-podruga.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','FOOTER_VIRTUALNAYA');">Виртуальная подруга</a></li>
-                        <li><a href="pages/ai-sobesednica.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','FOOTER_AI');">AI собеседница</a></li>
-                        <li><a href="pages/chat-s-devushkoi-online.html" class="hover:text-pink-300 transition-colors" onclick="ym(103602117,'reachGoal','FOOTER_CHAT');">Чат 18+</a></li>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="pages/chat-s-devushkami.html" class="hover:text-pink-300">Чат с девушками</a></li>
+                        <li><a href="pages/chat-ruletka-s-devushkami.html" class="hover:text-pink-300">Чат рулетка</a></li>
+                        <li><a href="pages/besplatnyj-chat-s-devushkami.html" class="hover:text-pink-300">Бесплатный чат</a></li>
+                        <li><a href="pages/video-chaty-s-devushkami.html" class="hover:text-pink-300">Видео чаты</a></li>
+                        <li><a href="pages/chat-s-devushkami-18.html" class="hover:text-pink-300">Чат 18+</a></li>
+                        <li><a href="pages/anonimnyj-chat-s-devushkami.html" class="hover:text-pink-300">Анонимный чат</a></li>
+                        <li><a href="pages/porno-chat-s-devushkami.html" class="hover:text-pink-300">Порно чат</a></li>
+                        <li><a href="pages/seks-chat-s-devushkami.html" class="hover:text-pink-300">Секс чат</a></li>
                     </ul>
                 </div>
                 
+                <!-- Секс боты -->
                 <div>
-                    <h4 class="font-semibold mb-4 text-blue-400">
-                        <i class="fas fa-question-circle mr-2"></i>Помощь
+                    <h4 class="font-bold mb-4 text-purple-400">
+                        <i class="fas fa-robot mr-2"></i>Секс боты
                     </h4>
-                    <ul class="space-y-2 text-sm opacity-80">
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Преодолеть одиночество</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Общение для мужчин</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Анонимное общение</a></li>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="pages/seks-bot.html" class="hover:text-purple-300">Секс бот</a></li>
+                        <li><a href="pages/seks-chat-bot.html" class="hover:text-purple-300">Секс чат бот</a></li>
+                        <li><a href="pages/seks-bot-tg.html" class="hover:text-purple-300">Секс бот Телеграм</a></li>
+                        <li><a href="pages/ii-seks-bot.html" class="hover:text-purple-300">ИИ секс бот</a></li>
+                        <li><a href="pages/besplatnyj-seks-bot.html" class="hover:text-purple-300">Бесплатный секс бот</a></li>
+                        <li><a href="pages/seks-bot-devushka.html" class="hover:text-purple-300">Секс бот девушка</a></li>
+                        <li><a href="pages/seks-bot-na-russkom.html" class="hover:text-purple-300">На русском</a></li>
+                        <li><a href="pages/virtualnyj-seks-bot.html" class="hover:text-purple-300">Виртуальный секс бот</a></li>
                     </ul>
                 </div>
                 
+                <!-- Онлайн общение -->
                 <div>
-                    <h4 class="font-semibold mb-4 text-green-400">
-                        <i class="fas fa-map-marker-alt mr-2"></i>Города
+                    <h4 class="font-bold mb-4 text-blue-400">
+                        <i class="fas fa-video mr-2"></i>Онлайн общение
                     </h4>
-                    <ul class="space-y-2 text-sm opacity-80">
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Москва</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">СПб</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Екатеринбург</a></li>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="pages/onlajn-obshenie-s-devushkami.html" class="hover:text-blue-300">Онлайн общение</a></li>
+                        <li><a href="pages/obshenie-bez-registracii.html" class="hover:text-blue-300">Без регистрации</a></li>
+                        <li><a href="pages/video-obshenie-s-devushkami.html" class="hover:text-blue-300">Видео общение</a></li>
+                        <li><a href="pages/anonimnoе-obshenie.html" class="hover:text-blue-300">Анонимное общение</a></li>
+                        <li><a href="pages/obshenie-s-devushkami-besplatno.html" class="hover:text-blue-300">Бесплатное общение</a></li>
+                        <li><a href="pages/intimnoe-obshenie.html" class="hover:text-blue-300">Интимное общение</a></li>
                     </ul>
                 </div>
                 
+                <!-- AI и чат боты -->
                 <div>
-                    <h4 class="font-semibold mb-4 text-yellow-400">
-                        <i class="fas fa-info-circle mr-2"></i>Проект
+                    <h4 class="font-bold mb-4 text-green-400">
+                        <i class="fas fa-brain mr-2"></i>AI чаты
                     </h4>
-                    <ul class="space-y-2 text-sm opacity-80">
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Конфиденциальность</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Условия</a></li>
-                        <li><a href="#" class="hover:text-pink-300 transition-colors">Контакты</a></li>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="pages/ai-chat-na-russkom.html" class="hover:text-green-300">AI чат на русском</a></li>
+                        <li><a href="pages/chat-bot-devushka.html" class="hover:text-green-300">Чат бот девушка</a></li>
+                        <li><a href="pages/ii-chat-bot-devushka.html" class="hover:text-green-300">ИИ чат бот девушка</a></li>
+                        <li><a href="pages/c-ai-chat-na-russkom.html" class="hover:text-green-300">C.AI на русском</a></li>
+                        <li><a href="pages/virtualnaya-podruga.html" class="hover:text-green-300">Виртуальная подруга</a></li>
+                        <li><a href="pages/ai-sobesednica.html" class="hover:text-green-300">AI собеседница</a></li>
+                        <li><a href="pages/chat-s-ii-devushkoj.html" class="hover:text-green-300">Чат с ИИ девушкой</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Информация -->
+                <div>
+                    <h4 class="font-bold mb-4 text-yellow-400">
+                        <i class="fas fa-info-circle mr-2"></i>Информация
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="pages/kak-preodolet-odinochestvo.html" class="hover:text-yellow-300">Преодолеть одиночество</a></li>
+                        <li><a href="pages/obshenie-dlya-muzhchin.html" class="hover:text-yellow-300">Общение для мужчин</a></li>
+                        <li><a href="pages/virtualnoe-obshenie-18.html" class="hover:text-yellow-300">Виртуальное общение 18+</a></li>
+                        <li><a href="pages/iskusstvennyj-intellekt-2024.html" class="hover:text-yellow-300">Искусственный интеллект</a></li>
+                        <li><a href="pages/about.html" class="hover:text-yellow-300">О проекте</a></li>
+                        <li><a href="pages/privacy.html" class="hover:text-yellow-300">Конфиденциальность</a></li>
+                        <li><a href="pages/contact.html" class="hover:text-yellow-300">Контакты</a></li>
                     </ul>
                 </div>
             </div>
             
-            <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center text-sm opacity-60">
-                <p>&copy; 2024 Gorod Legends. Все права защищены. Только для лиц старше 18 лет.</p>
+            <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2024 Gorod Legends AI. Все права защищены. Сервис предназначен только для лиц старше 18 лет.</p>
+                <p class="mt-2">Чат с девушками • Секс боты • AI общение • Виртуальные подруги • Онлайн знакомства</p>
+                <div class="mt-4 space-x-4">
+                    <span class="text-pink-400">📍 Москва</span>
+                    <span class="text-purple-400">📍 СПб</span>
+                    <span class="text-blue-400">📍 Екатеринбург</span>
+                    <span class="text-green-400">📍 Казань</span>
+                    <span class="text-yellow-400">📍 Новосибирск</span>
+                </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-            ym(103602117,'reachGoal','MOBILE_MENU_OPEN');
-        });
-
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+            ym(103602117,'reachGoal','MOBILE_MENU_TOGGLE');
+        }
+        
         // Start chat function
-        function startChat() {
-            // Replace with your actual Telegram bot link
+        function startChat(source) {
+            ym(103602117,'reachGoal','START_CHAT_' + source.toUpperCase());
             window.open('https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi', '_blank');
         }
-
-        // Track time on site
-        setTimeout(function(){
-            ym(103602117,'reachGoal','TIME_30SEC');
-        }, 30000);
-
-        setTimeout(function(){
-            ym(103602117,'reachGoal','TIME_60SEC');
-        }, 60000);
-
-        // Track scroll events
-        window.addEventListener('scroll', function() {
-            const scrolled = (window.pageYOffset / document.body.scrollHeight) * 100;
+        
+        // Demo chat animation
+        function animateDemoChat() {
+            const messages = document.querySelectorAll('#demoChat [data-delay]');
+            messages.forEach(msg => {
+                const delay = parseInt(msg.dataset.delay);
+                setTimeout(() => {
+                    msg.style.display = 'block';
+                    setTimeout(() => {
+                        msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                }, delay);
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start demo animation after 2 seconds
+            setTimeout(animateDemoChat, 2000);
             
-            if (scrolled > 25 && !window.scroll25) {
-                window.scroll25 = true;
-                ym(103602117,'reachGoal','SCROLL_25');
-            }
+            // Track time on page
+            setTimeout(() => ym(103602117,'reachGoal','TIME_30SEC_MAIN'), 30000);
+            setTimeout(() => ym(103602117,'reachGoal','TIME_60SEC_MAIN'), 60000);
+            setTimeout(() => ym(103602117,'reachGoal','TIME_120SEC_MAIN'), 120000);
             
-            if (scrolled > 50 && !window.scroll50) {
-                window.scroll50 = true;
-                ym(103602117,'reachGoal','SCROLL_50');
-            }
-
-            if (scrolled > 75 && !window.scroll75) {
-                window.scroll75 = true;
-                ym(103602117,'reachGoal','SCROLL_75');
-            }
-        });
-
-        // Track demo section view
-        const demoSection = document.getElementById('demo-section');
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !window.demoViewed) {
-                    window.demoViewed = true;
-                    ym(103602117,'reachGoal','DEMO_SECTION_VIEW');
+            // Track scroll depth
+            let scrollTracked = false;
+            window.addEventListener('scroll', function() {
+                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                
+                if (scrollPercent > 50 && !scrollTracked) {
+                    scrollTracked = true;
+                    ym(103602117,'reachGoal','SCROLL_50_MAIN');
+                }
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('mobileMenu');
+                const toggle = document.querySelector('.mobile-menu-toggle');
+                
+                if (menu.classList.contains('active') && 
+                    !menu.contains(event.target) && 
+                    !toggle.contains(event.target)) {
+                    toggleMobileMenu();
                 }
             });
         });
-        observer.observe(demoSection);
     </script>
 </body>
 </html>
