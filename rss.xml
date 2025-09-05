@@ -1,1 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Luna Chat — обновления</title>
+    <link>https://gorod-legends.ru/</link>
+    <description>Новости и обновления сервиса Luna Chat</description>
+    <language>ru</language>
+    <item>
+      <title>Запуск обновлённой главной</title>
+      <link>https://gorod-legends.ru/</link>
+      <guid isPermaLink="true">https://gorod-legends.ru/</guid>
+      <description>Новая главная страница с упором на комфортное общение.</description>
+    </item>
+  </channel>
+</rss>
 
