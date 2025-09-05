@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Персонажи — выберите образ для общения | Luna Chat</title>
+  <meta name="description" content="Выберите образ собеседницы: романтичная, игривая, спокойная, муза и другие. Лёгкий флирт и тёплое общение 24/7. Откройте чат в Telegram.">
+  <link rel="canonical" href="https://gorod-legends.ru/characters/">
+  <meta name="theme-color" content="#100B10">
+
+  <!-- OG/Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Персонажи — выберите образ для общения">
+  <meta property="og:description" content="Романтичная, игривая, заботливая, муза… Нажмите и откройте чат в Telegram.">
+  <meta property="og:url" content="https://gorod-legends.ru/characters/">
+  <meta property="og:image" content="/assets/og-cover.svg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/favicon.ico">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand:{950:'#0B0A0C',900:'#130F12',800:'#1B1418',700:'#29181F',600:'#3A1E2B'},
+            accent:{500:'#C72C41',400:'#E1495B'},
+            gold:{400:'#F2C14E',500:'#E3B341'}
+          },
+          boxShadow:{soft:'0 10px 24px rgba(0,0,0,0.25)'}
+        }
+      }
+    }
+  </script>
+  <style>
+    html{scroll-behavior:smooth}
+    .glass{backdrop-filter:blur(10px);background:rgba(19,15,18,.45);border:1px solid rgba(255,255,255,.06)}
+    .hero{
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(199,44,65,.35), transparent 60%),
+        radial-gradient(900px 500px at 10% -20%, rgba(242,193,78,.25), transparent 60%),
+        linear-gradient(180deg,#130F12 0%,#1B1418 60%,#0B0A0C 100%);
+    }
+    /* «Скрытое фото» — размытый силуэт */
+    .hidden-photo{position:relative;overflow:hidden}
+    .hidden-photo::before{
+      content:"";position:absolute;inset:0;
+      background:
+        radial-gradient(120px 120px at 50% 30%, rgba(255,228,230,.80), transparent 60%),
+        radial-gradient(200px 140px at 50% 70%, rgba(231,84,106,.65), transparent 60%),
+        radial-gradient(600px 260px at 40% -20%, rgba(199,44,65,.25), transparent 70%),
+        radial-gradient(600px 260px at 70% 120%, rgba(242,193,78,.18), transparent 70%);
+      filter:blur(14px) saturate(1.1);transform:scale(1.1);opacity:.95
+    }
+    .hidden-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.4))}
+    .tile-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  </style>
+
+  <!-- JSON-LD (коллекция) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"CollectionPage",
+    "name":"Персонажи Luna Chat",
+    "url":"https://gorod-legends.ru/characters/",
+    "about":"Страница выбора образов для общения",
+    "isPartOf":{"@type":"WebSite","name":"Luna Chat","url":"https://gorod-legends.ru/"}
+  }
+  </script>
+</head>
+<body class="bg-brand-900 text-zinc-100 antialiased">
+
+  <!-- Верхняя плашка 18+ -->
+  <div class="text-xs text-zinc-300 bg-brand-950/80 border-b border-white/5 py-2">
+    <div class="max-w-6xl mx-auto px-4 flex items-center gap-2">
+      <span class="inline-flex w-5 h-5 rounded-full bg-accent-500/90 text-white items-center justify-center font-bold">18</span>
+      <span>Сервис для совершеннолетних пользователей. Уютное общение без грубостей.</span>
+    </div>
+  </div>
+
+  <!-- Шапка -->
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-brand-900/80 backdrop-blur supports-[backdrop-filter]:bg-brand-900/60">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <span class="inline-flex w-9 h-9 rounded-2xl bg-accent-500/90 shadow-soft"></span>
+        <span class="text-lg font-semibold tracking-wide">Luna Chat</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-300">
+        <a href="/" class="hover:text-white">Главная</a>
+        <span class="text-white">Персонажи</span>
+      </nav>
+      <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="hidden md:inline-flex px-4 py-2 rounded-xl bg-accent-500 hover:bg-accent-400 text-white font-medium shadow-soft">Открыть в Telegram</a>
+      <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5">☰</button>
+    </div>
+  </header>
+
+  <!-- Мобильное меню -->
+  <div id="mobileNav" class="md:hidden hidden border-b border-white/5 bg-brand-900/95">
+    <div class="max-w-6xl mx-auto px-4 py-4 grid gap-3 text-sm">
+      <a href="/" class="text-zinc-300">Главная</a>
+      <span class="text-white">Персонажи</span>
+      <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="mt-2 px-4 py-2 rounded-xl bg-accent-500 text-white font-medium text-center">Открыть в Telegram</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="max-w-6xl mx-auto px-4 pt-14 pb-16 md:pt-20 md:pb-20">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">Выберите образ собеседницы</h1>
+        <p class="mt-5 text-lg text-zinc-300">Романтичная, игривая, спокойная, муза и другие. Нажмите на карточку — откроется чат в Telegram.</p>
+        <div class="mt-8">
+          <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="inline-flex px-6 py-3 rounded-2xl bg-accent-500 hover:bg-accent-400 text-white font-semibold shadow-soft">Открыть чат в Telegram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Сетка карточек -->
+  <main class="py-14 md:py-18">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- 12 кликабельных карточек со «скрытым фото» -->
+        <!-- Каждая ведёт прямо в Telegram -->
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Романтичная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Романтичная</h3><p class="mt-1 text-sm text-zinc-300">Тёплые слова и лёгкие признания.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Игривая — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Игривая</h3><p class="mt-1 text-sm text-zinc-300">Флирт, улыбки и лёгкий юмор.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Спокойная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Спокойная</h3><p class="mt-1 text-sm text-zinc-300">Ровные диалоги и поддержка.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Муза — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Муза</h3><p class="mt-1 text-sm text-zinc-300">Вдохновение и идеи под цели.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Дерзкая — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Дерзкая</h3><p class="mt-1 text-sm text-zinc-300">Остроумие и искорки без грубости.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Заботливая — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Заботливая</h3><p class="mt-1 text-sm text-zinc-300">Внимание к деталям и участие.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Аниме-героиня — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Аниме-героиня</h3><p class="mt-1 text-sm text-zinc-300">Немного фантазии и тепла.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Уверенная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Уверенная</h3><p class="mt-1 text-sm text-zinc-300">Поддержит тон и динамику беседы.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Нежная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Нежная</h3><p class="mt-1 text-sm text-zinc-300">Мягкий, деликатный тон общения.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Загадочная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Загадочная</h3><p class="mt-1 text-sm text-zinc-300">С лёгкой интригой и намёком.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Оптимистичная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Оптимистичная</h3><p class="mt-1 text-sm text-zinc-300">Поднимет настроение и поддержит.</p></div>
+        </a>
+
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="group glass rounded-2xl overflow-hidden block" aria-label="Сдержанная — открыть в Telegram">
+          <div class="hidden-photo h-44"><div class="tile-overlay opacity-0 group-hover:opacity-100 transition-opacity"><span class="px-3 py-1 rounded-lg bg-black/40 text-white text-sm">Открыть в Telegram</span></div></div>
+          <div class="p-5"><h3 class="font-semibold text-white">Сдержанная</h3><p class="mt-1 text-sm text-zinc-300">Корректная и уважительная беседа.</p></div>
+        </a>
+
+      </div>
+
+      <div class="mt-10 text-center">
+        <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="inline-flex px-6 py-3 rounded-2xl bg-accent-500 hover:bg-accent-400 text-white font-semibold shadow-soft">Открыть чат в Telegram</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Подвал -->
+  <footer class="py-10 border-t border-white/5">
+    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6 text-sm text-zinc-400">
+      <div><div class="text-white font-semibold">Luna Chat</div><p class="mt-2">Уютное общение, лёгкий флирт и поддержка — 24/7.</p></div>
+      <nav class="grid gap-2">
+        <a href="/pages/about.html" class="hover:text-white">О проекте</a>
+        <a href="/pages/contact.html" class="hover:text-white">Контакты</a>
+        <a href="/pages/terms.html" class="hover:text-white">Условия</a>
+        <a href="/pages/privacy.html" class="hover:text-white">Политика конфиденциальности</a>
+      </nav>
+      <div><p>18+. Пользуйтесь уважительно. Не делитесь личными данными.</p><p class="mt-2">© <span id="y"></span> Luna Chat</p></div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear()
+    const menuBtn = document.getElementById('menuBtn')
+    const mobileNav = document.getElementById('mobileNav')
+    menuBtn?.addEventListener('click', ()=> mobileNav.classList.toggle('hidden'))
+  </script>
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103658483', 'ym');
+    ym(103658483, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/103658483" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+  <!-- /Yandex.Metrika counter -->
+</body>
+</html>
