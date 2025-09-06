@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <!-- build: 2025-09-06T10:33:19Z -->
+  <!-- build: 2025-09-06T10:42:54Z -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Совместные планы в чате</title>
@@ -43,7 +43,6 @@
         linear-gradient(180deg, #130F12 0%, #1B1418 60%, #0B0A0C 100%);
     }
     .glass{backdrop-filter:blur(10px);background:rgba(19,15,18,.45);border:1px solid rgba(255,255,255,.06)}
-    /* «Скрытое фото» (размытый силуэт) */
     .hidden-photo{position:relative;overflow:hidden}
     .hidden-photo::before{
       content:"";position:absolute;inset:0;
@@ -54,7 +53,10 @@
         radial-gradient(600px 260px at 70% 120%, rgba(242,193,78,.18), transparent 70%);
       filter:blur(14px) saturate(1.1);transform:scale(1.1);opacity:.95;
     }
-    .hidden-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.4))}
+    .hidden-photo::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.4));
+    }
     .tile-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
   </style>
 </head>
@@ -67,14 +69,16 @@
       </a>
       <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-300">
         <a href="/" class="hover:text-white">Главная</a>
-        <span class="text-white">Персонажи</span>
+        <a href="/characters/" class="hover:text-white">Персонажи</a>
       </nav>
-      <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" class="hidden md:inline-flex px-4 py-2 rounded-xl bg-accent-500 hover:bg-accent-400 text-white font-medium shadow-soft">Открыть в Telegram</a>
+      <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" target="_blank" rel="noopener nofollow"
+         class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-500 hover:bg-accent-400 text-white font-medium shadow-soft">Открыть в Telegram</a>
       <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5">☰</button>
     </div>
   </header>
 
   <main>
+    <!-- HERO -->
     <section class="gradient-hero pt-10 pb-10 border-b border-white/5">
       <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
         <div>
@@ -102,8 +106,9 @@
       </div>
     </section>
 
+    <!-- FAQ -->
     <section id="faq" class="py-10 border-t border-white/5">
-      <div class="max-w-6xl mx_auto px-4">
+      <div class="max-w-6xl mx-auto px-4">
         <h2 class="text-2xl font-semibold">Частые вопросы</h2>
         <div class="mt-4 space-y-3">
           <details class="glass rounded-xl p-4"><summary class="cursor-pointer font-medium text-white">Можно ли вести список дел?</summary><p class="mt-2 text-zinc-300">Да, наметим простые шаги в переписке.</p></details>
@@ -113,6 +118,7 @@
       </div>
     </section>
 
+    <!-- Related -->
     <section class="py-10 border-t border-white/5">
       <div class="max-w-6xl mx-auto px-4">
         <h2 class="text-2xl font-semibold">Ещё по теме</h2>
@@ -123,6 +129,7 @@
     </section>
   </main>
 
+  <!-- Sticky CTA (mobile) -->
   <div class="fixed inset-x-0 bottom-0 z-40 md:hidden backdrop-blur bg-brand-900/80 border-t border-white/10">
     <div class="max-w-6xl mx-auto px-4 py-3">
       <a href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" target="_blank" rel="noopener nofollow" class="flex items-center justify-center px-5 py-3 rounded-xl bg-accent-500 text-white font-semibold">Обсудить планы</a>
@@ -131,14 +138,20 @@
 
 <footer class="py-10 border-t border-white/5">
     <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6 text-sm text-zinc-400">
-      <div><div class="text-white font-semibold">Luna Chat</div><p class="mt-2">Уютное общение, лёгкий флирт и поддержка — 24/7.</p></div>
+      <div>
+        <div class="text-white font-semibold">Luna Chat</div>
+        <p class="mt-2">Уютное общение, лёгкий флирт и поддержка — 24/7.</p>
+      </div>
       <nav class="grid gap-2">
         <a href="/pages/about.html" class="hover:text-white">О проекте</a>
         <a href="/pages/contact.html" class="hover:text-white">Контакты</a>
         <a href="/pages/terms.html" class="hover:text-white">Условия</a>
         <a href="/pages/privacy.html" class="hover:text-white">Политика конфиденциальности</a>
       </nav>
-      <div><p>18+. Пользуйтесь уважительно. Не делитесь личными данными.</p><p class="mt-2">© <span id="y"></span> Luna Chat</p></div>
+      <div>
+        <p>18+. Пользуйтесь уважительно. Не делитесь личными данными.</p>
+        <p class="mt-2">© <span id="y"></span> Luna Chat</p>
+      </div>
     </div>
   </footer>
 
