@@ -12,20 +12,45 @@
 <meta name="robots" content="index,follow">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
-  body { margin:0; font: 16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; color:#111; }
+  :root {
+    --fg:#111; --muted:#444; --line:#eee; --cta:#111; --cta-bg:#ffd95c; --card:#fafafa;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 16px/1.65 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; color:var(--fg); background:#fff; }
   .wrap { max-width: 860px; margin: 48px auto; padding: 0 20px; }
-  h1 { font-size: 32px; line-height:1.25; margin: 0 0 16px; }
-  p.lead { font-size: 18px; color:#444; margin: 0 0 20px; }
-  .og { margin: 24px 0; border-radius: 12px; width: 100%; height: auto; }
-  footer { margin: 48px 0 0; color:#666; font-size: 14px; }
+  h1 { font-size: 34px; line-height:1.25; margin: 0 0 14px; letter-spacing:-0.2px; }
+  p.lead { font-size: 18px; color:var(--muted); margin: 0 0 22px; }
+  .og { margin: 20px 0 28px; border-radius: 12px; width: 100%; height: auto; }
+  ul.bullets { padding:0; margin: 0 0 20px; list-style: none; }
+  ul.bullets li { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin: 8px 0; }
+  section.faq { border-top:1px solid var(--line); padding-top:18px; margin-top:12px; }
+  section.faq h2 { font-size:20px; margin:0 0 8px; }
+  section.faq .qa { margin: 12px 0; }
+  section.faq .q { font-weight:600; margin:0 0 4px; }
+  section.faq .a { margin:0; color:var(--fg); }
+  .cta-box { margin: 28px 0 4px; }
+  .cta { display:inline-block; padding:12px 18px; border-radius:12px; text-decoration:none; font-weight:600; color:var(--cta); background:var(--cta-bg); }
+  footer { margin: 36px 0 0; color:#666; font-size: 14px; }
 </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Ролевые образы (мягко)</h1>
-    <p class="lead">Игра характеров без откровенных описаний: деликатные сценарии.</p>
+    <p class="lead">Нужны ролевые образы мягко? Выберите настроение и попробуйте лёгкую игру.</p>
     <img class="og" src="/static/og/rolevye-obrazy-myagko.png" alt="Ролевые образы (мягко)">
-    <footer>Обновлено: 2025-09-06T00:22:13+00:00</footer>
+    <ul class="bullets">
+<li>Сценарии без грубости</li>
+<li>Контроль тона</li>
+<li>Комфортные границы</li>
+</ul>
+    <section class="faq">
+<h2>Вопросы и ответы</h2>
+<div class="qa"><div class="q">Что значит мягко в ролевых образах?</div><p class="a">Без резких тем и прямых описаний — только намёки.</p></div>
+<div class="qa"><div class="q">Можно менять роли?</div><p class="a">Да, переключайтесь в любой момент.</p></div>
+<div class="qa"><div class="q">Подойдёт ли для новичков?</div><p class="a">Да, формат дружелюбный.</p></div>
+</section>
+    <div class="cta-box"><a class="cta" href="/">Открыть ролевую игру</a></div>
+    <footer>Обновлено: 2025-09-06T00:31:46+00:00</footer>
   </div>
 </body>
 </html>

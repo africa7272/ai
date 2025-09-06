@@ -12,20 +12,45 @@
 <meta name="robots" content="index,follow">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
-  body { margin:0; font: 16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; color:#111; }
+  :root {
+    --fg:#111; --muted:#444; --line:#eee; --cta:#111; --cta-bg:#ffd95c; --card:#fafafa;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 16px/1.65 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; color:var(--fg); background:#fff; }
   .wrap { max-width: 860px; margin: 48px auto; padding: 0 20px; }
-  h1 { font-size: 32px; line-height:1.25; margin: 0 0 16px; }
-  p.lead { font-size: 18px; color:#444; margin: 0 0 20px; }
-  .og { margin: 24px 0; border-radius: 12px; width: 100%; height: auto; }
-  footer { margin: 48px 0 0; color:#666; font-size: 14px; }
+  h1 { font-size: 34px; line-height:1.25; margin: 0 0 14px; letter-spacing:-0.2px; }
+  p.lead { font-size: 18px; color:var(--muted); margin: 0 0 22px; }
+  .og { margin: 20px 0 28px; border-radius: 12px; width: 100%; height: auto; }
+  ul.bullets { padding:0; margin: 0 0 20px; list-style: none; }
+  ul.bullets li { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin: 8px 0; }
+  section.faq { border-top:1px solid var(--line); padding-top:18px; margin-top:12px; }
+  section.faq h2 { font-size:20px; margin:0 0 8px; }
+  section.faq .qa { margin: 12px 0; }
+  section.faq .q { font-weight:600; margin:0 0 4px; }
+  section.faq .a { margin:0; color:var(--fg); }
+  .cta-box { margin: 28px 0 4px; }
+  .cta { display:inline-block; padding:12px 18px; border-radius:12px; text-decoration:none; font-weight:600; color:var(--cta); background:var(--cta-bg); }
+  footer { margin: 36px 0 0; color:#666; font-size: 14px; }
 </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Telegram-бот девушка</h1>
-    <p class="lead">Запустите бота, выберите образ и начните дружеский диалог за минуту.</p>
+    <p class="lead">Ищете telegram бот девушка? У нас это просто: один клик — и вы в переписке с выбранным образом.</p>
     <img class="og" src="/static/og/telegram-bot-devushka.png" alt="Telegram-бот девушка">
-    <footer>Обновлено: 2025-09-06T00:22:12+00:00</footer>
+    <ul class="bullets">
+<li>Выбор характера собеседницы</li>
+<li>Быстрый старт за минуту</li>
+<li>Уважительная модерация</li>
+</ul>
+    <section class="faq">
+<h2>Вопросы и ответы</h2>
+<div class="qa"><div class="q">Как работает telegram бот девушка?</div><p class="a">Вы нажимаете кнопку — открывается переписка в Telegram.</p></div>
+<div class="qa"><div class="q">Есть ли платёжные данные?</div><p class="a">Нет, мы не просим финансовых сведений в чате.</p></div>
+<div class="qa"><div class="q">Можно ли общаться в своём темпе?</div><p class="a">Да, отвечайте тогда, когда удобно именно вам.</p></div>
+</section>
+    <div class="cta-box"><a class="cta" href="/">Запустить бота</a></div>
+    <footer>Обновлено: 2025-09-06T00:31:45+00:00</footer>
   </div>
 </body>
 </html>
