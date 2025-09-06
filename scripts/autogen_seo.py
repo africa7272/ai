@@ -1,28 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-autogen_seo.py — генератор готовых SEO-страниц и OG-изображений.
-
-✓ Шапка как на главной (18+ бар, бренд, меню, CTA на бота)
-✓ Единый внешний CSS (/static/seo.css) — создаётся, если нет
-✓ «Полный» лендинг: lead, bullets, FAQ, CTA, расширенный SEO-текст
-✓ Перелинковка-хаб: красивые «чипы»-кнопки на другие статьи
-✓ URL берём из `url` или строим из `slug` → /chat/<slug>/
-✓ Перезаписывает существующие HTML/OG (исправит старые страницы)
-
-CSV ищется в порядке: data/pages.csv, content/pages.csv, pages.csv, content.csv, data.csv
-Минимум на строку: (title | og_title | h1) + (url | slug)
-Поддерживаемые колонки (любой поднабор):
-  url, slug, title, h1, description, og_title, og_description, intro, bullets,
-  faq1_q, faq1_a, ... faq10_q, faq10_a, cta, cta_href, keyword, canonical,
-  hub, related (слugs через запятую), noindex
-
-Переопределяемое окружение:
-  SITE_ORIGIN=https://example.com
-  CTA_HREF=https://t.me/your_bot
-  CTA_TEXT="Открыть в Telegram"
-  BRAND_NAME="Luna Chat"
-"""
 
 from __future__ import annotations
 import csv, os, re, sys, html, json, random
@@ -31,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-# ---------- Конфиг ----------
+# ========= Конфиг =========
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE_CSV = [
     ROOT / "data" / "pages.csv",
@@ -40,7 +17,6 @@ CANDIDATE_CSV = [
     ROOT / "content.csv",
     ROOT / "data.csv",
 ]
-
 DOCS_DIR = ROOT / "docs"
 STATIC_DIR = ROOT / "static"
 OG_DIR = STATIC_DIR / "og"
@@ -50,7 +26,6 @@ GENERATE_HTML = True
 
 SITE_ORIGIN = os.environ.get("SITE_ORIGIN", "https://gorod-legends.ru").rstrip("/")
 SITE_NAME   = os.environ.get("BRAND_NAME", "Luna Chat")
-ALWAYS_ADD_CTA   = True
 DEFAULT_CTA_TEXT = os.environ.get("CTA_TEXT", "Открыть в Telegram")
 GLOBAL_CTA_HREF  = os.environ.get("CTA_HREF",  "/go/telegram")
 
@@ -71,7 +46,7 @@ FONTS_CANDIDATES_REG = [
     "/System/Library/Fonts/Supplemental/Arial.ttf",
 ]
 
-# ---------- Вёрстка ----------
+# ========= Шаблоны (НЕ f-строки!) =========
 HTML_HEAD = """<!doctype html>
 <html lang="ru">
 <head>
@@ -113,17 +88,6 @@ HTML_HEAD = """<!doctype html>
 </header>
 """
 
-HTML_FOOT = """
-<footer class="site-footer">
-  <div class="max">
-    <div class="updated">Обновлено: {updated_at}</div>
-    <div class="copy">© {year} {site_name}</div>
-  </div>
-</footer>
-</body>
-</html>
-"""
-
 HTML_BODY = """
 <main class="page">
   <div class="max">
@@ -134,9 +98,7 @@ HTML_BODY = """
       <img class="og" src="{og_image_path}" alt="{title}">
 
       {bullets_html}
-
       {seo_sections}
-
       {faq_html}
 
       <div class="cta-bar">
@@ -149,7 +111,73 @@ HTML_BODY = """
 </main>
 """
 
-# ---------- Утилиты ----------
+HTML_FOOT = """
+<footer class="site-footer">
+  <div class="max">
+    <div class="updated">Обновлено: {updated_at}</div>
+    <div class="copy">© {year} {site_name}</div>
+  </div>
+</footer>
+</body>
+</html>
+"""
+
+DEFAULT_CSS = """
+:root{
+  --bg:#0d0e12; --fg:#f5f7fb; --muted:#a6aec8; --line:#272a33;
+  --card:#151720; --accent:#e14857; --accent-2:#ff6b7a;
+  --radius:16px; --max:960px;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
+/* age bar */
+.agebar{background:#111; color:#ffd95c; font-size:13px; display:flex; gap:10px; align-items:center; padding:6px 12px; border-bottom:1px solid var(--line)}
+.agebar .age{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#b91818; color:#fff; font-weight:700; font-size:12px}
+.max{max-width:var(--max);margin:0 auto;padding:0 20px}
+/* header */
+.site-header{position:sticky;top:0;z-index:10;background:#13151b; border-bottom:1px solid var(--line)}
+.site-header .max{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);font-weight:700}
+.brand .dot{width:28px;height:28px;border-radius:50%;background:#c43a49;display:inline-block}
+.nav{display:flex;gap:22px}
+.nav a{color:var(--muted);text-decoration:none}
+.nav a:hover{color:var(--fg)}
+.top-cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 16px;border-radius:12px;font-weight:700;box-shadow:0 6px 18px rgba(225,72,87,.25)}
+/* page */
+.page{padding:28px 0 40px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px}
+.h1{font-size:34px;line-height:1.25;margin:0 0 10px}
+.lead{font-size:18px;color:var(--muted);margin:0 0 16px}
+.og{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);margin:14px 0 18px}
+/* bullets */
+.bullets{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bullets li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+@media (max-width:720px){.bullets{grid-template-columns:1fr}}
+/* seo sections */
+.sec{margin:18px 0}
+.h2{font-size:20px;margin:0 0 8px}
+/* faq */
+.faq{border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
+.qa{margin:12px 0;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+.q{font-weight:700;margin:0 0 6px}
+.a{margin:0}
+/* CTA */
+.cta-bar{display:flex;justify-content:center;margin:22px 0 4px}
+.cta{display:inline-block;padding:12px 18px;border-radius:14px;text-decoration:none;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 4px 16px rgba(225,72,87,.25)}
+.cta:hover{transform:translateY(-1px)}
+/* hub chips */
+.hub{margin:22px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-block;padding:9px 12px;border-radius:999px;background:#1b1e27;border:1px solid var(--line);text-decoration:none;color:#fff}
+.chip:hover{background:#232736}
+/* footer */
+.site-footer{border-top:1px solid var(--line);padding:16px 0;color:#a6aec8}
+.site-footer .max{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.updated,.copy{font-size:14px}
+@media (max-width:520px){.h1{font-size:28px}}
+""".strip() + "\n"
+
+# ========= Утилиты =========
 def find_first_existing(paths: Iterable[Path]) -> Optional[Path]:
     return next((p for p in paths if p.exists()), None)
 
@@ -169,6 +197,10 @@ def slugify_url_to_leaf(url: str) -> str:
     leaf = re.sub(r"-{2,}", "-", leaf).strip("-")
     return leaf or "page"
 
+def norm_slug(s: str) -> str:
+    s = s.strip().strip("/")
+    return slugify_url_to_leaf("/" + s + "/")
+
 def split_bullets(s: str) -> List[str]:
     if not s: return []
     parts = re.split(r"\s*\|\s*|\r?\n", s.strip())
@@ -177,7 +209,7 @@ def split_bullets(s: str) -> List[str]:
 def is_true(val: str) -> bool:
     return (val or "").strip().lower() in {"1","true","yes","y","да","on"}
 
-# ---------- Модель строки ----------
+# ========= Модель =========
 @dataclass
 class PageRow:
     url: str
@@ -203,7 +235,6 @@ class PageRow:
 
     @staticmethod
     def from_dict(d: Dict[str, str]) -> "PageRow":
-        # URL / SLUG
         raw_url = (d.get("url") or "").strip()
         slug = (d.get("slug") or "").strip().strip("/")
         if not raw_url:
@@ -213,7 +244,6 @@ class PageRow:
         if not raw_url.startswith("/"): raw_url = "/" + raw_url
         if not raw_url.endswith("/"): raw_url += "/"
 
-        # Заголовки
         title = (d.get("title") or d.get("og_title") or d.get("h1") or "").strip()
         if not title:
             raise ValueError("CSV row is missing one of ['title','og_title','h1']")
@@ -231,16 +261,14 @@ class PageRow:
             if q and a:
                 faqs.append((q, a))
 
-        cta_text = (d.get("cta") or "").strip()
-        if ALWAYS_ADD_CTA and not cta_text:
-            cta_text = DEFAULT_CTA_TEXT
-        cta_href = (d.get("cta_href") or "").strip() or GLOBAL_CTA_HREF
+        cta_text = (d.get("cta") or DEFAULT_CTA_TEXT).strip()
+        cta_href = (d.get("cta_href") or GLOBAL_CTA_HREF).strip()
 
         robots = "noindex,nofollow" if is_true(d.get("noindex")) else "index,follow"
         keyword = (d.get("keyword") or "").strip()
         canonical = (d.get("canonical") or f"{SITE_ORIGIN}{raw_url}").strip()
         hub = (d.get("hub") or "").strip().lower()
-        related_slugs = [s.strip().strip("/") for s in (d.get("related") or "").split(",") if s.strip()]
+        related_slugs = [norm_slug(s) for s in (d.get("related") or "").split(",") if s.strip()]
 
         return PageRow(
             url=raw_url, title=title, h1=h1, description=description,
@@ -250,7 +278,7 @@ class PageRow:
             hub=hub, related_slugs=related_slugs
         )
 
-# ---------- CSV ----------
+# ========= CSV =========
 def load_rows() -> List[PageRow]:
     csv_path = find_first_existing(CANDIDATE_CSV)
     if not csv_path:
@@ -267,7 +295,7 @@ def load_rows() -> List[PageRow]:
     print(f"✔ Найдено строк: {len(rows)} из {csv_path.relative_to(ROOT)}")
     return rows
 
-# ---------- OG (Pillow) ----------
+# ========= OG =========
 def _load_first_font(candidates: List[str], size: int):
     from PIL import ImageFont
     for path in candidates:
@@ -303,7 +331,8 @@ def _wrap_text(draw, text: str, font, max_width: int, max_lines: int) -> str:
                 while _measure_text(draw, tail + "…", font)[0] > max_width and len(tail) > 3:
                     tail = tail[:-1].rstrip()
                 lines.append((tail + "…") if tail else "…"); break
-    if cur and len(lines) < max_lines: lines.append(" ".join(cur))
+    if cur and len(lines) < max_lines:
+        lines.append(" ".join(cur))
     return "\n".join(lines[:max_lines])
 
 def ensure_og(slug: str, title_text: str) -> Path:
@@ -324,84 +353,72 @@ def ensure_og(slug: str, title_text: str) -> Path:
     y_title = (OG_SIZE[1] - h_title)//2 - 16
 
     draw.multiline_text((x_title, y_title), wrapped, font=font_big, fill=OG_TITLE_FILL, spacing=6, align="center")
-    footer = f"{SITE_NAME}"
+    footer = SITE_NAME
     w_f, h_f = _measure_text(draw, footer, font_small)
     draw.text(((OG_SIZE[0]-w_f)//2, OG_SIZE[1]-h_f-36), footer, font=font_small, fill=OG_FOOTER_FILL)
 
     img.save(out, format="PNG", optimize=True)
     return out
 
-# ---------- Рендер контента ----------
+# ========= Рендер =========
 def render_bullets(items: List[str]) -> str:
     if not items: return ""
     lis = "\n".join(f"<li>{esc(x)}</li>" for x in items)
-    return f'<ul class="bullets">\n{lis}\n</ul>'
+    return '<ul class="bullets">\n' + lis + '\n</ul>'
 
 def render_faq(faqs: List[Tuple[str, str]]) -> Tuple[str, str]:
     if not faqs:
         return "", "[]"
-    blocks = []
-    schema_items = []
+    blocks, schema = [], []
     for q, a in faqs:
         blocks.append(f'<div class="qa"><div class="q">{esc(q)}</div><p class="a">{esc(a)}</p></div>')
-        schema_items.append({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}})
-    faq_html = f'<section class="faq">\n<h2 class="h2">Вопросы и ответы</h2>\n' + "\n".join(blocks) + "\n</section>"
-    faq_json_ld = json.dumps({"@context":"https://schema.org","@type":"FAQPage","mainEntity":schema_items}, ensure_ascii=False)
-    return faq_html, faq_json_ld
+        schema.append({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}})
+    html_block = '<section class="faq">\n<h2 class="h2">Вопросы и ответы</h2>\n' + "\n".join(blocks) + "\n</section>"
+    json_ld = json.dumps({"@context":"https://schema.org","@type":"FAQPage","mainEntity":schema}, ensure_ascii=False)
+    return html_block, json_ld
 
 def generate_seo_sections(row: PageRow) -> str:
-    """
-    Если «длинного» текста маловато — формируем 2–3 секции из intro/bullets/faq
-    ~300–600 слов, без пошлостей.
-    """
     blocks = []
-    # 1. Зачем это (из intro/description)
     lead = row.intro or row.description or row.og_description or row.title
-    blocks.append(f'<section class="sec"><h2 class="h2">О чём этот чат</h2><p>{esc(lead)}</p></section>')
-
-    # 2. Как начать (на базе bullets)
+    blocks.append('<section class="sec"><h2 class="h2">О чём этот чат</h2><p>' + esc(lead) + "</p></section>")
     if row.bullets:
         paras = []
         for b in row.bullets:
-            paras.append(f"<p><strong>{esc(b)}.</strong> Напишите первое короткое сообщение — дальше всё пойдёт в вашем темпе.</p>")
+            paras.append("<p><strong>" + esc(b) + ".</strong> Напишите первое короткое сообщение — дальше всё пойдёт в вашем темпе.</p>")
         blocks.append('<section class="sec"><h2 class="h2">Как начать разговор</h2>' + "".join(paras) + "</section>")
-    # 3. Советы по стилю (на базе FAQ)
     if row.faqs:
         tips = []
         for q, a in row.faqs[:3]:
-            tips.append(f"<p><strong>{esc(q)}</strong> {esc(a)}</p>")
+            tips.append("<p><strong>" + esc(q) + "</strong> " + esc(a) + "</p>")
         blocks.append('<section class="sec"><h2 class="h2">Советы для комфортного диалога</h2>' + "".join(tips) + "</section>")
     return "\n".join(blocks)
 
 def build_hub_html(all_rows: List[PageRow], cur: PageRow, limit: int = 8) -> str:
-    # приоритет: related_slugs → тот же hub → просто несколько других страниц
-    picks: List[PageRow] = []
     by_slug = {r.slug: r for r in all_rows}
+    picks: List[PageRow] = []
+
     for s in cur.related_slugs:
-        r = by_slug.get(slugify_url_to_leaf("/"+s+"/"))
-        if r and r.url != cur.url:
+        r = by_slug.get(norm_slug(s))
+        if r and r.url != cur.url and r not in picks:
             picks.append(r)
+
     if len(picks) < limit and cur.hub:
         hub_rows = [r for r in all_rows if r.hub == cur.hub and r.url != cur.url]
         random.shuffle(hub_rows)
         for r in hub_rows:
             if len(picks) >= limit: break
             if r not in picks: picks.append(r)
+
     if len(picks) < limit:
-        rest = [r for r in all_rows if r.url != cur.url]
+        rest = [r for r in all_rows if r.url != cur.url and r not in picks]
         random.shuffle(rest)
-        for r in rest:
-            if len(picks) >= limit: break
-            if r not in picks: picks.append(r)
+        picks += rest[: max(0, limit - len(picks))]
 
     if not picks:
         return ""
-    chips = []
-    for r in picks[:limit]:
-        chips.append(f'<a class="chip" href="{esc(r.url)}">{esc(r.title)}</a>')
+    chips = [f'<a class="chip" href="{esc(r.url)}">{esc(r.title)}</a>' for r in picks[:limit]]
     return '<section class="hub"><h2 class="h2">Другие темы</h2><div class="chips">' + "\n".join(chips) + "</div></section>"
 
-# ---------- HTML запись ----------
 def write_html(row: PageRow, all_rows: List[PageRow]) -> Path:
     target_dir = DOCS_DIR / row.url.lstrip("/")
     if not str(target_dir).endswith("/"):
@@ -410,16 +427,15 @@ def write_html(row: PageRow, all_rows: List[PageRow]) -> Path:
     ensure_dir(file_path)
 
     og_slug = row.slug
-    og_image_rel = f"/static/og/{og_slug}.png"
-    og_image_abs = f"{SITE_ORIGIN}{og_image_rel}"
+    og_image_rel = "/static/og/" + og_slug + ".png"
+    og_image_abs = SITE_ORIGIN + og_image_rel
 
     lead = row.intro or row.description or row.og_description or row.title
     bullets_html = render_bullets(row.bullets)
     faq_html, faq_json_ld = render_faq(row.faqs)
     seo_sections = generate_seo_sections(row)
     hub_html = build_hub_html(all_rows, row, limit=8)
-
-    meta_keywords = f'<meta name="keywords" content="{esc(row.keyword)}">' if row.keyword else ""
+    meta_keywords = '<meta name="keywords" content="' + esc(row.keyword) + '">' if row.keyword else ""
 
     head = HTML_HEAD.format(
         title=esc(row.title),
@@ -455,92 +471,41 @@ def write_html(row: PageRow, all_rows: List[PageRow]) -> Path:
         site_name=esc(SITE_NAME),
     )
 
-    (file_path).write_text(head + body + foot, encoding="utf-8")
+    file_path.write_text(head + body + foot, encoding="utf-8")
     return file_path
 
-# ---------- CSS (создаём, если нет) ----------
-DEFAULT_CSS = """
-:root{
-  --bg:#0d0e12; --fg:#f5f7fb; --muted:#a6aec8; --line:#272a33;
-  --card:#151720; --accent:#e14857; --accent-2:#ff6b7a;
-  --radius:16px; --max:960px;
-}
-*{box-sizing:border-box} html,body{margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
-
-/* age bar */
-.agebar{background:#111; color:#ffd95c; font-size:13px; display:flex; gap:10px; align-items:center; padding:6px 12px; border-bottom:1px solid var(--line)}
-.agebar .age{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#b91818; color:#fff; font-weight:700; font-size:12px}
-
-.max{max-width:var(--max);margin:0 auto;padding:0 20px}
-
-/* header */
-.site-header{position:sticky;top:0;z-index:10;background:#13151b; border-bottom:1px solid var(--line)}
-.site-header .max{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);font-weight:700}
-.brand .dot{width:28px;height:28px;border-radius:50%;background:#c43a49;display:inline-block}
-.nav{display:flex;gap:22px}
-.nav a{color:var(--muted);text-decoration:none}
-.nav a:hover{color:var(--fg)}
-.top-cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 16px;border-radius:12px;font-weight:700;box-shadow:0 6px 18px rgba(225,72,87,.25)}
-
-/* page */
-.page{padding:28px 0 40px}
-.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px}
-.h1{font-size:34px;line-height:1.25;margin:0 0 10px}
-.lead{font-size:18px;color:var(--muted);margin:0 0 16px}
-.og{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);margin:14px 0 18px}
-
-/* bullets */
-.bullets{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.bullets li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-@media (max-width:720px){.bullets{grid-template-columns:1fr}}
-
-/* seo sections */
-.sec{margin:18px 0}
-.h2{font-size:20px;margin:0 0 8px}
-
-/* faq */
-.faq{border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
-.qa{margin:12px 0;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
-.q{font-weight:700;margin:0 0 6px}
-.a{margin:0}
-
-/* CTA */
-.cta-bar{display:flex;justify-content:center;margin:22px 0 4px}
-.cta{display:inline-block;padding:12px 18px;border-radius:14px;text-decoration:none;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 4px 16px rgba(225,72,87,.25)}
-.cta:hover{transform:translateY(-1px)}
-
-/* hub chips */
-.hub{margin:22px 0 8px}
-.chips{display:flex;flex-wrap:wrap;gap:10px}
-.chip{display:inline-block;padding:9px 12px;border-radius:999px;background:#1b1e27;border:1px solid var(--line);text-decoration:none;color:var(--fg)}
-.chip:hover{background:#232736}
-
-/* footer */
-.site-footer{border-top:1px solid var(--line);padding:16px 0;color:var(--muted)}
-.site-footer .max{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
-.updated,.copy{font-size:14px}
-@media (max-width:520px){.h1{font-size:28px}}
-""".strip() + "\n"
-
+# ========= CSS =========
 def ensure_css():
     CSS_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not CSS_PATH.exists():
         CSS_PATH.write_text(DEFAULT_CSS, encoding="utf-8")
-        print(f"CSS ✓ {CSS_PATH.relative_to(ROOT)} (создан)")
+        print("CSS ✓", CSS_PATH.relative_to(ROOT), "(создан)")
 
-# ---------- Main ----------
+# ========= Main =========
+def load_first_existing(paths: Iterable[Path]) -> Optional[Path]:
+    return find_first_existing(paths)
+
+def load_rows_safe() -> List[PageRow]:
+    return load_rows()
+
 def main() -> int:
     ensure_css()
-    rows = load_rows()
+    rows = load_rows_safe()
     if not rows:
         print("ℹ️  Данных нет — ничего не сгенерировано.")
         return 0
 
-    # OG + HTML
+    from PIL import Image  # чтобы падать раньше, если Pillow не установлен
     cnt_og = 0; cnt_html = 0
     for row in rows:
         og_path = ensure_og(row.slug, row.og_title or row.title); cnt_og += 1
-        print(f"OG ✓ {og_path.rel_
+        print("OG ✓", og_path.relative_to(ROOT))
+        if GENERATE_HTML:
+            html_path = write_html(row, rows); cnt_html += 1
+            print("HTML ✓", html_path.relative_to(ROOT))
 
+    print("\n✅ Готово. OG:", cnt_og, " HTML:", cnt_html, " (UTC:", now_utc_iso(), ")")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
