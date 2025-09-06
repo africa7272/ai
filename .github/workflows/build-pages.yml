@@ -1,0 +1,46 @@
+name: Build pages from CSV
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - "data/**"
+      - "scripts/generate_chat_pages.py"
+      - "index.html"
+      - "characters/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate pages
+        env:
+          BASE_URL: "https://gorod-legends.ru"
+          BOT_URL: "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi"
+          METRIKA_ID: "103658483"
+          OG_DEFAULT: "/assets/og-cover.jpg"
+          WRITE_SITEMAP: "1"
+        run: |
+          python3 scripts/generate_chat_pages.py --csv data/pages.csv --out .
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: rebuild pages from CSV"
+          commit_user_name: "pages-bot"
+          commit_user_email: "pages-bot@users.noreply.github.com"
+          file_pattern: |
+            chat/**
+            sitemap.xml
