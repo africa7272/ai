@@ -2,16 +2,21 @@ name: Build pages from CSV
 
 on:
   push:
-    branches: [ main, master ]
     paths:
-      - "data/**"
-      - "scripts/generate_chat_pages.py"
-      - "index.html"
-      - "characters/**"
-  workflow_dispatch: {}
-
-permissions:
-  contents: write
+      - 'data/pages.csv'
+      - 'scripts/**'
+      - 'templates/**'
+      - '.github/workflows/build_pages.yml'
+  workflow_dispatch:
+    inputs:
+      csv_path:
+        description: Path to CSV (utf-8)
+        required: false
+        default: data/pages.csv
+      out_dir:
+        description: Output root
+        required: false
+        default: docs
 
 jobs:
   build:
@@ -23,24 +28,22 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Generate pages
         env:
-          BASE_URL: "https://gorod-legends.ru"
-          BOT_URL: "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi"
-          METRIKA_ID: "103658483"
-          OG_DEFAULT: "/assets/og-cover.jpg"
-          WRITE_SITEMAP: "1"
+          SITE_BASE: https://gorod-legends.ru
+          BOT_URL: https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi
         run: |
-          python3 scripts/generate_chat_pages.py --csv data/pages.csv --out .
+          python3 scripts/generate_chat_pages.py \
+            --csv "${{ github.event.inputs.csv_path || 'data/pages.csv' }}" \
+            --template templates/luna_advanced.html \
+            --out "${{ github.event.inputs.out_dir || 'docs' }}"
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: rebuild pages from CSV"
-          commit_user_name: "pages-bot"
-          commit_user_email: "pages-bot@users.noreply.github.com"
-          file_pattern: |
-            chat/**
-            sitemap.xml
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "Build pages from CSV"
+          git push
