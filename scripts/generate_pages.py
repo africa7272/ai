@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Luna Chat — генератор/обновлятор SEO-страниц из CSV с единым шаблоном.
-Поддерживает несколько хабов (определяются из url), авто-перелинковку
-(5 предыдущих записей, если internal_links пуст), перезапись существующих файлов.
+Генератор SEO-страниц из CSV с единым шаблоном.
+Пишет в указанный --out (по умолчанию: корень репозитория).
 
-CSV (жёстко, 25 колонок, в таком порядке):
+CSV (25 колонок, строгий порядок):
 url,title,keyword,slug,description,intro,cta,bullets,tags,examples,tips_do,tips_avoid,h2a_title,h2a_text,h2b_title,h2b_text,h2c_title,h2c_text,faq1_q,faq1_a,faq2_q,faq2_a,faq3_q,faq3_a,internal_links
-
-Правила форматов:
-- bullets / tags / examples / tips_do / tips_avoid — разделитель: |
-- internal_links — элементы через |. Каждый элемент либо:
-    "/chat/slug/"  либо  "Анкор::/chat/slug/"  либо просто "slug"
-- Все текстовые значения экранируются.
-- Шаблон universal: templates/luna_advanced.html (Tailwind CDN).
-
-Вывод: docs/<url>/index.html  (например: docs/chat/anime-devushka-bot/index.html)
-
-ENV:
-- SITE_BASE (default: https://gorod-legends.ru)
-- BOT_URL   (default: https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi)
 """
 
 import argparse, csv, html, json, os, re, sys, unicodedata
@@ -35,11 +21,7 @@ REQUIRED = [
     "faq1_q","faq1_a","faq2_q","faq2_a","faq3_q","faq3_a","internal_links"
 ]
 
-HUB_LABELS_RU = {
-    "chat":  "Чат",
-    "guide": "Гайды",
-    "bot":   "Боты",
-}
+HUB_LABELS_RU = {"chat":"Чат","guide":"Гайды","bot":"Боты"}
 
 def slugify(s: str) -> str:
     s = unicodedata.normalize('NFKD', s).encode('ascii','ignore').decode('ascii')
@@ -61,8 +43,7 @@ def split_items(s: str):
     return [i.strip() for i in (s or "").split("|") if i and i.strip()]
 
 def make_bullets_html(items):
-    if not items:
-        return '<li class="text-zinc-400">Скоро дополним.</li>'
+    if not items: return '<li class="text-zinc-400">Скоро дополним.</li>'
     rows = []
     for it in items:
         rows.append(
@@ -73,25 +54,21 @@ def make_bullets_html(items):
     return "\n".join(rows)
 
 def make_tag_chips(tags):
-    if not tags:
-        return ''
-    chips = []
-    for t in tags:
-        chips.append(
-            f'<span class="px-3 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs">{html.escape(t)}</span>'
-        )
-    return "\n".join(chips)
+    if not tags: return ''
+    return "\n".join(
+        f'<span class="px-3 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs">{html.escape(t)}</span>'
+        for t in tags
+    )
 
 def make_examples_html(examples):
-    if not examples:
-        return ''
-    lis = [f'<li class="glass rounded-lg px-3 py-2"><code class="text-sm">{html.escape(ex)}</code></li>'
-           for ex in examples]
-    return "\n".join(lis)
+    if not examples: return ''
+    return "\n".join(
+        f'<li class="glass rounded-lg px-3 py-2"><code class="text-sm">{html.escape(ex)}</code></li>'
+        for ex in examples
+    )
 
 def make_list_html(items):
-    if not items:
-        return '<li class="text-zinc-400">Скоро дополним.</li>'
+    if not items: return '<li class="text-zinc-400">Скоро дополним.</li>'
     return "\n".join(
         f'<li class="flex gap-2"><span class="mt-2 w-2 h-2 bg-gold-400 rounded-full"></span>'
         f'<span class="text-zinc-300">{html.escape(it)}</span></li>' for it in items
@@ -112,50 +89,38 @@ def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
     result = []
     for raw in items:
         label, url = None, raw
-        if "::" in raw:
-            label, url = raw.split("::", 1)
+        if "::" in raw: label, url = raw.split("::", 1)
         url = url.strip()
 
         if not url.startswith("/"):
             page = pages_by_slug.get(url)
             if page:
-                href = norm_url(page["url"])
-                text = (label or page["title"] or href).strip()
+                href = norm_url(page["url"]); text = (label or page["title"] or href).strip()
             else:
-                href = "/" + url + "/"
-                text = (label or url).strip()
+                href = "/" + url + "/"; text = (label or url).strip()
         else:
             if url.startswith("http://") or url.startswith("https://"):
-                href = url
-                text = (label or url).strip()
+                href = url; text = (label or url).strip()
             else:
                 href = norm_url(url)
                 page = pages_by_path.get(href.rstrip("/"))
                 text = (label or (page["title"] if page else href)).strip()
 
-        if not href.startswith("http"):
-            href_abs = f"{SITE_BASE}{href}"
-        else:
-            href_abs = href
-
+        href_abs = href if href.startswith("http") else f"{SITE_BASE}{href}"
         result.append((href_abs, text))
     return result
 
 def make_internal_links_html(rows, idx_current, row, pages_by_slug, pages_by_path):
     raw = (row.get("internal_links") or "").strip()
-    if not raw:
-        raw = build_internal_links_auto(rows, idx_current)
+    if not raw: raw = build_internal_links_auto(rows, idx_current)
     pairs = parse_internal_links(raw, pages_by_slug, pages_by_path)
-    if not pairs:
-        return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
-    cards = []
-    for href, text in pairs:
-        cards.append(
-            f'<a href="{html.escape(href)}" class="glass rounded-xl p-4 hover:bg-white/10 transition">'
-            f'<div class="text-white font-medium">{html.escape(text)}</div>'
-            f'<div class="text-xs text-zinc-400 mt-1">Открыть →</div></a>'
-        )
-    return "\n".join(cards)
+    if not pairs: return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
+    return "\n".join(
+        f'<a href="{html.escape(h)}" class="glass rounded-xl p-4 hover:bg-white/10 transition">'
+        f'<div class="text-white font-medium">{html.escape(t)}</div>'
+        f'<div class="text-xs text-zinc-400 mt-1">Открыть →</div></a>'
+        for h,t in pairs
+    )
 
 def faq_block_and_json(row: dict):
     qas = [
@@ -167,8 +132,7 @@ def faq_block_and_json(row: dict):
     schema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[]}
     for q,a in qas:
         q, a = (q or "").strip(), (a or "").strip()
-        if not q or not a:
-            continue
+        if not q or not a: continue
         blocks.append(
             f'<details class="glass rounded-xl p-4">'
             f'<summary class="cursor-pointer font-medium text-white">{html.escape(q)}</summary>'
@@ -179,31 +143,24 @@ def faq_block_and_json(row: dict):
             "@type":"Question","name": q,
             "acceptedAnswer":{"@type":"Answer","text": a}
         })
-    if not blocks:
-        blocks.append('<p class="text-zinc-400">Вопросы появятся позже.</p>')
+    if not blocks: blocks.append('<p class="text-zinc-400">Вопросы появятся позже.</p>')
     return "\n".join(blocks), json.dumps(schema, ensure_ascii=False)
 
 def article_jsonld(title, description, canonical, keywords, ts_iso):
     data = {
-        "@context":"https://schema.org",
-        "@type":"Article",
-        "headline": title,
-        "description": description,
-        "inLanguage": "ru",
+        "@context":"https://schema.org","@type":"Article",
+        "headline": title,"description": description,"inLanguage": "ru",
         "mainEntityOfPage": canonical,
         "author": {"@type":"Organization","name":"Luna Chat"},
         "publisher": {"@type":"Organization","name":"Luna Chat"},
-        "datePublished": ts_iso,
-        "dateModified": ts_iso,
-        "keywords": keywords
+        "datePublished": ts_iso,"dateModified": ts_iso,"keywords": keywords
     }
     return json.dumps(data, ensure_ascii=False)
 
 def breadcrumbs_jsonld(canonical, title, hub_en):
     crumb2 = HUB_LABELS_RU.get(hub_en, "Раздел")
     data = {
-        "@context":"https://schema.org",
-        "@type":"BreadcrumbList",
+        "@context":"https://schema.org","@type":"BreadcrumbList",
         "itemListElement":[
             {"@type":"ListItem","position":1,"name":"Главная","item": SITE_BASE + "/"},
             {"@type":"ListItem","position":2,"name": crumb2, "item": SITE_BASE + f"/{hub_en}/"},
@@ -221,45 +178,32 @@ def render(template: str, ctx: dict) -> str:
 def read_csv_rows(csv_path: Path):
     with open(csv_path, "r", encoding="utf-8-sig", newline="") as fh:
         header_line = fh.readline()
-        if not header_line:
-            raise SystemExit("[ERR] CSV пуст.")
+        if not header_line: raise SystemExit("[ERR] CSV пуст.")
         header = next(csv.reader([header_line]))
         header_lower = [h.strip().lower() for h in header]
-        wanted_lower = [h.lower() for h in REQUIRED]
-        if header_lower != wanted_lower:
-            raise SystemExit(
-                "[ERR] Неверные заголовки CSV.\n"
-                f"Ожидается:\n{','.join(REQUIRED)}\n"
-                f"Получено:\n{','.join(header)}"
-            )
+        if header_lower != [h.lower() for h in REQUIRED]:
+            raise SystemExit("[ERR] Неверные заголовки CSV.")
         fh.seek(0)
         reader = csv.DictReader(fh)
         rows = list(reader)
-        normed = [{k:(r.get(k) or "") for k in REQUIRED} for r in rows]
-        return normed
+        return [{k:(r.get(k) or "") for k in REQUIRED} for r in rows]
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--csv", required=True, help="Путь к CSV (utf-8 / utf-8-sig)")
-    ap.add_argument("--template", required=True, help="Путь к HTML-шаблону")
-    ap.add_argument("--out", default="docs", help="Корень вывода (по умолчанию: docs)")
+    ap.add_argument("--csv", required=True)
+    ap.add_argument("--template", required=True)
+    ap.add_argument("--out", default=".", help="Корень вывода (по умолчанию: .)")
     args = ap.parse_args()
 
-    tpl_path = Path(args.template)
-    template = tpl_path.read_text(encoding="utf-8")
-
-    out_root = Path(args.out)
-    out_root.mkdir(parents=True, exist_ok=True)
-
+    template = Path(args.template).read_text(encoding="utf-8")
+    out_root = Path(args.out); out_root.mkdir(parents=True, exist_ok=True)
     rows = read_csv_rows(Path(args.csv))
 
-    pages_by_slug = {}
-    pages_by_path = {}
+    pages_by_slug, pages_by_path = {}, {}
     for r in rows:
         slug = (r.get("slug") or "").strip()
         url  = norm_url(r.get("url") or "")
-        if slug:
-            pages_by_slug[slug] = r
+        if slug: pages_by_slug[slug] = r
         pages_by_path[url.rstrip("/")] = r
 
     total = 0
@@ -308,29 +252,19 @@ def main():
         h2c_text  = (row.get("h2c_text")  or "").strip()
 
         ctx = {
-            "BUILD_TS": build_ts_iso,
-            "TITLE": html.escape(title),
-            "DESCRIPTION": html.escape(desc),
-            "H1": html.escape(title),
-            "INTRO": html.escape(intro),
-            "BULLETS_HTML": bullets_html,
-            "FAQ_HTML": faq_html,
-            "JSONLD_BUNDLE": jsonld_bundle,
-            "CANONICAL": canonical,
-            "BOT_URL": BOT_URL,
-            "CTA": html.escape(cta),
-            "TAGS_HTML": tags_html,
-            "EXAMPLES_HTML": examples_html,
-            "TIPS_DO_HTML": tips_do_html,
-            "TIPS_AVOID_HTML": tips_avoid_html,
+            "BUILD_TS": build_ts_iso, "TITLE": html.escape(title), "DESCRIPTION": html.escape(desc),
+            "H1": html.escape(title), "INTRO": html.escape(intro),
+            "BULLETS_HTML": bullets_html, "FAQ_HTML": faq_html, "JSONLD_BUNDLE": jsonld_bundle,
+            "CANONICAL": canonical, "BOT_URL": BOT_URL, "CTA": html.escape(cta),
+            "TAGS_HTML": tags_html, "EXAMPLES_HTML": examples_html,
+            "TIPS_DO_HTML": tips_do_html, "TIPS_AVOID_HTML": tips_avoid_html,
             "H2A_TITLE": html.escape(h2a_title) if h2a_title else "",
-            "H2A_TEXT": html.escape(h2a_text) if h2a_text else "",
+            "H2A_TEXT":  html.escape(h2a_text)  if h2a_text  else "",
             "H2B_TITLE": html.escape(h2b_title) if h2b_title else "",
-            "H2B_TEXT": html.escape(h2b_text) if h2b_text else "",
+            "H2B_TEXT":  html.escape(h2b_text)  if h2b_text  else "",
             "H2C_TITLE": html.escape(h2c_title) if h2c_title else "",
-            "H2C_TEXT": html.escape(h2c_text) if h2c_text else "",
-            "INTERNAL_LINKS_HTML": related_html,
-            "KEYWORDS_META": html.escape(keywords_meta),
+            "H2C_TEXT":  html.escape(h2c_text)  if h2c_text  else "",
+            "INTERNAL_LINKS_HTML": related_html, "KEYWORDS_META": html.escape(keywords_meta),
         }
 
         html_out = render(template, ctx)
