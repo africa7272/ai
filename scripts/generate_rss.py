@@ -10,7 +10,7 @@ SITE_DESCRIPTION = os.environ.get("SITE_DESCRIPTION", "Уютное общени
 LANGUAGE = "ru"
 
 CSV_PATH = Path("pages.csv") if Path("pages.csv").exists() else Path("data/pages.csv")
-OUT_PATH = Path("docs/rss.xml")
+OUT_PATH = Path("rss.xml")  # <-- В КОРНЕ
 
 def norm_url(u: str) -> str:
     u = (u or "").strip()
@@ -23,47 +23,42 @@ def main():
         raise SystemExit(f"[ERR] CSV not found: {CSV_PATH}")
 
     with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+        rows = list(csv.DictReader(f))
 
     rows_rev = list(reversed(rows))
     now = datetime.now(timezone.utc)
     last_build = email.utils.format_datetime(now)
 
-    out = []
-    out.append('<?xml version="1.0" encoding="UTF-8"?>')
-    out.append('<rss version="2.0">')
-    out.append('  <channel>')
-    out.append(f'    <title>{html.escape(SITE_TITLE)}</title>')
-    out.append(f'    <link>{SITE_BASE}</link>')
-    out.append(f'    <description>{html.escape(SITE_DESCRIPTION)}</description>')
-    out.append(f'    <language>{LANGUAGE}</language>')
-    out.append(f'    <lastBuildDate>{last_build}</lastBuildDate>')
-    out.append(f'    <pubDate>{last_build}</pubDate>')
+    out = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<rss version="2.0">',
+        '  <channel>',
+        f'    <title>{html.escape(SITE_TITLE)}</title>',
+        f'    <link>{SITE_BASE}</link>',
+        f'    <description>{html.escape(SITE_DESCRIPTION)}</description>',
+        f'    <language>{LANGUAGE}</language>',
+        f'    <lastBuildDate>{last_build}</lastBuildDate>',
+        f'    <pubDate>{last_build}</pubDate>',
+    ]
 
     for i, r in enumerate(rows_rev):
         u = (r.get("url") or "").strip()
-        if not u:
-            continue
-        u = norm_url(u)
-        link = f"{SITE_BASE}{u}"
+        if not u: continue
+        link = f"{SITE_BASE}{norm_url(u)}"
         title = (r.get("title") or u.strip("/")).strip()
         desc  = (r.get("description") or r.get("intro") or "").strip()
-        dt    = now - timedelta(minutes=i)
-        pub   = email.utils.format_datetime(dt)
+        pub   = email.utils.format_datetime(now - timedelta(minutes=i))
+        out += [
+            "    <item>",
+            f"      <title>{html.escape(title)}</title>",
+            f"      <link>{link}</link>",
+            f"      <description>{html.escape(desc)}</description>",
+            f"      <pubDate>{pub}</pubDate>",
+            f"      <guid isPermaLink=\"true\">{link}</guid>",
+            "    </item>"
+        ]
 
-        out.append("    <item>")
-        out.append(f"      <title>{html.escape(title)}</title>")
-        out.append(f"      <link>{link}</link>")
-        out.append(f"      <description>{html.escape(desc)}</description>")
-        out.append(f"      <pubDate>{pub}</pubDate>")
-        out.append(f"      <guid isPermaLink=\"true\">{link}</guid>")
-        out.append("    </item>")
-
-    out.append("  </channel>")
-    out.append("</rss>")
-
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    out += ["  </channel>", "</rss>"]
     OUT_PATH.write_text("\n".join(out), encoding="utf-8")
     print(f"[DONE] {OUT_PATH} ({len(rows_rev)} items)")
 
