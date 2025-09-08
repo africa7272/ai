@@ -3,13 +3,11 @@ name: Build pages from CSV
 on:
   workflow_dispatch:
   push:
+    branches: [ main ]
     paths:
       - 'pages.csv'
       - 'data/pages.csv'
       - 'templates/**'
-      - 'generate_pages.py'
-      - 'generate_sitemap.py'
-      - 'generate_rss.py'
       - 'scripts/**'
       - '.github/workflows/**'
 
@@ -25,65 +23,32 @@ jobs:
 
       - name: Show repo tree (debug)
         run: |
-          pwd
-          ls -la
-          echo "---- up to 4 levels ----"
-          find . -maxdepth 4 -type f | sort | sed -n '1,300p'
+          echo "::group::tree"
+          find . -maxdepth 3 -type f | sort | sed -n '1,300p'
+          echo "::endgroup::"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Locate generators, CSV and template
-        id: loc
-        shell: bash
+      - name: Detect CSV & template
         run: |
-          set -e
+          if [ -f data/pages.csv ]; then
+            echo "CSV=data/pages.csv" >> $GITHUB_ENV
+          elif [ -f pages.csv ]; then
+            echo "CSV=pages.csv" >> $GITHUB_ENV
+          else
+            echo "::error ::pages.csv not found (expected at ./data/pages.csv or ./pages.csv)."
+            exit 1
+          fi
 
-          # поиск генераторов (в корне или в scripts/)
-          PAGES=""
-          for p in generate_pages.py scripts/generate_pages.py scripts/generate_chat_pages.py; do
-            [[ -f "$p" ]] && { PAGES="$p"; break; }
-          done
-          SITEMAP=""
-          for p in generate_sitemap.py scripts/generate_sitemap.py; do
-            [[ -f "$p" ]] && { SITEMAP="$p"; break; }
-          done
-          RSS=""
-          for p in generate_rss.py scripts/generate_rss.py; do
-            [[ -f "$p" ]] && { RSS="$p"; break; }
-          done
-
-          # CSV — пробуем типовые места
-          CSV=""
-          for c in pages.csv data/pages.csv scripts/pages.csv; do
-            [[ -f "$c" ]] && { CSV="$c"; break; }
-          done
-
-          # шаблон
-          TPL=""
-          for t in templates/luna_advanced.html scripts/templates/luna_advanced.html; do
-            [[ -f "$t" ]] && { TPL="$t"; break; }
-          done
-
-          echo "pages=$PAGES"   >> "$GITHUB_OUTPUT"
-          echo "sitemap=$SITEMAP" >> "$GITHUB_OUTPUT"
-          echo "rss=$RSS"         >> "$GITHUB_OUTPUT"
-          echo "csv=$CSV"         >> "$GITHUB_OUTPUT"
-          echo "tpl=$TPL"         >> "$GITHUB_OUTPUT"
-
-          echo "Found:"
-          echo "  pages:   $PAGES"
-          echo "  sitemap: $SITEMAP"
-          echo "  rss:     $RSS"
-          echo "  csv:     $CSV"
-          echo "  tpl:     $TPL"
-
-          # явные ошибки, если чего-то критического нет
-          [[ -z "$PAGES"  ]] && { echo "::error ::generate_pages.py not found (expected at ./generate_pages.py or ./scripts/generate_pages.py)."; exit 1; }
-          [[ -z "$CSV"    ]] && { echo "::error ::pages.csv not found (expected at ./pages.csv or ./data/pages.csv)."; exit 1; }
-          [[ -z "$TPL"    ]] && { echo "::error ::templates/luna_advanced.html not found."; exit 1; }
+          if [ -f templates/luna_advanced.html ]; then
+            echo "TPL=templates/luna_advanced.html" >> $GITHUB_ENV
+          else
+            echo "::error ::templates/luna_advanced.html not found."
+            exit 1
+          fi
 
       - name: Generate site (pages + sitemap + rss)
         env:
@@ -94,22 +59,15 @@ jobs:
           mkdir -p docs
           touch docs/.nojekyll
 
-          echo "Using:"
-          echo "  generator:   ${{ steps.loc.outputs.pages }}"
-          echo "  csv:         ${{ steps.loc.outputs.csv }}"
-          echo "  template:    ${{ steps.loc.outputs.tpl }}"
-
-          python3 "${{ steps.loc.outputs.pages }}" \
-            --csv "${{ steps.loc.outputs.csv }}" \
-            --template "${{ steps.loc.outputs.tpl }}" \
+          # генерация страниц из CSV в docs/
+          python3 scripts/generate_pages.py \
+            --csv "$CSV" \
+            --template "$TPL" \
             --out docs
 
-          if [ -n "${{ steps.loc.outputs.sitemap }}" ]; then
-            python3 "${{ steps.loc.outputs.sitemap }}"
-          fi
-          if [ -n "${{ steps.loc.outputs.rss }}" ]; then
-            python3 "${{ steps.loc.outputs.rss }}"
-          fi
+          # карта сайта и rss (скрипты у тебя в scripts/)
+          python3 scripts/generate_sitemap.py
+          python3 scripts/generate_rss.py
 
       - name: Commit changes (if any)
         run: |
