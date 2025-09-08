@@ -18,54 +18,34 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Show repo tree (debug)
         run: |
-          echo "::group::tree"
-          find . -maxdepth 3 -type f | sort | sed -n '1,300p'
-          echo "::endgroup::"
+          echo "::group::tree"; find . -maxdepth 3 -type f | sort | sed -n '1,300p'; echo "::endgroup::"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
 
       - name: Detect CSV & template
         run: |
-          if [ -f data/pages.csv ]; then
-            echo "CSV=data/pages.csv" >> $GITHUB_ENV
-          elif [ -f pages.csv ]; then
-            echo "CSV=pages.csv" >> $GITHUB_ENV
-          else
-            echo "::error ::pages.csv not found (expected at ./data/pages.csv or ./pages.csv)."
-            exit 1
-          fi
+          if [ -f data/pages.csv ]; then echo "CSV=data/pages.csv" >> $GITHUB_ENV
+          elif [ -f pages.csv ]; then echo "CSV=pages.csv" >> $GITHUB_ENV
+          else echo "::error ::pages.csv not found (./data/pages.csv or ./pages.csv)"; exit 1; fi
 
-          if [ -f templates/luna_advanced.html ]; then
-            echo "TPL=templates/luna_advanced.html" >> $GITHUB_ENV
-          else
-            echo "::error ::templates/luna_advanced.html not found."
-            exit 1
-          fi
+          if [ -f templates/luna_advanced.html ]; then echo "TPL=templates/luna_advanced.html" >> $GITHUB_ENV
+          else echo "::error ::templates/luna_advanced.html not found"; exit 1; fi
 
-      - name: Generate site (pages + sitemap + rss)
+      - name: Generate site to ROOT (and clean old docs)
         env:
           SITE_BASE: https://gorod-legends.ru
           BOT_URL: https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi
         run: |
           set -e
-          mkdir -p docs
-          touch docs/.nojekyll
+          rm -rf docs
+          touch .nojekyll
 
-          # генерация страниц из CSV в docs/
-          python3 scripts/generate_pages.py \
-            --csv "$CSV" \
-            --template "$TPL" \
-            --out docs
-
-          # карта сайта и rss (скрипты у тебя в scripts/)
+          python3 scripts/generate_pages.py --csv "$CSV" --template "$TPL" --out .
           python3 scripts/generate_sitemap.py
           python3 scripts/generate_rss.py
 
@@ -73,9 +53,9 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain docs)" ]; then
-            git add docs
-            git commit -m "Auto-build: pages, sitemap, rss [skip ci]"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Build pages to root: chat/* + sitemap.xml + rss.xml [skip ci]"
             git push
           else
             echo "No changes to commit"
