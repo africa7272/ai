@@ -1,0 +1,100 @@
+name: Build pages from CSV
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'pages.csv'
+      - 'templates/**'
+      - 'generate_pages.py'
+      - 'generate_sitemap.py'
+      - 'generate_rss.py'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show repo tree (debug)
+        run: |
+          pwd
+          ls -la
+          echo "---- first 200 files ----"
+          find . -maxdepth 3 -type f | sort | sed -n '1,200p'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Locate generators
+        id: loc
+        run: |
+          set -e
+          # ищем генератор страниц
+          for p in generate_pages.py scripts/generate_pages.py scripts/generate_chat_pages.py; do
+            if [ -f "$p" ]; then echo "pages=$p" >> $GITHUB_OUTPUT; break; fi
+          done
+          # ищем генератор sitemap
+          for p in generate_sitemap.py scripts/generate_sitemap.py; do
+            if [ -f "$p" ]; then echo "sitemap=$p" >> $GITHUB_OUTPUT; break; fi
+          done
+          # ищем генератор rss
+          for p in generate_rss.py scripts/generate_rss.py; do
+            if [ -f "$p" ]; then echo "rss=$p" >> $GITHUB_OUTPUT; break; fi
+          done
+          echo "Found:"
+          echo "  pages:   ${{ steps.loc.outputs.pages }}"
+          echo "  sitemap: ${{ steps.loc.outputs.sitemap }}"
+          echo "  rss:     ${{ steps.loc.outputs.rss }}"
+
+          # если генератор страниц не найден — вываливаем дерево и падаем
+          if [ -z "${{ steps.loc.outputs.pages }}" ]; then
+            echo "::error ::generate_pages.py not found. See tree above. Commit the file to repo root OR put it into scripts/."
+            exit 1
+          fi
+
+      - name: Generate site (pages + sitemap + rss)
+        env:
+          SITE_BASE: https://gorod-legends.ru
+          BOT_URL: https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi
+        run: |
+          set -e
+          mkdir -p docs
+          touch docs/.nojekyll
+
+          # генерация страниц
+          python3 "${{ steps.loc.outputs.pages }}" --csv pages.csv --template templates/luna_advanced.html --out docs
+
+          # генерация sitemap (если нашли скрипт)
+          if [ -n "${{ steps.loc.outputs.sitemap }}" ]; then
+            python3 "${{ steps.loc.outputs.sitemap }}"
+          else
+            echo "No sitemap generator found, skipping."
+          fi
+
+          # генерация rss (если нашли скрипт)
+          if [ -n "${{ steps.loc.outputs.rss }}" ]; then
+            python3 "${{ steps.loc.outputs.rss }}"
+          else
+            echo "No rss generator found, skipping."
+          fi
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain docs)" ]; then
+            git add docs
+            git commit -m "Auto-build: pages, sitemap, rss [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
