@@ -5,10 +5,12 @@ on:
   push:
     paths:
       - 'pages.csv'
+      - 'data/pages.csv'
       - 'templates/**'
       - 'generate_pages.py'
       - 'generate_sitemap.py'
       - 'generate_rss.py'
+      - 'scripts/**'
       - '.github/workflows/**'
 
 permissions:
@@ -25,675 +27,63 @@ jobs:
         run: |
           pwd
           ls -la
-          echo "---- first 200 files ----"
-          find . -maxdepth 3 -type f | sort | sed -n '1,200p'
+          echo "---- up to 4 levels ----"
+          find . -maxdepth 4 -type f | sort | sed -n '1,300p'
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Bootstrap missing scripts & template (if absent)
+      - name: Locate generators, CSV and template
+        id: loc
+        shell: bash
         run: |
           set -e
 
-          # pages.csv обязателен
-          if [ ! -f pages.csv ]; then
-            echo "::error ::pages.csv not found at repo root."; exit 1;
-          fi
+          # поиск генераторов (в корне или в scripts/)
+          PAGES=""
+          for p in generate_pages.py scripts/generate_pages.py scripts/generate_chat_pages.py; do
+            [[ -f "$p" ]] && { PAGES="$p"; break; }
+          done
+          SITEMAP=""
+          for p in generate_sitemap.py scripts/generate_sitemap.py; do
+            [[ -f "$p" ]] && { SITEMAP="$p"; break; }
+          done
+          RSS=""
+          for p in generate_rss.py scripts/generate_rss.py; do
+            [[ -f "$p" ]] && { RSS="$p"; break; }
+          done
 
-          mkdir -p templates
-          mkdir -p docs
-          touch docs/.nojekyll
+          # CSV — пробуем типовые места
+          CSV=""
+          for c in pages.csv data/pages.csv scripts/pages.csv; do
+            [[ -f "$c" ]] && { CSV="$c"; break; }
+          done
 
-          # === generate_pages.py ===
-          if [ ! -f generate_pages.py ]; then
-            cat > generate_pages.py <<'PY'
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Luna Chat — генератор/обновлятор SEO-страниц из CSV с единым шаблоном.
-Поддержка нескольких хабов (из url), авто-перелинковка (5 предыдущих, если internal_links пуст),
-перезапись существующих файлов.
+          # шаблон
+          TPL=""
+          for t in templates/luna_advanced.html scripts/templates/luna_advanced.html; do
+            [[ -f "$t" ]] && { TPL="$t"; break; }
+          done
 
-CSV (25 колонок, строго в таком порядке):
-url,title,keyword,slug,description,intro,cta,bullets,tags,examples,tips_do,tips_avoid,h2a_title,h2a_text,h2b_title,h2b_text,h2c_title,h2c_text,faq1_q,faq1_a,faq2_q,faq2_a,faq3_q,faq3_a,internal_links
-"""
+          echo "pages=$PAGES"   >> "$GITHUB_OUTPUT"
+          echo "sitemap=$SITEMAP" >> "$GITHUB_OUTPUT"
+          echo "rss=$RSS"         >> "$GITHUB_OUTPUT"
+          echo "csv=$CSV"         >> "$GITHUB_OUTPUT"
+          echo "tpl=$TPL"         >> "$GITHUB_OUTPUT"
 
-import argparse, csv, html, json, os, re, sys, unicodedata
-from pathlib import Path
-from datetime import datetime
+          echo "Found:"
+          echo "  pages:   $PAGES"
+          echo "  sitemap: $SITEMAP"
+          echo "  rss:     $RSS"
+          echo "  csv:     $CSV"
+          echo "  tpl:     $TPL"
 
-SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
-BOT_URL   = os.environ.get("BOT_URL", "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi")
-
-REQUIRED = [
-    "url","title","keyword","slug","description","intro","cta","bullets","tags","examples",
-    "tips_do","tips_avoid","h2a_title","h2a_text","h2b_title","h2b_text","h2c_title","h2c_text",
-    "faq1_q","faq1_a","faq2_q","faq2_a","faq3_q","faq3_a","internal_links"
-]
-
-HUB_LABELS_RU = {
-    "chat":  "Чат",
-    "guide": "Гайды",
-    "bot":   "Боты",
-}
-
-def slugify(s: str) -> str:
-    s = unicodedata.normalize('NFKD', s).encode('ascii','ignore').decode('ascii')
-    s = re.sub(r'[^a-zA-Z0-9\-_/]+','-', s.lower()).strip('-')
-    s = re.sub(r'-{2,}','-', s)
-    return s
-
-def norm_url(u: str) -> str:
-    u = (u or "").strip()
-    if not u.startswith("/"): u = "/" + u
-    if not u.endswith("/"):  u = u + "/"
-    return u
-
-def ensure_index_path(url: str, out_root: Path) -> Path:
-    parts = [p for p in norm_url(url).split("/") if p]
-    return out_root.joinpath(*parts, "index.html")
-
-def split_items(s: str):
-    return [i.strip() for i in (s or "").split("|") if i and i.strip()]
-
-def make_bullets_html(items):
-    if not items:
-        return '<li class="text-zinc-400">Скоро дополним.</li>'
-    rows = []
-    for it in items:
-        rows.append(
-            '<li class="flex gap-3">'
-            '<span class="w-2 h-2 mt-2 rounded-full bg-accent-500"></span>'
-            f'<span class="text-zinc-300">{html.escape(it)}</span></li>'
-        )
-    return "\n".join(rows)
-
-def make_tag_chips(tags):
-    if not tags: return ''
-    chips = []
-    for t in tags:
-        chips.append(
-            f'<span class="px-3 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs">{html.escape(t)}</span>'
-        )
-    return "\n".join(chips)
-
-def make_examples_html(examples):
-    if not examples: return ''
-    lis = [f'<li class="glass rounded-lg px-3 py-2"><code class="text-sm">{html.escape(ex)}</code></li>'
-           for ex in examples]
-    return "\n".join(lis)
-
-def make_list_html(items):
-    if not items:
-        return '<li class="text-zinc-400">Скоро дополним.</li>'
-    return "\n".join(
-        f'<li class="flex gap-2"><span class="mt-2 w-2 h-2 bg-gold-400 rounded-full"></span>'
-        f'<span class="text-zinc-300">{html.escape(it)}</span></li>' for it in items
-    )
-
-def build_internal_links_auto(rows, idx_current):
-    start = max(0, idx_current - 5)
-    out = []
-    for j in range(start, idx_current):
-        r = rows[j]
-        u = norm_url(r.get("url",""))
-        title = (r.get("title") or u.strip("/").split("/")[-1].replace("-", " ").title()).strip()
-        out.append(f"{title}::{u}")
-    return "|".join(out)
-
-def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
-    items = split_items(raw_field)
-    result = []
-    for raw in items:
-        label, url = None, raw
-        if "::" in raw:
-            label, url = raw.split("::", 1)
-        url = url.strip()
-
-        if not url.startswith("/"):
-            page = pages_by_slug.get(url)
-            if page:
-                href = norm_url(page["url"])
-                text = (label or page["title"] or href).strip()
-            else:
-                href = "/" + url + "/"
-                text = (label or url).strip()
-        else:
-            if url.startswith("http://") or url.startswith("https://"):
-                href = url
-                text = (label or url).strip()
-            else:
-                href = norm_url(url)
-                page = pages_by_path.get(href.rstrip("/"))
-                text = (label or (page["title"] if page else href)).strip()
-
-        if not href.startswith("http"):
-            href_abs = f"{SITE_BASE}{href}"
-        else:
-            href_abs = href
-
-        result.append((href_abs, text))
-    return result
-
-def make_internal_links_html(rows, idx_current, row, pages_by_slug, pages_by_path):
-    raw = (row.get("internal_links") or "").strip()
-    if not raw:
-        raw = build_internal_links_auto(rows, idx_current)
-    pairs = parse_internal_links(raw, pages_by_slug, pages_by_path)
-    if not pairs:
-        return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
-    cards = []
-    for href, text in pairs:
-        cards.append(
-            f'<a href="{html.escape(href)}" class="glass rounded-xl p-4 hover:bg-white/10 transition">'
-            f'<div class="text-white font-medium">{html.escape(text)}</div>'
-            f'<div class="text-xs text-zinc-400 mt-1">Открыть →</div></a>'
-        )
-    return "\n".join(cards)
-
-def faq_block_and_json(row: dict):
-    qas = [
-        (row.get("faq1_q",""), row.get("faq1_a","")),
-        (row.get("faq2_q",""), row.get("faq2_a","")),
-        (row.get("faq3_q",""), row.get("faq3_a","")),
-    ]
-    blocks = []
-    schema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[]}
-    for q,a in qas:
-        q, a = (q or "").strip(), (a or "").strip()
-        if not q or not a: 
-            continue
-        blocks.append(
-            f'<details class="glass rounded-xl p-4">'
-            f'<summary class="cursor-pointer font-medium text-white">{html.escape(q)}</summary>'
-            f'<p class="mt-2 text-zinc-300">{html.escape(a)}</p>'
-            f'</details>'
-        )
-        schema["mainEntity"].append({
-            "@type":"Question","name": q,
-            "acceptedAnswer":{"@type":"Answer","text": a}
-        })
-    if not blocks:
-        blocks.append('<p class="text-zinc-400">Вопросы появятся позже.</p>')
-    return "\n".join(blocks), json.dumps(schema, ensure_ascii=False)
-
-def article_jsonld(title, description, canonical, keywords, ts_iso):
-    data = {
-        "@context":"https://schema.org",
-        "@type":"Article",
-        "headline": title,
-        "description": description,
-        "inLanguage": "ru",
-        "mainEntityOfPage": canonical,
-        "author": {"@type":"Organization","name":"Luna Chat"},
-        "publisher": {"@type":"Organization","name":"Luna Chat"},
-        "datePublished": ts_iso,
-        "dateModified": ts_iso,
-        "keywords": keywords
-    }
-    return json.dumps(data, ensure_ascii=False)
-
-def breadcrumbs_jsonld(canonical, title, hub_en):
-    crumb2 = HUB_LABELS_RU.get(hub_en, "Раздел")
-    data = {
-        "@context":"https://schema.org",
-        "@type":"BreadcrumbList",
-        "itemListElement":[
-            {"@type":"ListItem","position":1,"name":"Главная","item": SITE_BASE + "/"},
-            {"@type":"ListItem","position":2,"name": crumb2, "item": SITE_BASE + f"/{hub_en}/"},
-            {"@type":"ListItem","position":3,"name": title, "item": canonical}
-        ]
-    }
-    return json.dumps(data, ensure_ascii=False)
-
-def render(template: str, ctx: dict) -> str:
-    out = template
-    for k,v in ctx.items():
-        out = out.replace(f"{{{{{k}}}}}", v)
-    return out
-
-def read_csv_rows(csv_path: Path):
-    with open(csv_path, "r", encoding="utf-8-sig", newline="") as fh:
-        header_line = fh.readline()
-        if not header_line:
-            raise SystemExit("[ERR] CSV пуст.")
-        header = next(csv.reader([header_line]))
-        header_lower = [h.strip().lower() for h in header]
-        wanted_lower = [h.lower() for h in REQUIRED]
-        if header_lower != wanted_lower:
-            raise SystemExit(
-                "[ERR] Неверные заголовки CSV.\n"
-                f"Ожидается:\n{','.join(REQUIRED)}\n"
-                f"Получено:\n{','.join(header)}"
-            )
-        fh.seek(0)
-        reader = csv.DictReader(fh)
-        rows = list(reader)
-        normed = [{k:(r.get(k) or "") for k in REQUIRED} for r in rows]
-        return normed
-
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--csv", required=True)
-    ap.add_argument("--template", required=True)
-    ap.add_argument("--out", default="docs")
-    args = ap.parse_args()
-
-    tpl_path = Path(args.template)
-    template = tpl_path.read_text(encoding="utf-8")
-
-    out_root = Path(args.out); out_root.mkdir(parents=True, exist_ok=True)
-    rows = read_csv_rows(Path(args.csv))
-
-    pages_by_slug = {}
-    pages_by_path = {}
-    for r in rows:
-        slug = (r.get("slug") or "").strip()
-        url  = norm_url(r.get("url") or "")
-        if slug:
-            pages_by_slug[slug] = r
-        pages_by_path[url.rstrip("/")] = r
-
-    total = 0
-    build_ts_iso = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-
-    for idx, row in enumerate(rows):
-        url = norm_url(row.get("url") or "")
-        parts = [p for p in url.split("/") if p]
-        hub_en = parts[0] if parts else "chat"
-
-        dst = ensure_index_path(url, out_root)
-        dst.parent.mkdir(parents=True, exist_ok=True)
-
-        title   = (row.get("title") or "").strip()
-        desc    = (row.get("description") or "").strip()
-        intro   = (row.get("intro") or "").strip()
-        cta     = (row.get("cta") or "Открыть в Telegram").strip()
-        keyword = (row.get("keyword") or "").strip()
-
-        bullets   = split_items(row.get("bullets",""))
-        tags      = split_items(row.get("tags",""))
-        examples  = split_items(row.get("examples",""))
-        tips_do   = split_items(row.get("tips_do",""))
-        tips_no   = split_items(row.get("tips_avoid",""))
-
-        bullets_html    = make_bullets_html(bullets)
-        tags_html       = make_tag_chips(tags)
-        examples_html   = make_examples_html(examples)
-        tips_do_html    = make_list_html(tips_do)
-        tips_avoid_html = make_list_html(tips_no)
-        faq_html, faq_json = faq_block_and_json(row)
-        related_html    = make_internal_links_html(rows, idx, row, pages_by_slug, pages_by_path)
-
-        canonical = f"{SITE_BASE}{url}"
-        keywords_meta = ", ".join([k for k in [keyword] + tags if k])
-
-        article_json = article_jsonld(title, desc, canonical, keywords_meta, build_ts_iso)
-        crumbs_json  = breadcrumbs_jsonld(canonical, title, hub_en)
-        jsonld_bundle = "[{}]".format(",".join([article_json, crumbs_json, faq_json]))
-
-        h2a_title = (row.get("h2a_title") or "").strip()
-        h2a_text  = (row.get("h2a_text")  or "").strip()
-        h2b_title = (row.get("h2b_title") or "").strip()
-        h2b_text  = (row.get("h2b_text")  or "").strip()
-        h2c_title = (row.get("h2c_title") or "").strip()
-        h2c_text  = (row.get("h2c_text")  or "").strip()
-
-        ctx = {
-            "BUILD_TS": build_ts_iso,
-            "TITLE": html.escape(title),
-            "DESCRIPTION": html.escape(desc),
-            "H1": html.escape(title),
-            "INTRO": html.escape(intro),
-            "BULLETS_HTML": bullets_html,
-            "FAQ_HTML": faq_html,
-            "JSONLD_BUNDLE": jsonld_bundle,
-            "CANONICAL": canonical,
-            "BOT_URL": BOT_URL,
-            "CTA": html.escape(cta),
-            "TAGS_HTML": tags_html,
-            "EXAMPLES_HTML": examples_html,
-            "TIPS_DO_HTML": tips_do_html,
-            "TIPS_AVOID_HTML": tips_avoid_html,
-            "H2A_TITLE": html.escape(h2a_title) if h2a_title else "",
-            "H2A_TEXT": html.escape(h2a_text) if h2a_text else "",
-            "H2B_TITLE": html.escape(h2b_title) if h2b_title else "",
-            "H2B_TEXT": html.escape(h2b_text) if h2b_text else "",
-            "H2C_TITLE": html.escape(h2c_title) if h2c_title else "",
-            "H2C_TEXT": html.escape(h2c_text) if h2c_text else "",
-            "INTERNAL_LINKS_HTML": related_html,
-            "KEYWORDS_META": html.escape(keywords_meta),
-        }
-
-        html_out = render(template, ctx)
-        dst.write_text(html_out, encoding="utf-8")
-        print(f"[OK] {url} -> {dst}")
-        total += 1
-
-    print(f"[DONE] Generated/updated {total} page(s) into {out_root}")
-
-if __name__ == "__main__":
-    main()
-PY
-            echo "generate_pages.py bootstrapped"
-          fi
-
-          # === generate_sitemap.py ===
-          if [ ! -f generate_sitemap.py ]; then
-            cat > generate_sitemap.py <<'PY'
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import os, csv
-from datetime import datetime
-from pathlib import Path
-
-SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
-CSV_PATH  = Path("pages.csv")
-OUT_PATH  = Path("docs/sitemap.xml")
-
-def norm_url(u: str) -> str:
-    u = (u or "").strip()
-    if not u.startswith("/"): u = "/" + u
-    if not u.endswith("/"):  u = u + "/"
-    return u
-
-def main():
-    rows = []
-    with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for r in reader:
-            u = r.get("url","").strip()
-            if u: rows.append(norm_url(u))
-    now_iso = datetime.utcnow().date().isoformat()
-    out = []
-    out.append('<?xml version="1.0" encoding="UTF-8"?>')
-    out.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    for u in rows:
-        out.append("  <url>")
-        out.append(f"    <loc>{SITE_BASE}{u}</loc>")
-        out.append(f"    <lastmod>{now_iso}</lastmod>")
-        out.append("    <changefreq>weekly</changefreq>")
-        out.append("    <priority>0.7</priority>")
-        out.append("  </url>")
-    out.append("</urlset>")
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text("\n".join(out), encoding="utf-8")
-    print(f"[DONE] {OUT_PATH} ({len(rows)} urls))")
-
-if __name__ == "__main__":
-    main()
-PY
-            echo "generate_sitemap.py bootstrapped"
-          fi
-
-          # === generate_rss.py ===
-          if [ ! -f generate_rss.py ]; then
-            cat > generate_rss.py <<'PY'
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import os, csv, html, email.utils
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-
-SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
-SITE_TITLE = os.environ.get("SITE_TITLE", "Luna Chat")
-SITE_DESCRIPTION = os.environ.get("SITE_DESCRIPTION", "Уютное общение 24/7")
-LANGUAGE = "ru"
-
-CSV_PATH = Path("pages.csv")
-OUT_PATH = Path("docs/rss.xml")
-
-def norm_url(u: str) -> str:
-    u = (u or "").strip()
-    if not u.startswith("/"): u = "/" + u
-    if not u.endswith("/"):  u = u + "/"
-    return u
-
-def main():
-    with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-
-    rows_rev = list(reversed(rows))
-    now = datetime.now(timezone.utc)
-    last_build = email.utils.format_datetime(now)
-
-    out = []
-    out.append('<?xml version="1.0" encoding="UTF-8"?>')
-    out.append('<rss version="2.0">')
-    out.append('  <channel>')
-    out.append(f'    <title>{html.escape(SITE_TITLE)}</title>')
-    out.append(f'    <link>{SITE_BASE}</link>')
-    out.append(f'    <description>{html.escape(SITE_DESCRIPTION)}</description>')
-    out.append(f'    <language>{LANGUAGE}</language>')
-    out.append(f'    <lastBuildDate>{last_build}</lastBuildDate>')
-    out.append(f'    <pubDate>{last_build}</pubDate>')
-
-    for i, r in enumerate(rows_rev):
-        u = (r.get("url") or "").strip()
-        if not u: continue
-        u = norm_url(u)
-        link = f"{SITE_BASE}{u}"
-        title = (r.get("title") or u.strip("/")).strip()
-        desc  = (r.get("description") or r.get("intro") or "").strip()
-        dt    = now - timedelta(minutes=i)
-        pub   = email.utils.format_datetime(dt)
-
-        out.append("    <item>")
-        out.append(f"      <title>{html.escape(title)}</title>")
-        out.append(f"      <link>{link}</link>")
-        out.append(f"      <description>{html.escape(desc)}</description>")
-        out.append(f"      <pubDate>{pub}</pubDate>")
-        out.append(f"      <guid isPermaLink=\"true\">{link}</guid>")
-        out.append("    </item>")
-
-    out.append("  </channel>")
-    out.append("</rss>")
-
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text("\n".join(out), encoding="utf-8")
-    print(f"[DONE] {OUT_PATH} ({len(rows_rev)} items))")
-
-if __name__ == "__main__":
-    main()
-PY
-            echo "generate_rss.py bootstrapped"
-          fi
-
-          # === templates/luna_advanced.html ===
-          if [ ! -f templates/luna_advanced.html ]; then
-            cat > templates/luna_advanced.html <<'HTML'
-<!doctype html>
-<html lang="ru">
-<head>
-  <!-- build: {{BUILD_TS}} -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{TITLE}}</title>
-  <meta name="description" content="{{DESCRIPTION}}">
-  <meta name="keywords" content="{{KEYWORDS_META}}">
-  <link rel="canonical" href="{{CANONICAL}}">
-  <meta name="theme-color" content="#100B10">
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="{{TITLE}}">
-  <meta property="og:description" content="{{DESCRIPTION}}">
-  <meta property="og:url" content="{{CANONICAL}}">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="{{TITLE}}">
-  <meta name="twitter:description" content="{{DESCRIPTION}}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand:{950:'#0B0A0C',900:'#130F12',800:'#1B1418',700:'#29181F',600:'#3A1E2B'},
-            accent:{500:'#C72C41',400:'#E1495B'},
-            gold:{400:'#F2C14E',500:'#E3B341'}
-          },
-          boxShadow:{ soft:'0 10px 24px rgba(0,0,0,0.25)' }
-        }
-      }
-    }
-  </script>
-  <style>
-    html{scroll-behavior:smooth}
-    .gradient-hero{
-      background:
-        radial-gradient(1200px 600px at 80% -10%, rgba(199,44,65,.35), transparent 60%),
-        radial-gradient(900px 500px at 10% -20%, rgba(242,193,78,.25), transparent 60%),
-        linear-gradient(180deg, #130F12 0%, #1B1418 60%, #0B0A0C 100%);
-    }
-    .glass{backdrop-filter:blur(10px);background:rgba(19,15,18,.45);border:1px solid rgba(255,255,255,.06)}
-  </style>
-</head>
-<body class="bg-brand-900 text-zinc-100 selection:bg-accent-500 selection:text-white">
-<header class="sticky top-0 z-40 border-b border-white/5 bg-brand-900/80 backdrop-blur supports-[backdrop-filter]:bg-brand-900/60">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3">
-      <span class="inline-flex w-9 h-9 rounded-2xl bg-accent-500/90 shadow-soft"></span>
-      <span class="text-lg font-semibold tracking-wide">Luna Chat</span>
-    </a>
-    <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-300">
-      <a href="/" class="hover:text-white">Главная</a>
-      <a href="/characters/" class="hover:text-white">Персонажи</a>
-    </nav>
-    <a href="{{BOT_URL}}" target="_blank" rel="noopener nofollow"
-       class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-500 hover:bg-accent-400 text-white font-medium shadow-soft">Открыть в Telegram</a>
-    <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5">☰</button>
-  </div>
-</header>
-<main>
-  <section class="gradient-hero pt-10 pb-10 border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-      <div>
-        <h1 class="text-3xl md:text-4xl font-bold leading-tight">{{H1}}</h1>
-        <p class="mt-4 text-zinc-300">{{INTRO}}</p>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a href="{{BOT_URL}}" target="_blank" rel="noopener nofollow"
-             class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-accent-500 hover:bg-accent-400 text-white font-medium shadow-soft">{{CTA}}</a>
-          <a href="#faq" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white">Вопросы и ответы</a>
-        </div>
-        <div class="mt-5 flex flex-wrap gap-2">
-          {{TAGS_HTML}}
-        </div>
-      </div>
-      <div class="relative hidden md:block">
-        <div class="rounded-2xl h-64 glass"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span class="px-3 py-1 rounded-full bg-white/10 text-xs text-white/80">Анонимно · Без VPN · 24/7</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="py-10 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold">Почему это удобно</h2>
-      <ul class="mt-4 grid gap-3">
-        {{BULLETS_HTML}}
-      </ul>
-    </div>
-  </section>
-  <section class="py-6 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6">
-      <div class="glass rounded-xl p-5">
-        <h3 class="text-xl font-semibold">{{H2A_TITLE}}</h3>
-        <p class="mt-2 text-zinc-300">{{H2A_TEXT}}</p>
-      </div>
-      <div class="glass rounded-xl p-5">
-        <h3 class="text-xl font-semibold">{{H2B_TITLE}}</h3>
-        <p class="mt-2 text-zinc-300">{{H2B_TEXT}}</p>
-      </div>
-      <div class="glass rounded-xl p-5">
-        <h3 class="text-xl font-semibold">{{H2C_TITLE}}</h3>
-        <p class="mt-2 text-zinc-300">{{H2C_TEXT}}</p>
-      </div>
-    </div>
-  </section>
-  <section class="py-10 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold">Готовые примеры фраз</h2>
-      <ul class="mt-4 grid sm:grid-cols-2 gap-3">
-        {{EXAMPLES_HTML}}
-      </ul>
-    </div>
-  </section>
-  <section class="py-10 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-6">
-      <div>
-        <h2 class="text-2xl font-semibold">Как лучше</h2>
-        <ul class="mt-3 grid gap-2">
-          {{TIPS_DO_HTML}}
-        </ul>
-      </div>
-      <div>
-        <h2 class="text-2xl font-semibold">Чего избегать</h2>
-        <ul class="mt-3 grid gap-2">
-          {{TIPS_AVOID_HTML}}
-        </ul>
-      </div>
-    </div>
-  </section>
-  <section id="faq" class="py-10 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold">Частые вопросы</h2>
-      <div class="mt-4 space-y-3">
-        {{FAQ_HTML}}
-      </div>
-    </div>
-  </section>
-  <section class="py-10 border-t border-white/5">
-    <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold">Ещё по теме</h2>
-      <div class="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-        {{INTERNAL_LINKS_HTML}}
-      </div>
-    </div>
-  </section>
-</main>
-<div class="fixed inset-x-0 bottom-0 z-40 md:hidden backdrop-blur bg-brand-900/80 border-t border-white/10">
-  <div class="max-w-6xl mx-auto px-4 py-3">
-    <a href="{{BOT_URL}}" target="_blank" rel="noopener nofollow"
-       class="flex items-center justify-center px-5 py-3 rounded-xl bg-accent-500 text-white font-semibold">{{CTA}}</a>
-  </div>
-</div>
-<footer class="py-10 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6 text-sm text-zinc-400">
-    <div>
-      <div class="text-white font-semibold">Luna Chat</div>
-      <p class="mt-2">Уютное общение, лёгкий флирт и поддержка — 24/7.</p>
-    </div>
-    <nav class="grid gap-2">
-      <a href="/pages/about.html" class="hover:text-white">О проекте</a>
-      <a href="/pages/contact.html" class="hover:text-white">Контакты</a>
-      <a href="/pages/terms.html" class="hover:text-white">Условия</a>
-      <a href="/pages/privacy.html" class="hover:text-white">Политика конфиденциальности</a>
-    </nav>
-    <div>
-      <p>18+. Пользуйтесь уважительно. Не делитесь личными данными.</p>
-      <p class="mt-2">© <span id="y"></span> Luna Chat</p>
-    </div>
-  </div>
-</footer>
-<script type="application/ld+json">
-{{JSONLD_BUNDLE}}
-</script>
-<script type="text/javascript">
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}
-m[i].l=1*new Date();for (var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=103658483', 'ym');
-ym(103658483, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/103658483" style="position:absolute; left:-9999px;" alt=""></div></noscript>
-<script>document.getElementById('y')&&(document.getElementById('y').textContent=new Date().getFullYear());</script>
-</body>
-</html>
-HTML
-            echo "templates/luna_advanced.html bootstrapped"
-          fi
+          # явные ошибки, если чего-то критического нет
+          [[ -z "$PAGES"  ]] && { echo "::error ::generate_pages.py not found (expected at ./generate_pages.py or ./scripts/generate_pages.py)."; exit 1; }
+          [[ -z "$CSV"    ]] && { echo "::error ::pages.csv not found (expected at ./pages.csv or ./data/pages.csv)."; exit 1; }
+          [[ -z "$TPL"    ]] && { echo "::error ::templates/luna_advanced.html not found."; exit 1; }
 
       - name: Generate site (pages + sitemap + rss)
         env:
@@ -701,17 +91,33 @@ HTML
           BOT_URL: https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi
         run: |
           set -e
-          python3 generate_pages.py --csv pages.csv --template templates/luna_advanced.html --out docs
-          python3 generate_sitemap.py
-          python3 generate_rss.py
+          mkdir -p docs
+          touch docs/.nojekyll
 
-      - name: Commit changes (docs + scripts if created)
+          echo "Using:"
+          echo "  generator:   ${{ steps.loc.outputs.pages }}"
+          echo "  csv:         ${{ steps.loc.outputs.csv }}"
+          echo "  template:    ${{ steps.loc.outputs.tpl }}"
+
+          python3 "${{ steps.loc.outputs.pages }}" \
+            --csv "${{ steps.loc.outputs.csv }}" \
+            --template "${{ steps.loc.outputs.tpl }}" \
+            --out docs
+
+          if [ -n "${{ steps.loc.outputs.sitemap }}" ]; then
+            python3 "${{ steps.loc.outputs.sitemap }}"
+          fi
+          if [ -n "${{ steps.loc.outputs.rss }}" ]; then
+            python3 "${{ steps.loc.outputs.rss }}"
+          fi
+
+      - name: Commit changes (if any)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain docs templates generate_pages.py generate_sitemap.py generate_rss.py)" ]; then
-            git add docs templates generate_pages.py generate_sitemap.py generate_rss.py
-            git commit -m "Auto-build: pages + sitemap + rss (bootstrap scripts if missing) [skip ci]"
+          if [ -n "$(git status --porcelain docs)" ]; then
+            git add docs
+            git commit -m "Auto-build: pages, sitemap, rss [skip ci]"
             git push
           else
             echo "No changes to commit"
