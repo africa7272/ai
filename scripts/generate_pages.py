@@ -1,9 +1,8 @@
-<!-- PATH: /generate_pages.py  (корень репозитория) -->
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Luna Chat — генератор/обновлятор SEO-страниц из CSV с единым шаблоном.
-Поддерживает несколько хабов (определяются из url), автоматическую перелинковку
+Поддерживает несколько хабов (определяются из url), авто-перелинковку
 (5 предыдущих записей, если internal_links пуст), перезапись существующих файлов.
 
 CSV (жёстко, 25 колонок, в таком порядке):
@@ -40,7 +39,6 @@ HUB_LABELS_RU = {
     "chat":  "Чат",
     "guide": "Гайды",
     "bot":   "Боты",
-    # можно расширять при появлении новых хабов
 }
 
 def slugify(s: str) -> str:
@@ -50,12 +48,9 @@ def slugify(s: str) -> str:
     return s
 
 def norm_url(u: str) -> str:
-    """Нормализует URL вида '/chat/slug/' (обязательно со слешами по краям)."""
     u = (u or "").strip()
-    if not u.startswith("/"):
-        u = "/" + u
-    if not u.endswith("/"):
-        u = u + "/"
+    if not u.startswith("/"): u = "/" + u
+    if not u.endswith("/"):  u = u + "/"
     return u
 
 def ensure_index_path(url: str, out_root: Path) -> Path:
@@ -103,7 +98,6 @@ def make_list_html(items):
     )
 
 def build_internal_links_auto(rows, idx_current):
-    """Вернуть строку internal_links (Анкор::/hub/slug/) из 5 предыдущих записей."""
     start = max(0, idx_current - 5)
     out = []
     for j in range(start, idx_current):
@@ -114,10 +108,6 @@ def build_internal_links_auto(rows, idx_current):
     return "|".join(out)
 
 def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
-    """
-    Возвратить список (href, text) из поля internal_links.
-    Поддержка вариантов: 'Анкор::/hub/slug/', '/hub/slug/', 'slug'
-    """
     items = split_items(raw_field)
     result = []
     for raw in items:
@@ -126,29 +116,23 @@ def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
             label, url = raw.split("::", 1)
         url = url.strip()
 
-        # вариант: только slug
         if not url.startswith("/"):
-            # пытаемся найти по slug
             page = pages_by_slug.get(url)
             if page:
                 href = norm_url(page["url"])
                 text = (label or page["title"] or href).strip()
             else:
-                # не нашли — оставляем как есть
                 href = "/" + url + "/"
                 text = (label or url).strip()
         else:
-            # /hub/slug/ или абсолют на домене (не рекомендуется)
             if url.startswith("http://") or url.startswith("https://"):
                 href = url
                 text = (label or url).strip()
             else:
                 href = norm_url(url)
-                # попробуем вытащить title из словаря по пути
                 page = pages_by_path.get(href.rstrip("/"))
                 text = (label or (page["title"] if page else href)).strip()
 
-        # делаем абсолютную ссылку (как у тебя было в проекте)
         if not href.startswith("http"):
             href_abs = f"{SITE_BASE}{href}"
         else:
@@ -159,14 +143,11 @@ def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
 
 def make_internal_links_html(rows, idx_current, row, pages_by_slug, pages_by_path):
     raw = (row.get("internal_links") or "").strip()
-    # если пусто — авто: 5 предыдущих
     if not raw:
         raw = build_internal_links_auto(rows, idx_current)
-
     pairs = parse_internal_links(raw, pages_by_slug, pages_by_path)
     if not pairs:
         return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
-
     cards = []
     for href, text in pairs:
         cards.append(
@@ -238,7 +219,6 @@ def render(template: str, ctx: dict) -> str:
     return out
 
 def read_csv_rows(csv_path: Path):
-    # Жёсткая валидация заголовков и отсутствие «лишних» столбцов
     with open(csv_path, "r", encoding="utf-8-sig", newline="") as fh:
         header_line = fh.readline()
         if not header_line:
@@ -255,10 +235,7 @@ def read_csv_rows(csv_path: Path):
         fh.seek(0)
         reader = csv.DictReader(fh)
         rows = list(reader)
-        # нормализуем, чтобы .get() не давал None
-        normed = []
-        for r in rows:
-            normed.append({k:(r.get(k) or "") for k in REQUIRED})
+        normed = [{k:(r.get(k) or "") for k in REQUIRED} for r in rows]
         return normed
 
 def main():
@@ -269,9 +246,6 @@ def main():
     args = ap.parse_args()
 
     tpl_path = Path(args.template)
-    if not tpl_path.exists():
-        print(f"[ERR] Template not found: {tpl_path}", file=sys.stderr)
-        sys.exit(2)
     template = tpl_path.read_text(encoding="utf-8")
 
     out_root = Path(args.out)
@@ -279,7 +253,6 @@ def main():
 
     rows = read_csv_rows(Path(args.csv))
 
-    # Подготовим справочники для internal_links (по slug и по пути)
     pages_by_slug = {}
     pages_by_path = {}
     for r in rows:
@@ -294,15 +267,12 @@ def main():
 
     for idx, row in enumerate(rows):
         url = norm_url(row.get("url") or "")
-        # Определяем HUB (по первому сегменту в /hub/slug/)
         parts = [p for p in url.split("/") if p]
         hub_en = parts[0] if parts else "chat"
 
-        # Выходной путь
         dst = ensure_index_path(url, out_root)
         dst.parent.mkdir(parents=True, exist_ok=True)
 
-        # Поля
         title   = (row.get("title") or "").strip()
         desc    = (row.get("description") or "").strip()
         intro   = (row.get("intro") or "").strip()
@@ -315,7 +285,6 @@ def main():
         tips_do   = split_items(row.get("tips_do",""))
         tips_no   = split_items(row.get("tips_avoid",""))
 
-        # HTML-фрагменты
         bullets_html    = make_bullets_html(bullets)
         tags_html       = make_tag_chips(tags)
         examples_html   = make_examples_html(examples)
@@ -324,16 +293,13 @@ def main():
         faq_html, faq_json = faq_block_and_json(row)
         related_html    = make_internal_links_html(rows, idx, row, pages_by_slug, pages_by_path)
 
-        # SEO
         canonical = f"{SITE_BASE}{url}"
         keywords_meta = ", ".join([k for k in [keyword] + tags if k])
 
-        # JSON-LD
         article_json = article_jsonld(title, desc, canonical, keywords_meta, build_ts_iso)
         crumbs_json  = breadcrumbs_jsonld(canonical, title, hub_en)
         jsonld_bundle = "[{}]".format(",".join([article_json, crumbs_json, faq_json]))
 
-        # H2
         h2a_title = (row.get("h2a_title") or "").strip()
         h2a_text  = (row.get("h2a_text")  or "").strip()
         h2b_title = (row.get("h2b_title") or "").strip()
@@ -341,7 +307,6 @@ def main():
         h2c_title = (row.get("h2c_title") or "").strip()
         h2c_text  = (row.get("h2c_text")  or "").strip()
 
-        # Контекст
         ctx = {
             "BUILD_TS": build_ts_iso,
             "TITLE": html.escape(title),
