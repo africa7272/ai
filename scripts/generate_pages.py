@@ -1,19 +1,22 @@
+<!-- PATH: /generate_pages.py  (корень репозитория) -->
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Luna Chat — генератор/обновлятор супер-SEO страниц из CSV.
+Luna Chat — генератор/обновлятор SEO-страниц из CSV с единым шаблоном.
+Поддерживает несколько хабов (определяются из url), автоматическую перелинковку
+(5 предыдущих записей, если internal_links пуст), перезапись существующих файлов.
 
-Поддерживаемые КОЛОНКИ (строго и в ТАКОМ порядке, 25 шт.):
+CSV (жёстко, 25 колонок, в таком порядке):
 url,title,keyword,slug,description,intro,cta,bullets,tags,examples,tips_do,tips_avoid,h2a_title,h2a_text,h2b_title,h2b_text,h2c_title,h2c_text,faq1_q,faq1_a,faq2_q,faq2_a,faq3_q,faq3_a,internal_links
 
 Правила форматов:
-- bullets / tags / examples / tips_do / tips_avoid — разделитель пунктов: |
-- internal_links — элементы через |. Каждый элемент либо
-    "/chat/slug/"  либо  "Анкор::/chat/slug/"
-- Все текстовые значения автоматически экранируются в HTML.
-- Картинки не используются — чистый текст + Tailwind.
+- bullets / tags / examples / tips_do / tips_avoid — разделитель: |
+- internal_links — элементы через |. Каждый элемент либо:
+    "/chat/slug/"  либо  "Анкор::/chat/slug/"  либо просто "slug"
+- Все текстовые значения экранируются.
+- Шаблон universal: templates/luna_advanced.html (Tailwind CDN).
 
-Перезаписывает HTML по пути docs/<url>/index.html.
+Вывод: docs/<url>/index.html  (например: docs/chat/anime-devushka-bot/index.html)
 
 ENV:
 - SITE_BASE (default: https://gorod-legends.ru)
@@ -24,7 +27,7 @@ import argparse, csv, html, json, os, re, sys, unicodedata
 from pathlib import Path
 from datetime import datetime
 
-SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru")
+SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
 BOT_URL   = os.environ.get("BOT_URL", "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi")
 
 REQUIRED = [
@@ -33,17 +36,30 @@ REQUIRED = [
     "faq1_q","faq1_a","faq2_q","faq2_a","faq3_q","faq3_a","internal_links"
 ]
 
+HUB_LABELS_RU = {
+    "chat":  "Чат",
+    "guide": "Гайды",
+    "bot":   "Боты",
+    # можно расширять при появлении новых хабов
+}
+
 def slugify(s: str) -> str:
     s = unicodedata.normalize('NFKD', s).encode('ascii','ignore').decode('ascii')
     s = re.sub(r'[^a-zA-Z0-9\-_/]+','-', s.lower()).strip('-')
     s = re.sub(r'-{2,}','-', s)
     return s
 
+def norm_url(u: str) -> str:
+    """Нормализует URL вида '/chat/slug/' (обязательно со слешами по краям)."""
+    u = (u or "").strip()
+    if not u.startswith("/"):
+        u = "/" + u
+    if not u.endswith("/"):
+        u = u + "/"
+    return u
+
 def ensure_index_path(url: str, out_root: Path) -> Path:
-    u = (url or "").strip()
-    if not u.startswith("/"): u = "/" + u
-    if not u.endswith("/"):  u = u + "/"
-    parts = [p for p in u.split("/") if p]
+    parts = [p for p in norm_url(url).split("/") if p]
     return out_root.joinpath(*parts, "index.html")
 
 def split_items(s: str):
@@ -62,7 +78,7 @@ def make_bullets_html(items):
     return "\n".join(rows)
 
 def make_tag_chips(tags):
-    if not tags: 
+    if not tags:
         return ''
     chips = []
     for t in tags:
@@ -72,7 +88,7 @@ def make_tag_chips(tags):
     return "\n".join(chips)
 
 def make_examples_html(examples):
-    if not examples: 
+    if not examples:
         return ''
     lis = [f'<li class="glass rounded-lg px-3 py-2"><code class="text-sm">{html.escape(ex)}</code></li>'
            for ex in examples]
@@ -86,22 +102,76 @@ def make_list_html(items):
         f'<span class="text-zinc-300">{html.escape(it)}</span></li>' for it in items
     )
 
-def make_internal_links_html(field: str):
-    items = split_items(field)
-    if not items:
-        return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
-    cards = []
+def build_internal_links_auto(rows, idx_current):
+    """Вернуть строку internal_links (Анкор::/hub/slug/) из 5 предыдущих записей."""
+    start = max(0, idx_current - 5)
+    out = []
+    for j in range(start, idx_current):
+        r = rows[j]
+        u = norm_url(r.get("url",""))
+        title = (r.get("title") or u.strip("/").split("/")[-1].replace("-", " ").title()).strip()
+        out.append(f"{title}::{u}")
+    return "|".join(out)
+
+def parse_internal_links(raw_field, pages_by_slug, pages_by_path):
+    """
+    Возвратить список (href, text) из поля internal_links.
+    Поддержка вариантов: 'Анкор::/hub/slug/', '/hub/slug/', 'slug'
+    """
+    items = split_items(raw_field)
+    result = []
     for raw in items:
         label, url = None, raw
         if "::" in raw:
             label, url = raw.split("::", 1)
-        label = (label or url.strip("/").split("/")[-1].replace("-", " ").title()).strip()
         url = url.strip()
-        if not url.startswith("http"):
-            url = f"{SITE_BASE.rstrip('/')}{url if url.startswith('/') else '/'+url}"
+
+        # вариант: только slug
+        if not url.startswith("/"):
+            # пытаемся найти по slug
+            page = pages_by_slug.get(url)
+            if page:
+                href = norm_url(page["url"])
+                text = (label or page["title"] or href).strip()
+            else:
+                # не нашли — оставляем как есть
+                href = "/" + url + "/"
+                text = (label or url).strip()
+        else:
+            # /hub/slug/ или абсолют на домене (не рекомендуется)
+            if url.startswith("http://") or url.startswith("https://"):
+                href = url
+                text = (label or url).strip()
+            else:
+                href = norm_url(url)
+                # попробуем вытащить title из словаря по пути
+                page = pages_by_path.get(href.rstrip("/"))
+                text = (label or (page["title"] if page else href)).strip()
+
+        # делаем абсолютную ссылку (как у тебя было в проекте)
+        if not href.startswith("http"):
+            href_abs = f"{SITE_BASE}{href}"
+        else:
+            href_abs = href
+
+        result.append((href_abs, text))
+    return result
+
+def make_internal_links_html(rows, idx_current, row, pages_by_slug, pages_by_path):
+    raw = (row.get("internal_links") or "").strip()
+    # если пусто — авто: 5 предыдущих
+    if not raw:
+        raw = build_internal_links_auto(rows, idx_current)
+
+    pairs = parse_internal_links(raw, pages_by_slug, pages_by_path)
+    if not pairs:
+        return '<p class="text-zinc-400">Скоро добавим больше страниц.</p>'
+
+    cards = []
+    for href, text in pairs:
         cards.append(
-            f'<a href="{html.escape(url)}" class="glass rounded-xl p-4 hover:bg-white/10 transition">'
-            f'<div class="text-white font-medium">{html.escape(label)}</div>'
+            f'<a href="{html.escape(href)}" class="glass rounded-xl p-4 hover:bg-white/10 transition">'
+            f'<div class="text-white font-medium">{html.escape(text)}</div>'
             f'<div class="text-xs text-zinc-400 mt-1">Открыть →</div></a>'
         )
     return "\n".join(cards)
@@ -116,7 +186,7 @@ def faq_block_and_json(row: dict):
     schema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[]}
     for q,a in qas:
         q, a = (q or "").strip(), (a or "").strip()
-        if not q or not a: 
+        if not q or not a:
             continue
         blocks.append(
             f'<details class="glass rounded-xl p-4">'
@@ -148,13 +218,14 @@ def article_jsonld(title, description, canonical, keywords, ts_iso):
     }
     return json.dumps(data, ensure_ascii=False)
 
-def breadcrumbs_jsonld(canonical, title):
+def breadcrumbs_jsonld(canonical, title, hub_en):
+    crumb2 = HUB_LABELS_RU.get(hub_en, "Раздел")
     data = {
         "@context":"https://schema.org",
         "@type":"BreadcrumbList",
         "itemListElement":[
-            {"@type":"ListItem","position":1,"name":"Главная","item": SITE_BASE.rstrip('/') + "/"},
-            {"@type":"ListItem","position":2,"name":"Чат","item": SITE_BASE.rstrip('/') + "/chat/"},
+            {"@type":"ListItem","position":1,"name":"Главная","item": SITE_BASE + "/"},
+            {"@type":"ListItem","position":2,"name": crumb2, "item": SITE_BASE + f"/{hub_en}/"},
             {"@type":"ListItem","position":3,"name": title, "item": canonical}
         ]
     }
@@ -167,11 +238,11 @@ def render(template: str, ctx: dict) -> str:
     return out
 
 def read_csv_rows(csv_path: Path):
-    # Жёсткая валидация ширины строк
+    # Жёсткая валидация заголовков и отсутствие «лишних» столбцов
     with open(csv_path, "r", encoding="utf-8-sig", newline="") as fh:
         header_line = fh.readline()
         if not header_line:
-            raise SystemExit("[ERR] CSV файл пуст.")
+            raise SystemExit("[ERR] CSV пуст.")
         header = next(csv.reader([header_line]))
         header_lower = [h.strip().lower() for h in header]
         wanted_lower = [h.lower() for h in REQUIRED]
@@ -183,14 +254,12 @@ def read_csv_rows(csv_path: Path):
             )
         fh.seek(0)
         reader = csv.DictReader(fh)
-        for idx, row in enumerate(reader, start=2):
-            extras = row.get(None)
-            if extras not in (None, [], ""):
-                raise SystemExit(
-                    f"[ERR] Лишние столбцы в CSV на строке {idx}. "
-                    f"Проверь кавычки вокруг ячеек с запятыми. Лишние: {extras}"
-                )
-            yield idx, row
+        rows = list(reader)
+        # нормализуем, чтобы .get() не давал None
+        normed = []
+        for r in rows:
+            normed.append({k:(r.get(k) or "") for k in REQUIRED})
+        return normed
 
 def main():
     ap = argparse.ArgumentParser()
@@ -208,25 +277,63 @@ def main():
     out_root = Path(args.out)
     out_root.mkdir(parents=True, exist_ok=True)
 
+    rows = read_csv_rows(Path(args.csv))
+
+    # Подготовим справочники для internal_links (по slug и по пути)
+    pages_by_slug = {}
+    pages_by_path = {}
+    for r in rows:
+        slug = (r.get("slug") or "").strip()
+        url  = norm_url(r.get("url") or "")
+        if slug:
+            pages_by_slug[slug] = r
+        pages_by_path[url.rstrip("/")] = r
+
     total = 0
-    for lineno, row in read_csv_rows(Path(args.csv)):
-        # Базовые поля
-        url   = (row.get("url") or "").strip()
-        title = (row.get("title") or "").strip()
-        desc  = (row.get("description") or "").strip()
-        intro = (row.get("intro") or "").strip()
-        cta   = (row.get("cta") or "Открыть в Telegram").strip()
+    build_ts_iso = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    for idx, row in enumerate(rows):
+        url = norm_url(row.get("url") or "")
+        # Определяем HUB (по первому сегменту в /hub/slug/)
+        parts = [p for p in url.split("/") if p]
+        hub_en = parts[0] if parts else "chat"
+
+        # Выходной путь
+        dst = ensure_index_path(url, out_root)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+
+        # Поля
+        title   = (row.get("title") or "").strip()
+        desc    = (row.get("description") or "").strip()
+        intro   = (row.get("intro") or "").strip()
+        cta     = (row.get("cta") or "Открыть в Telegram").strip()
         keyword = (row.get("keyword") or "").strip()
-        _ = slugify(row.get("slug","") or title)
 
-        # Массивы
-        bullets  = split_items(row.get("bullets",""))
-        tags     = split_items(row.get("tags",""))
-        examples = split_items(row.get("examples",""))
-        tips_do  = split_items(row.get("tips_do",""))
-        tips_no  = split_items(row.get("tips_avoid",""))
+        bullets   = split_items(row.get("bullets",""))
+        tags      = split_items(row.get("tags",""))
+        examples  = split_items(row.get("examples",""))
+        tips_do   = split_items(row.get("tips_do",""))
+        tips_no   = split_items(row.get("tips_avoid",""))
 
-        # H2-блоки
+        # HTML-фрагменты
+        bullets_html    = make_bullets_html(bullets)
+        tags_html       = make_tag_chips(tags)
+        examples_html   = make_examples_html(examples)
+        tips_do_html    = make_list_html(tips_do)
+        tips_avoid_html = make_list_html(tips_no)
+        faq_html, faq_json = faq_block_and_json(row)
+        related_html    = make_internal_links_html(rows, idx, row, pages_by_slug, pages_by_path)
+
+        # SEO
+        canonical = f"{SITE_BASE}{url}"
+        keywords_meta = ", ".join([k for k in [keyword] + tags if k])
+
+        # JSON-LD
+        article_json = article_jsonld(title, desc, canonical, keywords_meta, build_ts_iso)
+        crumbs_json  = breadcrumbs_jsonld(canonical, title, hub_en)
+        jsonld_bundle = "[{}]".format(",".join([article_json, crumbs_json, faq_json]))
+
+        # H2
         h2a_title = (row.get("h2a_title") or "").strip()
         h2a_text  = (row.get("h2a_text")  or "").strip()
         h2b_title = (row.get("h2b_title") or "").strip()
@@ -234,32 +341,9 @@ def main():
         h2c_title = (row.get("h2c_title") or "").strip()
         h2c_text  = (row.get("h2c_text")  or "").strip()
 
-        # Выходной путь
-        dst = ensure_index_path(url, out_root)
-        dst.parent.mkdir(parents=True, exist_ok=True)
-
-        # HTML-фрагменты
-        bullets_html = make_bullets_html(bullets)
-        tags_html = make_tag_chips(tags)
-        examples_html = make_examples_html(examples)
-        tips_do_html = make_list_html(tips_do)
-        tips_avoid_html = make_list_html(tips_no)
-        faq_html, faq_json = faq_block_and_json(row)
-        related_html = make_internal_links_html(row.get("internal_links",""))
-
-        # SEO
-        canonical = f"{SITE_BASE.rstrip('/')}{url if url.startswith('/') else '/'+url}"
-        ts_iso = datetime.utcnow().isoformat(timespec="seconds")+"Z"
-        keywords_meta = ", ".join([k for k in [keyword] + tags if k])
-
-        # JSON-LD (Article + Breadcrumbs + FAQ)
-        article_json = article_jsonld(title, desc, canonical, keywords_meta, ts_iso)
-        crumbs_json = breadcrumbs_jsonld(canonical, title)
-        jsonld_bundle = "[{}]".format(",".join([article_json, crumbs_json, faq_json]))
-
-        # Подстановка
+        # Контекст
         ctx = {
-            "BUILD_TS": ts_iso,
+            "BUILD_TS": build_ts_iso,
             "TITLE": html.escape(title),
             "DESCRIPTION": html.escape(desc),
             "H1": html.escape(title),
@@ -286,7 +370,7 @@ def main():
 
         html_out = render(template, ctx)
         dst.write_text(html_out, encoding="utf-8")
-        print(f"[OK] line {lineno}: {url} -> {dst}")
+        print(f"[OK] {url} -> {dst}")
         total += 1
 
     print(f"[DONE] Generated/updated {total} page(s) into {out_root}")
