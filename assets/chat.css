@@ -1,0 +1,38 @@
+
+:root{--bg:#0f0f12;--panel:#15161b;--text:#e7e7ea;--muted:#a6a7ad;--brand:#e3566a;--brand-2:#ff6b8a;--border:#262732}
+*{box-sizing:border-box}
+body.theme-dark{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+a{color:var(--brand);text-decoration:none}
+.container{max-width:72ch;margin:0 auto;padding:24px}
+.site-top{position:sticky;top:0;background:rgba(15,15,18,.75);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border);z-index:30}
+.site-top .container{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.brand{font-weight:700;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:14px;border:1px solid transparent;background:var(--panel);color:#fff}
+.btn.primary{background:linear-gradient(180deg,var(--brand-2),var(--brand));box-shadow:0 6px 20px rgba(227,86,106,.35)}
+.sticky-cta{position:relative}
+@media (max-width:720px){.sticky-cta{position:fixed;right:16px;top:12px}}
+.hero h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,34px);line-height:1.2}
+.lead{color:var(--muted);margin:0 0 16px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 6px}
+.pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#1b1c22;border:1px solid var(--border);color:#cfd0d5;font-size:.9rem}
+.hero-cta{margin:18px 0 6px}
+.note{background:var(--panel);border:1px solid var(--border);padding:16px;border-radius:16px;margin:16px 0}
+h2{margin:28px 0 8px;font-size:1.25rem}
+h3{margin:14px 0 6px;font-size:1.05rem}
+.ul{padding-left:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:#16171d;border-radius:12px;padding:6px 10px}
+.chip.link{color:#dfe0e6}
+.grid-3{display:grid;gap:12px;grid-template-columns:repeat(3,1fr);margin:12px 0}
+@media (max-width:920px){.grid-3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
+.card-title{font-weight:600;margin-bottom:6px}
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media (max-width:920px){.two-col{grid-template-columns:1fr}}
+.faq-wrap{margin:10px 0 24px}
+.faq{background:#121318;border:1px solid var(--border);border-radius:12px;margin:8px 0;padding:0}
+.faq>summary{list-style:none;cursor:pointer;padding:10px 14px;font-weight:600}
+.faq[open]>summary{border-bottom:1px solid var(--border)}
+.faq .faq-a{padding:12px 14px;color:#cfd0d5}
+.site-foot{border-top:1px solid var(--border);margin-top:32px}
+small{color:var(--muted)}
