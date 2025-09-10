@@ -1,44 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Генератор страниц из нового CSV (расширенный формат).
-— Компактные, «плиточные» блоки.
-— Нормальные анкоры перелинковки (url|title).
-— Кнопка CTA ведёт на TELEGRAM_URL (env) или дефолтную ссылку.
-— Каноникал, OpenGraph, JSON-LD.
-"""
 
 import csv, os, re, html, json
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-# --- Параметры окружения ---
-ROOT = Path(__file__).resolve().parents[1]        # корень каталога ai/
+ROOT = Path(__file__).resolve().parents[1]
 SITE_BASE = os.getenv("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
 TELEGRAM_URL = os.getenv("TELEGRAM_URL", "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi")
 TZ = ZoneInfo("Europe/Moscow")
 
-# CSV может лежать в ./pages.csv или ./data/pages.csv
 CSV_CANDIDATES = [ROOT / "pages.csv", ROOT / "data/pages.csv"]
 CSV_PATH = next((p for p in CSV_CANDIDATES if p.exists()), None)
 if not CSV_PATH:
     raise SystemExit("[ERR] CSV not found: pages.csv or data/pages.csv")
 
-OUT_DIR = ROOT / "chat"     # все страницы раздела «чат» здесь
+OUT_DIR = ROOT / "chat"
 ASSETS_CSS = "assets/chat.css"
 ASSETS_JS  = "assets/chat.js"
 
-# --- Утилиты парсинга полей CSV ---
+# ---------- helpers ----------
+
+def norm_url(u: str) -> str:
+    u = (u or "").strip()
+    if not u:
+        return ""
+    if not u.startswith("/"):
+        u = "/" + u
+    if not u.endswith("/"):
+        u = u + "/"
+    return u
+
+def slug_from_url(u: str) -> str:
+    u = norm_url(u)
+    return u.strip("/").split("/")[-1]
 
 def split_list(s: str) -> list[str]:
     s = (s or "").strip()
-    if not s:
-        return []
-    return [x.strip() for x in s.split("|") if x.strip()]
+    return [x.strip() for x in s.split("|") if x.strip()] if s else []
 
 def para(text: str) -> str:
-    """Разбить на абзацы по \n и обернуть в <p>"""
     t = (text or "").strip()
     if not t:
         return ""
@@ -47,48 +49,43 @@ def para(text: str) -> str:
 
 def parse_internal_links(s: str) -> list[dict]:
     """
-    Поддержка двух форматов:
-    1) "/chat/foo/|Название||/chat/bar/|Другое"
-    2) "/chat/foo/|/chat/bar/" (устаревший — анкором станет сам url)
-    Разделитель между парами — '||'
-    Если '||' не найдено, пытаемся по одному '|' (старый CSV).
+    Поддержка:
+      "/chat/foo/|Название||/chat/bar/|Другое"
+    и наследие:
+      "/chat/foo/|/chat/bar/"  (в этом случае текст вытянем сами)
     """
     s = (s or "").strip()
     if not s:
         return []
     items = []
     if "||" in s:
-        pairs = [p for p in s.split("||") if p.strip()]
-        for p in pairs:
+        for p in [p for p in s.split("||") if p.strip()]:
             if "|" in p:
                 href, text = p.split("|", 1)
-                items.append({"href": href.strip(), "text": text.strip() or href.strip()})
+                items.append({"href": norm_url(href), "text": text.strip()})
     else:
-        # старый стиль: просто список URL через '|'
         for href in split_list(s):
-            items.append({"href": href, "text": href})
+            items.append({"href": norm_url(href), "text": ""})
     return items
 
-def safe_slug(url: str, slug: str) -> str:
-    """Вернуть чистый slug. Если в CSV есть полный url — вытащим последний сегмент."""
-    if slug:
-        return slug.strip().strip("/")
-    u = (url or "").strip()
-    if not u:
-        return ""
-    tail = u.rstrip("/").split("/")[-1]
-    return tail
-
 def out_path_for(url: str, slug: str) -> Path:
-    s = safe_slug(url, slug)
+    s = (slug or "").strip().strip("/")
     if not s:
-        raise ValueError("slug is empty")
+        s = slug_from_url(url or "")
+    if not s:
+        raise ValueError("empty slug/url")
     return OUT_DIR / s / "index.html"
 
 def now_iso() -> str:
     return datetime.now(TZ).isoformat(timespec="seconds")
 
-# --- Рендеринг готовых блоков ---
+def pretty_from_slug(u: str) -> str:
+    s = slug_from_url(u)
+    s = s.replace("-", " ")
+    # первая буква заглавная
+    return s[:1].upper() + s[1:]
+
+# ---------- UI render ----------
 
 def render_badges(items: list[str]) -> str:
     if not items: return ""
@@ -105,7 +102,7 @@ def render_chips(items: list[str]) -> str:
 
 def render_related(links: list[dict]) -> str:
     if not links: return ""
-    s = "".join(f'<a class="chip link" href="{html.escape(l["href"])}">{html.escape(l["text"])}</a>' for l in links)
+    s = "".join(f'<a class="chip link glow" href="{html.escape(l["href"])}">{html.escape(l["text"])}</a>' for l in links)
     return f'<div class="related">{s}</div>'
 
 def render_scenarios(rows: list[tuple[str, str]]) -> str:
@@ -114,9 +111,9 @@ def render_scenarios(rows: list[tuple[str, str]]) -> str:
     cards = []
     for t, d in rows:
         cards.append(
-            f"""<div class="card">
-    <div class="card-title">{html.escape(t or "Сценарий")}</div>
-    <div class="card-text">{para(d)}</div>
+            f"""<div class="card glow">
+  <div class="card-title">{html.escape(t or "Сценарий")}</div>
+  <div class="card-text">{para(d)}</div>
 </div>"""
         )
     return '<div class="grid-3">' + "".join(cards) + "</div>"
@@ -146,15 +143,56 @@ def json_ld(site_base: str, url_path: str, meta_title: str, meta_desc: str) -> s
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
 
-def render_page(row: dict) -> str:
-    # поля CSV
-    url           = row.get("url","").strip()
+# ---------- title index for anchors ----------
+
+def build_title_index(rows: list[dict]) -> dict:
+    idx = {}
+    # из CSV
+    for r in rows:
+        u = norm_url(r.get("url",""))
+        if not u: 
+            continue
+        t = (r.get("title") or r.get("h1") or r.get("meta_title") or "").strip()
+        if t:
+            idx[u] = t
+
+    # из уже сгенерированных страниц (h1)
+    if OUT_DIR.exists():
+        for p in OUT_DIR.glob("*/index.html"):
+            url_path = f"/chat/{p.parent.name}/"
+            if url_path in idx: 
+                continue
+            try:
+                txt = p.read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                continue
+            m = re.search(r"<h1[^>]*>(.*?)</h1>", txt, flags=re.S|re.I)
+            if m:
+                h1 = re.sub(r"<.*?>", "", m.group(1)).strip()
+                if h1:
+                    idx[url_path] = h1
+    return idx
+
+def enrich_related(links: list[dict], title_index: dict) -> list[dict]:
+    out = []
+    for l in links:
+        href = norm_url(l.get("href",""))
+        text = (l.get("text") or "").strip()
+        if not text:
+            text = title_index.get(href) or pretty_from_slug(href)
+        out.append({"href": href, "text": text})
+    return out
+
+# ---------- render full page ----------
+
+def render_page(row: dict, title_index: dict) -> str:
+    url           = norm_url(row.get("url",""))
     title         = row.get("title","").strip()
-    meta_title    = row.get("meta_title", title).strip() or title
-    meta_desc     = row.get("meta_description", "").strip()
-    h1            = row.get("h1", title).strip() or title
+    meta_title    = (row.get("meta_title") or title).strip() or title
+    meta_desc     = row.get("meta_description","").strip()
+    h1            = (row.get("h1") or title).strip() or title
     intro         = row.get("intro","").strip()
-    cta_text      = row.get("cta", "Открыть чат в Telegram").strip() or "Открыть чат в Telegram"
+    cta_text      = (row.get("cta") or "Открыть чат в Telegram").strip()
     bullets       = split_list(row.get("bullets",""))
     examples      = split_list(row.get("examples",""))
     tags          = split_list(row.get("tags",""))
@@ -168,12 +206,12 @@ def render_page(row: dict) -> str:
     h2c_text      = row.get("h2c_text","").strip()
     h2d_title     = row.get("h2d_title","").strip()
     h2d_text      = row.get("h2d_text","").strip()
-    scenarios = [
+    scenarios     = [
         (row.get("scenario1_title","").strip(), row.get("scenario1_text","").strip()),
         (row.get("scenario2_title","").strip(), row.get("scenario2_text","").strip()),
         (row.get("scenario3_title","").strip(), row.get("scenario3_text","").strip()),
     ]
-    faqs = [
+    faqs          = [
         (row.get("faq1_q","").strip(), row.get("faq1_a","").strip()),
         (row.get("faq2_q","").strip(), row.get("faq2_a","").strip()),
         (row.get("faq3_q","").strip(), row.get("faq3_a","").strip()),
@@ -181,10 +219,9 @@ def render_page(row: dict) -> str:
         (row.get("faq5_q","").strip(), row.get("faq5_a","").strip()),
         (row.get("faq6_q","").strip(), row.get("faq6_a","").strip()),
     ]
-    related       = parse_internal_links(row.get("internal_links",""))
+    related       = enrich_related(parse_internal_links(row.get("internal_links","")), title_index)
     canonical     = (row.get("canonical","").strip() or f"{SITE_BASE}{url}")
 
-    # шапка и hero
     head = f"""<!doctype html>
 <html lang="ru">
 <head>
@@ -219,75 +256,54 @@ def render_page(row: dict) -> str:
     </div>
   </section>
 """
-    # тело
+
     body = []
 
-    # карточка-пояснение под бейджами (если есть текст)
-    if any([h2a_text, h2b_text]):
-        body.append('<section class="note">' + para("Современная модель поддерживает дружелюбный 18+ диалог. Вы задаёте тон и границы, а система бережно подстраивается.") + "</section>")
-
-    # блок «Что внутри»
-    what_inside = tips = ""
     if bullets:
-        what_inside = f"""
-<section>
-  <h2>Что внутри</h2>
+        body.append(f"""
+<section class="panel glow">
+  <div class="panel-title">Что внутри</div>
   {render_list(bullets)}
 </section>
-"""
-    # «Подсказки и примеры»
-    examples_html = ""
+""")
+
     if examples:
-        examples_html = f"""
+        body.append(f"""
 <section>
   <h2>Подсказки и примеры</h2>
   {render_chips(examples)}
 </section>
-"""
-    # три тематических блока h2*
+""")
+
     def h2_block(title, text):
         if not (title or text): return ""
-        return f"<section><h2>{html.escape(title or '')}</h2>{para(text)}</section>"
+        return f"<section><h2>{html.escape(title)}</h2>{para(text)}</section>"
 
-    thematic = "".join([
-        h2_block(h2a_title, h2a_text),
-        h2_block(h2b_title, h2b_text),
-        h2_block(h2c_title, h2c_text),
-        h2_block(h2d_title, h2d_text),
-    ])
+    body.append(h2_block(h2a_title, h2a_text))
+    body.append(h2_block(h2b_title, h2b_text))
+    body.append(h2_block(h2c_title, h2c_text))
+    body.append(h2_block(h2d_title, h2d_text))
 
-    # «Сценарии»
-    scen = ""
     if any(t for (t, _) in scenarios):
-        scen = "<section><h2>Сценарии</h2>" + render_scenarios(scenarios) + "</section>"
+        body.append("<section><h2>Сценарии</h2>" + render_scenarios(scenarios) + "</section>")
 
-    # do/avoid
+    tips_do = split_list(row.get("tips_do",""))
+    tips_avoid = split_list(row.get("tips_avoid",""))
     if tips_do or tips_avoid:
         tips = "<section class='two-col'>"
         if tips_do:
-            tips += "<div><h3>Стоит делать</h3>" + render_list(tips_do) + "</div>"
+            tips += "<div class='panel'><h3>Стоит делать</h3>" + render_list(tips_do) + "</div>"
         if tips_avoid:
-            tips += "<div><h3>Чего избегать</h3>" + render_list(tips_avoid) + "</div>"
+            tips += "<div class='panel'><h3>Чего избегать</h3>" + render_list(tips_avoid) + "</div>"
         tips += "</section>"
+        body.append(tips)
 
-    # FAQ
-    faq_html = render_faq(faqs)
+    body.append(render_faq(faqs))
 
-    # Перелинковка
-    related_html = ""
     if related:
-        related_html = "<section><h2>Ещё по теме</h2>" + render_related(related) + "</section>"
+        body.append("<section><h2>Ещё по теме</h2>" + render_related(related) + "</section>")
 
-    body.append(what_inside)
-    body.append(examples_html)
-    body.append(thematic)
-    body.append(scen)
-    body.append(tips)
-    body.append(faq_html)
-    body.append(related_html)
-
-    # футер
-    foot = f"""
+    foot = """
 </main>
 
 <footer class="site-foot">
@@ -299,7 +315,68 @@ def render_page(row: dict) -> str:
 """
     return head + "\n".join([b for b in body if b]) + foot
 
-# --- Главный проход по CSV ---
+# ---------- main ----------
+
+DEFAULT_CSS = r"""
+:root{
+  --bg:#0e0e12; --panel:#16171d; --text:#e8e8ec; --muted:#a7a8ae; --border:#25262d;
+  --brand:#ff6b9a; --brand2:#8b5cf6; --chip:#1a1b22; --glow:rgba(255,107,154,.28);
+}
+*{box-sizing:border-box}
+body.theme-dark{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+a{color:var(--brand);text-decoration:none}
+.container{max-width:74ch;margin:0 auto;padding:24px}
+section+section{margin-top:24px}
+.site-top{position:sticky;top:0;background:rgba(14,14,18,.76);backdrop-filter:saturate(130%) blur(8px);border-bottom:1px solid var(--border);z-index:30}
+.site-top .container{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.brand{font-weight:700;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:14px;border:1px solid transparent;background:var(--panel);color:#fff}
+.btn.primary{background:linear-gradient(180deg,var(--brand),var(--brand2));box-shadow:0 8px 28px rgba(139,92,246,.32)}
+.sticky-cta{position:relative}
+@media (max-width:720px){.sticky-cta{position:fixed;right:16px;top:12px}}
+
+.hero h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,34px);line-height:1.2}
+.lead{color:var(--muted);margin:0 0 16px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 10px}
+.pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);color:#cfd0d5;font-size:.9rem}
+
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px}
+.panel-title{font-weight:600;margin:0 0 8px}
+.glow{box-shadow:0 0 0 1px var(--border), 0 10px 30px var(--glow)}
+
+h2{margin:0 0 8px;font-size:1.25rem}
+h3{margin:14px 0 6px;font-size:1.05rem}
+.ul{padding-left:20px}
+
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:linear-gradient(180deg,#181922,#12131a);border-radius:12px;padding:7px 11px;color:#dadbe1;transition:transform .08s ease, box-shadow .2s ease}
+.chip:hover{transform:translateY(-1px);box-shadow:0 8px 18px var(--glow)}
+.chip.link{color:#fff}
+
+.related{display:flex;flex-wrap:wrap;gap:10px}
+
+.grid-3{display:grid;gap:12px;grid-template-columns:repeat(3,1fr)}
+@media (max-width:920px){.grid-3{grid-template-columns:1fr}}
+
+.card{background:linear-gradient(180deg,#15161b,#12131a);border:1px solid var(--border);border-radius:16px;padding:14px}
+.card-title{font-weight:600;margin-bottom:6px}
+
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media (max-width:920px){.two-col{grid-template-columns:1fr}}
+
+.faq-wrap{margin:6px 0 20px}
+.faq{background:#121318;border:1px solid var(--border);border-radius:12px;margin:10px 0;padding:0;overflow:hidden}
+.faq>summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:600;position:relative}
+.faq>summary::after{content:"+";position:absolute;right:12px;top:10px;color:#fff;opacity:.55}
+.faq[open]>summary::after{content:"—";}
+.faq[open]>summary{border-bottom:1px solid var(--border)}
+.faq .faq-a{padding:12px 14px;color:#cfd0d5}
+
+.site-foot{border-top:1px solid var(--border);margin-top:32px}
+small{color:var(--muted)}
+"""
+
+DEFAULT_JS = r"""// можно расширить — копирование текста чипов по клику и т.п."""
 
 def main():
     print(f"[i] CSV: {CSV_PATH}")
@@ -308,9 +385,10 @@ def main():
     with CSV_PATH.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
-
     if not rows:
         raise SystemExit("[ERR] CSV has no rows")
+
+    title_index = build_title_index(rows)
 
     for r in rows:
         try:
@@ -318,13 +396,11 @@ def main():
         except Exception as e:
             print(f"[skip] row without slug/url: {e}")
             continue
-
-        html_page = render_page(r)
+        html_page = render_page(r, title_index)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_page, encoding="utf-8")
         print("[ok]", out_path.relative_to(ROOT))
 
-    # Положим ассеты, если вдруг забыты
     assets_dir = ROOT / "assets"
     assets_dir.mkdir(exist_ok=True)
     css_path = assets_dir / "chat.css"
@@ -335,53 +411,6 @@ def main():
     if not js_path.exists():
         js_path.write_text(DEFAULT_JS, encoding="utf-8")
         print("[i] created assets/chat.js")
-
-# --- Встроенные минимальные ассеты по умолчанию ---
-
-DEFAULT_CSS = r"""
-:root{--bg:#0f0f12;--panel:#15161b;--text:#e7e7ea;--muted:#a6a7ad;--brand:#e3566a;--brand-2:#ff6b8a;--border:#262732}
-*{box-sizing:border-box}
-body.theme-dark{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-a{color:var(--brand);text-decoration:none}
-.container{max-width:72ch;margin:0 auto;padding:24px}
-.site-top{position:sticky;top:0;background:rgba(15,15,18,.75);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border);z-index:30}
-.site-top .container{display:flex;gap:16px;align-items:center;justify-content:space-between}
-.brand{font-weight:700;color:#fff}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:14px;border:1px solid transparent;background:var(--panel);color:#fff}
-.btn.primary{background:linear-gradient(180deg,var(--brand-2),var(--brand));box-shadow:0 6px 20px rgba(227,86,106,.35)}
-.sticky-cta{position:relative}
-@media (max-width:720px){.sticky-cta{position:fixed;right:16px;top:12px}}
-.hero h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,34px);line-height:1.2}
-.lead{color:var(--muted);margin:0 0 16px}
-.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 6px}
-.pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#1b1c22;border:1px solid var(--border);color:#cfd0d5;font-size:.9rem}
-.hero-cta{margin:18px 0 6px}
-.note{background:var(--panel);border:1px solid var(--border);padding:16px;border-radius:16px;margin:16px 0}
-h2{margin:28px 0 8px;font-size:1.25rem}
-h3{margin:14px 0 6px;font-size:1.05rem}
-.ul{padding-left:20px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:#16171d;border-radius:12px;padding:6px 10px}
-.chip.link{color:#dfe0e6}
-.grid-3{display:grid;gap:12px;grid-template-columns:repeat(3,1fr);margin:12px 0}
-@media (max-width:920px){.grid-3{grid-template-columns:1fr}}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
-.card-title{font-weight:600;margin-bottom:6px}
-.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
-@media (max-width:920px){.two-col{grid-template-columns:1fr}}
-.faq-wrap{margin:10px 0 24px}
-.faq{background:#121318;border:1px solid var(--border);border-radius:12px;margin:8px 0;padding:0}
-.faq>summary{list-style:none;cursor:pointer;padding:10px 14px;font-weight:600}
-.faq[open]>summary{border-bottom:1px solid var(--border)}
-.faq .faq-a{padding:12px 14px;color:#cfd0d5}
-.site-foot{border-top:1px solid var(--border);margin-top:32px}
-small{color:var(--muted)}
-"""
-
-DEFAULT_JS = r"""
-// ничего критичного: нативные <details> для FAQ.
-// можно добавить автокопирование текста чипов по клику, если потребуется.
-"""
 
 if __name__ == "__main__":
     main()
