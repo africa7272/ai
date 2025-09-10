@@ -1,145 +1,136 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-Генератор страниц из CSV (новый формат):
-
-url,title,keyword,slug,meta_title,meta_description,h1,intro,cta,bullets,tags,examples,
-tips_do,tips_avoid,h2a_title,h2a_text,h2b_title,h2b_text,h2c_title,h2c_text,h2d_title,h2d_text,
-scenario1_title,scenario1_text,scenario2_title,scenario2_text,scenario3_title,scenario3_text,
-faq1_q,faq1_a,faq2_q,faq2_a,faq3_q,faq3_a,faq4_q,faq4_a,faq5_q,faq5_a,faq6_q,faq6_a,
-internal_links,changefreq,priority,canonical
-
-Особенности:
-- Путь берётся из url (например /chat/foo/ -> chat/foo/index.html)
-- Внутренние ссылки можно передавать списком через | (без анкоров);
-  анкор скрипт попробует найти по заголовку H1/Title готовой страницы или сгенерирует из слага.
-- Если нужно кастомный анкор, можно указать как `/path||Анкор` (двойной «|» отделяет анкор от URL).
-- CTA ссылка берётся из env CTA_URL (по умолчанию /18plus/).
-- SITE_BASE берётся из env SITE_BASE (по умолчанию https://gorod-legends.ru) — для canonical/OG.
-"""
-
-import csv
 import os
+import csv
 import re
+import json
 import html
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+try:
+    # Python 3.9+
+    from zoneinfo import ZoneInfo
+    TZ_MOSCOW = ZoneInfo("Europe/Moscow")
+except Exception:
+    TZ_MOSCOW = None  # на всякий
 
-SITE_BASE = os.getenv("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
-CTA_URL   = os.getenv("CTA_URL", "/18plus/")
+# ------------------------ Настройки ------------------------
 
-ROOT = Path(".")  # корень репозитория (где лежат chat/, hub/ и т.д.)
+SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
+CSV_CANDIDATES = [
+    Path("pages.csv"),
+    Path("data/pages.csv"),
+]
+OUT_ROOT = Path(".")          # корень репозитория
+TEMPLATE_CANDIDATES = [
+    Path("templates/chat.html"),
+    Path("templates/page.html"),
+]
 
-def read_csv_rows(csv_path: Path):
-    if not csv_path.exists():
-        # fallback: data/pages.csv -> pages.csv
-        alt = Path("pages.csv")
-        if alt.exists():
-            csv_path = alt
-        else:
-            raise SystemExit(f"[ERR] CSV not found: {csv_path}")
-    rows = []
-    with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        for r in reader:
-            rows.append({k: (v or "").strip() for k, v in r.items()})
-    return rows
+# ------------------------ Утилиты --------------------------
 
-def ensure_trailing_slash(u: str) -> str:
-    u = (u or "").strip()
+def now_moscow_iso():
+    dt = datetime.utcnow()
+    if TZ_MOSCOW:
+        dt = datetime.now(TZ_MOSCOW)
+    return dt.isoformat(timespec="seconds")
+
+def norm_url(u: str) -> str:
+    """Нормализуем URL как в сайтах: с ведущим и закрывающим слешем."""
     if not u:
         return "/"
+    u = u.strip()
     if not u.startswith("/"):
         u = "/" + u
     if not u.endswith("/"):
         u = u + "/"
     return u
 
-def esc(s: str) -> str:
-    return html.escape(s or "", quote=True)
+def slugify_from_url(u: str) -> str:
+    u = norm_url(u)
+    seg = u.strip("/").split("/")[-1]
+    return seg or "index"
 
-def split_pipe(s: str):
-    # generic splitter for lists stored as "a|b|c"
-    return [x.strip() for x in (s or "").split("|") if x.strip()]
-
-def pretty_from_slug(slug: str) -> str:
-    slug = (slug or "").strip("/").split("/")[-1]
-    s = slug.replace("-", " ").replace("_", " ")
-    s = re.sub(r"\s+", " ", s).strip()
+def split_pipes(s: str):
     if not s:
-        return "Подробнее"
-    return s[:1].upper() + s[1:]
+        return []
+    return [x.strip() for x in s.split("|") if x.strip()]
 
-def url_to_file(url: str) -> Path:
-    # /chat/foo/ -> chat/foo/index.html
-    u = ensure_trailing_slash(url)
-    return ROOT / u.lstrip("/") / "index.html"
+def paragraphize(text: str) -> str:
+    if not text:
+        return ""
+    # двойные переносы -> отдельные <p>, одиночные сохраняем как есть
+    parts = [p.strip() for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
+    if not parts:
+        return f"<p>{html.escape(text.strip())}</p>"
+    return "".join(f"<p>{html.escape(p)}</p>" for p in parts)
 
-def guess_anchor_for_url(u: str, rows_map):
-    """Пытаемся найти анкор для внутренней ссылки:
-       1) по заголовку H1/Title уже сгенерированной страницы
-       2) по данным из CSV (h1/title)
-       3) из слага"""
-    try_file = url_to_file(u)
-    if try_file.exists():
-        txt = try_file.read_text("utf-8", errors="ignore")
-        # <h1>...</h1>
-        m = re.search(r"<h1[^>]*>(.*?)</h1>", txt, re.I | re.S)
-        if m:
-            t = re.sub(r"<[^>]+>", "", m.group(1)).strip()
-            if t:
-                return t
-        # <title>...</title>
-        m = re.search(r"<title[^>]*>(.*?)</title>", txt, re.I | re.S)
-        if m:
-            t = re.sub(r"<[^>]+>", "", m.group(1)).strip()
-            if t:
-                return t
-    # по CSV
-    if u in rows_map:
-        t = rows_map[u].get("h1") or rows_map[u].get("title") or rows_map[u].get("meta_title")
-        if t:
-            return t
-    # из слага
-    return pretty_from_slug(u)
-
-def parse_internal_links(raw: str, rows_map):
-    """Поддержка двух форматов элементов:
-       - '/path'                         (анкор определяется автоматически)
-       - '/path||Анкор'                  (кастомный анкор)
-       Элементы разделяются одиночным |
-    """
-    out = []
-    for chunk in split_pipe(raw):
-        if "||" in chunk:
-            u, a = chunk.split("||", 1)
-            u, a = u.strip(), a.strip()
-            if u:
-                out.append((u, a or guess_anchor_for_url(u, rows_map)))
-        else:
-            u = chunk
-            out.append((u, guess_anchor_for_url(u, rows_map)))
-    return out
-
-def ul(items, klass=""):
+def listify(items, cls="list"):
     if not items:
         return ""
-    li = "\n".join(f"<li>{esc(i)}</li>" for i in items)
-    cls = f' class="{klass}"' if klass else ""
-    return f"<ul{cls}>\n{li}\n</ul>"
+    return "<ul class=\"%s\">%s</ul>" % (
+        cls,
+        "".join(f"<li>{html.escape(i)}</li>" for i in items),
+    )
 
-def faq_block(pairs):
-    if not pairs:
-        return "", []
-    details = []
-    for q, a in pairs:
-        if not (q or a):
-            continue
-        details.append(
-            f'<details class="faq-item"><summary>{esc(q)}</summary><div><p>{esc(a)}</p></div></details>'
+def code_list(items, cls="examples"):
+    if not items:
+        return ""
+    return "<ul class=\"%s\">%s</ul>" % (
+        cls,
+        "".join(f"<li><code>{html.escape(i)}</code></li>" for i in items),
+    )
+
+def human_from_slug(slug: str) -> str:
+    slug = slug.strip("/").split("/")[-1]
+    slug = slug.replace("-", " ").replace("_", " ")
+    return slug.capitalize() if slug else "Смотреть"
+
+def parse_internal_links(raw: str, title_by_url: dict):
+    """
+    Поддерживаем два формата:
+      1) "url1||Анкор 1||url2||Анкор 2"  (пары)
+      2) "url1|url2|url3"                (только урлы; анкор берём из title_by_url или из слага)
+    """
+    if not raw:
+        return []
+
+    links = []
+    if "||" in raw:
+        # пары url||anchor
+        chunks = [c.strip() for c in raw.split("||") if c.strip()]
+        # ожидаем чётное число элементов: url, anchor, url, anchor...
+        i = 0
+        while i < len(chunks):
+            href = chunks[i]; anchor = None
+            if i + 1 < len(chunks):
+                anchor = chunks[i + 1]
+            i += 2
+            href = norm_url(href)
+            if not anchor:
+                anchor = title_by_url.get(href) or human_from_slug(href)
+            links.append((href, anchor))
+    else:
+        # просто список урлов через |
+        for href in split_pipes(raw):
+            href = norm_url(href)
+            anchor = title_by_url.get(href) or human_from_slug(href)
+            links.append((href, anchor))
+    return links
+
+def render_internal_links(links):
+    if not links:
+        return ""
+    items = []
+    for href, anchor in links:
+        items.append(
+            f'''<a class="related-card" href="{html.escape(href)}">
+  <span class="related-title">{html.escape(anchor)}</span>
+  <span class="related-more">Открыть →</span>
+</a>'''
         )
-    return "\n".join(details), pairs
+    return '<div class="related-grid">\n' + "\n".join(items) + "\n</div>"
 
 def faq_json_ld(pairs, canonical):
     if not pairs:
@@ -148,222 +139,306 @@ def faq_json_ld(pairs, canonical):
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-            {"@type": "Question",
-             "name": q,
-             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            {
+                "@type": "Question",
+                "name": q,
+                "acceptedAnswer": {"@type": "Answer", "text": a},
+            }
             for q, a in pairs if q and a
-        ]
+        ],
     }
-    return f'<script type="application/ld+json">{html.escape(str(js).replace("'", '"'))}</script>'
+    json_text = json.dumps(js, ensure_ascii=False, separators=(",", ":"))
+    return '<script type="application/ld+json">' + html.escape(json_text) + "</script>"
 
-def now_msk_iso():
-    # только для og:updated_time; sitemap берёт дату из коммитов
-    msk = timezone(timedelta(hours=3))
-    return datetime.now(msk).isoformat(timespec="seconds")
+def render_faq_html(pairs):
+    if not pairs:
+        return ""
+    blocks = []
+    for q, a in pairs:
+        if not (q and a): 
+            continue
+        blocks.append(
+            f'''<details class="faq">
+  <summary>{html.escape(q)}</summary>
+  <div class="answer">{paragraphize(a)}</div>
+</details>'''
+        )
+    return "\n".join(blocks)
 
-def render_page(row, rows_map):
-    url          = ensure_trailing_slash(row.get("url") or f"/chat/{row.get('slug','')}/")
-    slug         = (row.get("slug") or "").strip()
-    title        = row.get("title") or row.get("h1") or row.get("meta_title") or pretty_from_slug(slug)
-    meta_title   = row.get("meta_title") or title
-    meta_descr   = row.get("meta_description") or row.get("description") or ""
-    h1           = row.get("h1") or title
-    intro        = row.get("intro") or ""
-    cta_text     = row.get("cta") or "Открыть в Telegram"
-
-    bullets      = split_pipe(row.get("bullets"))
-    tags         = split_pipe(row.get("tags"))
-    examples     = split_pipe(row.get("examples"))
-    tips_do      = split_pipe(row.get("tips_do"))
-    tips_avoid   = split_pipe(row.get("tips_avoid"))
-
-    h2a_title    = row.get("h2a_title") or ""
-    h2a_text     = row.get("h2a_text") or ""
-    h2b_title    = row.get("h2b_title") or ""
-    h2b_text     = row.get("h2b_text") or ""
-    h2c_title    = row.get("h2c_title") or ""
-    h2c_text     = row.get("h2c_text") or ""
-    h2d_title    = row.get("h2d_title") or ""
-    h2d_text     = row.get("h2d_text") or ""
-
-    sc1_title    = row.get("scenario1_title") or ""
-    sc1_text     = row.get("scenario1_text") or ""
-    sc2_title    = row.get("scenario2_title") or ""
-    sc2_text     = row.get("scenario2_text") or ""
-    sc3_title    = row.get("scenario3_title") or ""
-    sc3_text     = row.get("scenario3_text") or ""
-
-    faq_pairs = [
-        (row.get("faq1_q"), row.get("faq1_a")),
-        (row.get("faq2_q"), row.get("faq2_a")),
-        (row.get("faq3_q"), row.get("faq3_a")),
-        (row.get("faq4_q"), row.get("faq4_a")),
-        (row.get("faq5_q"), row.get("faq5_a")),
-        (row.get("faq6_q"), row.get("faq6_a")),
-    ]
-    faq_pairs = [(q.strip(), a.strip()) for q, a in faq_pairs if (q or a)]
-    faq_html, faq_for_jsonld = faq_block(faq_pairs)
-
-    internal_links = parse_internal_links(row.get("internal_links", ""), rows_map)
-
-    changefreq   = (row.get("changefreq") or "").lower()
-    priority     = (row.get("priority") or "").strip()
-    canonical    = (row.get("canonical") or (SITE_BASE + url)).strip()
-
-    # Составные кусочки
-    tags_html      = "" if not tags else '<div class="tags">' + " ".join(f'<span class="tag">{esc(t)}</span>' for t in tags) + "</div>"
-    bullets_html   = ul(bullets, "bullets")
-    examples_html  = ul(examples, "examples")
-    tips_do_html   = ul(tips_do, "tips-do")
-    tips_avoid_html= ul(tips_avoid, "tips-avoid")
-
-    # внутренние ссылки (карточки)
-    more_html = ""
-    if internal_links:
-        cards = []
-        for link, text in internal_links:
-            cards.append(f'<a class="card" href="{esc(link)}"><span>{esc(text)}</span><em>Открыть →</em></a>')
-        more_html = '<section class="more"><h2>Ещё по теме</h2><div class="cards">' + "\n".join(cards) + "</div></section>"
-
-    # JSON-LD FAQ
-    faq_ld = faq_json_ld(faq_for_jsonld, canonical)
-
-    # Мета для changefreq/priority (чтобы не потерять значения и можно было использовать дальше)
-    sitemap_meta = ""
-    if changefreq:
-        sitemap_meta += f'<meta name="sitemap:changefreq" content="{esc(changefreq)}"/>\n'
-    if priority:
-        sitemap_meta += f'<meta name="sitemap:priority" content="{esc(priority)}"/>\n'
-
-    # Простая разметка. Использует BEM/классы без зависимостей — подставится ваш CSS.
-    html_page = f"""<!doctype html>
+def load_template():
+    for p in TEMPLATE_CANDIDATES:
+        if p.exists():
+            return p.read_text(encoding="utf-8")
+    # Фолбэк-шаблон (минимальный, но аккуратный)
+    return """<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>{esc(meta_title)}</title>
+<title>{{meta_title}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="{esc(meta_descr)}">
-<link rel="canonical" href="{esc(canonical)}">
+<meta name="description" content="{{meta_description}}">
+<meta name="keywords" content="{{meta_keywords}}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="{{canonical}}">
 <meta property="og:type" content="article">
-<meta property="og:title" content="{esc(meta_title)}">
-<meta property="og:description" content="{esc(meta_descr)}">
-<meta property="og:url" content="{esc(canonical)}">
-<meta property="article:modified_time" content="{now_msk_iso()}">
-{sitemap_meta}{faq_ld}
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="{{meta_title}}">
+<meta property="og:description" content="{{meta_description}}">
+<meta property="og:url" content="{{canonical}}">
+<meta name="sitemap:changefreq" content="{{changefreq}}">
+<meta name="sitemap:priority" content="{{priority}}">
 <style>
-/* лёгкий системный стиль — опционально (можно убрать, если у вас свой CSS) */
-body{{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0f0f10;color:#eaeaea;}}
-.container{{max-width:980px;margin:0 auto;padding:24px 16px;}}
-.header{{display:flex;align-items:center;gap:12px;}}
-.btn{{display:inline-block;background:#e05666;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600}}
-.tags{{margin:8px 0 12px 0;display:flex;flex-wrap:wrap;gap:8px}}
-.tag{{background:#1b1b1f;border:1px solid #2a2a2f;border-radius:999px;padding:4px 10px;font-size:12px;opacity:.9}}
-.lead{{opacity:.9;margin:12px 0 18px 0;}}
-.grid{{display:grid;gap:16px}}
-.grid-2{{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}}
-section{{margin:28px 0}}
-h1{{font-size:28px;margin:0 0 6px 0}}
-h2{{font-size:20px;margin:18px 0 8px 0}}
-ul{{margin:8px 0 8px 18px}}
-.card{{display:flex;flex-direction:column;gap:2px;border:1px solid #25252a;background:#141417;padding:14px;border-radius:12px;text-decoration:none;color:inherit}}
-.card em{{opacity:.6;font-style:normal;font-size:12px}}
-.more .cards{{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}}
-.faq-item summary{{cursor:pointer;font-weight:600}}
-.small-muted{{font-size:12px;opacity:.6}}
-.chips{{display:flex;gap:8px;flex-wrap:wrap}}
-.hero-cta{{text-align:right}}
+body{margin:0;background:#0b0b0f;color:#e8e8ee;font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
+.header{display:flex;justify-content:space-between;align-items:center;margin:10px 0 24px}
+.brand{font-weight:700;color:#f3f3f7}
+.cta{display:inline-block;background:#e34b5a;color:#fff;padding:10px 16px;border-radius:12px;text-decoration:none}
+h1{font-size:28px;margin:8px 0 16px}
+h2{font-size:22px;margin:28px 0 12px}
+section{margin:20px 0}
+.list, .tips{list-style:disc;padding-left:20px}
+.examples li code{background:#15151c;padding:6px 8px;border-radius:8px;display:inline-block}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;padding:0;list-style:none}
+.tags li{background:#15151c;border:1px solid #262633;border-radius:999px;padding:6px 10px}
+.faq{background:#101018;border:1px solid #242432;border-radius:12px;margin:10px 0;padding:10px 14px}
+.faq summary{cursor:pointer;font-weight:600}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:6px 0 24px}
+.related-card{display:flex;justify-content:space-between;align-items:center;text-decoration:none;background:#111119;border:1px solid #232334;border-radius:14px;padding:14px;color:#e8e8ee}
+.related-card:hover{border-color:#3a3a55}
+.related-title{font-weight:600}
+.related-more{opacity:.75}
+.small{opacity:.6;font-size:12px}
+hr{border:0;border-top:1px solid #232334;margin:24px 0}
 </style>
+{{faq_json_ld}}
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <div style="width:10px;height:10px;background:#d44;border-radius:50%;"></div>
-      <strong>Luna Chat</strong>
-      <div class="hero-cta" style="margin-left:auto;">
-        <a class="btn" href="{esc(CTA_URL)}" rel="noopener">{esc(cta_text)}</a>
-      </div>
-    </header>
-
-    <article>
-      <h1>{esc(h1)}</h1>
-      {tags_html}
-      <p class="lead">{esc(intro)}</p>
-
-      {bullets_html}
-
-      <section>
-        <h2>{esc(h2a_title)}</h2>
-        <p>{esc(h2a_text)}</p>
-      </section>
-      <section>
-        <h2>{esc(h2b_title)}</h2>
-        <p>{esc(h2b_text)}</p>
-      </section>
-      <section>
-        <h2>{esc(h2c_title)}</h2>
-        <p>{esc(h2c_text)}</p>
-      </section>
-      <section>
-        <h2>{esc(h2d_title)}</h2>
-        <p>{esc(h2d_text)}</p>
-      </section>
-
-      <section class="grid-2">
-        <div>
-          <h2>Примеры фраз</h2>
-          {examples_html}
-        </div>
-        <div>
-          <h2>Что делать</h2>
-          {tips_do_html}
-          <h2 style="margin-top:14px">Чего избегать</h2>
-          {tips_avoid_html}
-        </div>
-      </section>
-
-      {"<section><h2>"+esc(sc1_title)+"</h2><p>"+esc(sc1_text)+"</p></section>" if sc1_title or sc1_text else ""}
-      {"<section><h2>"+esc(sc2_title)+"</h2><p>"+esc(sc2_text)+"</p></section>" if sc2_title or sc2_text else ""}
-      {"<section><h2>"+esc(sc3_title)+"</h2><p>"+esc(sc3_text)+"</p></section>" if sc3_title or sc3_text else ""}
-
-      <section>
-        <h2>Частые вопросы</h2>
-        {faq_html}
-      </section>
-
-      {more_html}
-
-      <footer style="margin-top:34px">
-        <div class="small-muted">© 2025 Luna Chat · 18+. Пользуйтесь уважительно. Не делитесь личными данными.</div>
-      </footer>
-    </article>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">Luna Chat</div>
+    <a class="cta" href="https://t.me" target="_blank" rel="nofollow noopener">{{cta}}</a>
   </div>
+
+  <h1>{{h1}}</h1>
+  <section class="intro">{{intro_html}}</section>
+
+  <section>
+    <h2>Что внутри</h2>
+    {{bullets_html}}
+  </section>
+
+  <section>
+    <h2>Подсказки и примеры</h2>
+    {{examples_html}}
+  </section>
+
+  <section>
+    <h2>{{h2a_title}}</h2>
+    {{h2a_text_html}}
+  </section>
+
+  <section>
+    <h2>{{h2b_title}}</h2>
+    {{h2b_text_html}}
+  </section>
+
+  <section>
+    <h2>{{h2c_title}}</h2>
+    {{h2c_text_html}}
+  </section>
+
+  <section>
+    <h2>{{h2d_title}}</h2>
+    {{h2d_text_html}}
+  </section>
+
+  <section>
+    <h2>{{scenario1_title}}</h2>
+    {{scenario1_text_html}}
+  </section>
+
+  <section>
+    <h2>{{scenario2_title}}</h2>
+    {{scenario2_text_html}}
+  </section>
+
+  <section>
+    <h2>{{scenario3_title}}</h2>
+    {{scenario3_text_html}}
+  </section>
+
+  <section>
+    <h2>Советы</h2>
+    <div class="grid">
+      <h3>Что делать</h3>
+      {{tips_do_html}}
+      <h3>Чего избегать</h3>
+      {{tips_avoid_html}}
+    </div>
+  </section>
+
+  <section>
+    <h2>Частые вопросы</h2>
+    {{faq_html}}
+  </section>
+
+  <section>
+    <h2>Ещё по теме</h2>
+    {{internal_links_html}}
+  </section>
+
+  <hr>
+  <section>
+    <ul class="tags">{{tags_html}}</ul>
+  </section>
+
+  <p class="small">Обновлено: {{lastmod}}</p>
+</div>
 </body>
-</html>"""
-    return url, html_page
+</html>
+"""
 
-def build_pages(csv_path: Path):
-    rows = read_csv_rows(csv_path)
+def render(template: str, ctx: dict) -> str:
+    html_out = template
+    for k, v in ctx.items():
+        html_out = html_out.replace("{{" + k + "}}", v)
+    # Неоставшиеся плейсхолдеры глушим пустотой, чтобы не торчали
+    html_out = re.sub(r"\{\{[a-zA-Z0-9_\-]+\}\}", "", html_out)
+    return html_out
 
-    # мапа url -> исходные данные для анкоров
-    rows_map = {}
-    for r in rows:
-        u = ensure_trailing_slash(r.get("url") or "")
-        if u:
-            rows_map[u] = r
-
-    for r in rows:
-        url, html_page = render_page(r, rows_map)
-        out_file = url_to_file(url)
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        out_file.write_text(html_page, encoding="utf-8")
-        print(f"[OK] {url} -> {out_file}")
+# ------------------------ Основной процесс -----------------
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--csv", default="data/pages.csv", help="Путь к CSV (по умолчанию data/pages.csv)")
-    args = parser.parse_args()
-    build_pages(Path(args.csv))
+    csv_path = None
+    for c in CSV_CANDIDATES:
+        if c.exists():
+            csv_path = c
+            break
+    if not csv_path:
+        raise SystemExit("[ERR] CSV not found: pages.csv or data/pages.csv")
+
+    rows = []
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for r in reader:
+            rows.append(r)
+
+    # Мапа для анкоров внутренних ссылок
+    title_by_url = {}
+    for r in rows:
+        url = norm_url(r.get("url") or ("/chat/" + (r.get("slug") or slugify_from_url("")) + "/"))
+        title = (r.get("title") or r.get("h1") or "").strip()
+        if url and title:
+            title_by_url[url] = title
+
+    template = load_template()
+    lastmod = now_moscow_iso()
+
+    for r in rows:
+        # поля CSV
+        url = norm_url(r.get("url") or "")
+        slug = (r.get("slug") or slugify_from_url(url))
+        out_dir = OUT_ROOT / Path(url.strip("/"))
+        out_path = out_dir / "index.html"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        title = (r.get("title") or "").strip()
+        h1 = (r.get("h1") or title or "").strip()
+
+        meta_title = (r.get("meta_title") or title or h1 or "").strip()
+        meta_description = (r.get("meta_description") or r.get("description") or "").strip()
+        meta_keywords = ",".join(split_pipes(r.get("tags") or ""))
+
+        intro_html = paragraphize(r.get("intro") or "")
+        cta = (r.get("cta") or "Открыть в Telegram").strip()
+
+        bullets_html = listify(split_pipes(r.get("bullets") or ""), cls="list")
+        tips_do_html = listify(split_pipes(r.get("tips_do") or ""), cls="tips")
+        tips_avoid_html = listify(split_pipes(r.get("tips_avoid") or ""), cls="tips")
+        tags_html = "".join(f"<li>#{html.escape(t)}</li>" for t in split_pipes(r.get("tags") or ""))
+
+        examples_html = code_list(split_pipes(r.get("examples") or ""), cls="examples")
+
+        # h2 секции (a..d)
+        h2a_title = (r.get("h2a_title") or "").strip()
+        h2a_text_html = paragraphize(r.get("h2a_text") or "")
+        h2b_title = (r.get("h2b_title") or "").strip()
+        h2b_text_html = paragraphize(r.get("h2b_text") or "")
+        h2c_title = (r.get("h2c_title") or "").strip()
+        h2c_text_html = paragraphize(r.get("h2c_text") or "")
+        h2d_title = (r.get("h2d_title") or "").strip()
+        h2d_text_html = paragraphize(r.get("h2d_text") or "")
+
+        # сценарии
+        scenario1_title = (r.get("scenario1_title") or "").strip()
+        scenario1_text_html = paragraphize(r.get("scenario1_text") or "")
+        scenario2_title = (r.get("scenario2_title") or "").strip()
+        scenario2_text_html = paragraphize(r.get("scenario2_text") or "")
+        scenario3_title = (r.get("scenario3_title") or "").strip()
+        scenario3_text_html = paragraphize(r.get("scenario3_text") or "")
+
+        # FAQ пары
+        faq_pairs = []
+        for i in range(1, 7):
+            q = (r.get(f"faq{i}_q") or "").strip()
+            a = (r.get(f"faq{i}_a") or "").strip()
+            if q and a:
+                faq_pairs.append((q, a))
+        faq_html = render_faq_html(faq_pairs)
+
+        # Внутренние ссылки
+        internal_links_raw = r.get("internal_links") or ""
+        internal_links = parse_internal_links(internal_links_raw, title_by_url)
+        internal_links_html = render_internal_links(internal_links)
+
+        # каноникал и sitemap метаданные
+        changefreq = (r.get("changefreq") or "weekly").strip()
+        priority = (r.get("priority") or "0.7").strip()
+        canonical = (r.get("canonical") or (SITE_BASE + url)).strip()
+
+        # JSON-LD
+        faq_schema = faq_json_ld(faq_pairs, canonical)
+
+        ctx = {
+            "meta_title": html.escape(meta_title),
+            "meta_description": html.escape(meta_description),
+            "meta_keywords": html.escape(meta_keywords),
+            "canonical": html.escape(canonical),
+            "h1": html.escape(h1),
+            "intro_html": intro_html,
+            "cta": html.escape(cta),
+            "bullets_html": bullets_html,
+            "tags_html": tags_html,
+            "examples_html": examples_html,
+            "tips_do_html": tips_do_html,
+            "tips_avoid_html": tips_avoid_html,
+            "h2a_title": html.escape(h2a_title),
+            "h2a_text_html": h2a_text_html,
+            "h2b_title": html.escape(h2b_title),
+            "h2b_text_html": h2b_text_html,
+            "h2c_title": html.escape(h2c_title),
+            "h2c_text_html": h2c_text_html,
+            "h2d_title": html.escape(h2d_title),
+            "h2d_text_html": h2d_text_html,
+            "scenario1_title": html.escape(scenario1_title),
+            "scenario1_text_html": scenario1_text_html,
+            "scenario2_title": html.escape(scenario2_title),
+            "scenario2_text_html": scenario2_text_html,
+            "scenario3_title": html.escape(scenario3_title),
+            "scenario3_text_html": scenario3_text_html,
+            "faq_html": faq_html,
+            "faq_json_ld": faq_schema,
+            "internal_links_html": internal_links_html,
+            "changefreq": html.escape(changefreq),
+            "priority": html.escape(priority),
+            "lastmod": html.escape(lastmod),
+        }
+
+        page_html = render(template, ctx)
+        out_path.write_text(page_html, encoding="utf-8")
+        print(f"[OK] {url} -> {out_path}")
+
+    print(f"\nDone. Generated {len(rows)} page(s).")
 
 if __name__ == "__main__":
     main()
