@@ -1,387 +1,387 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-import os, re, csv, json, html
-from pathlib import Path
-from datetime import datetime
-try:
-    from zoneinfo import ZoneInfo
-    TZ_MOSCOW = ZoneInfo("Europe/Moscow")
-except Exception:
-    TZ_MOSCOW = None
-
-# ---------- настройки ----------
-SITE_BASE = os.environ.get("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
-CSV_CANDIDATES = [Path("pages.csv"), Path("data/pages.csv")]
-OUT_ROOT = Path(".")
-BOT_URL_DEFAULT = "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi"
-TEMPLATE_CANDIDATES = [Path("templates/chat.html"), Path("templates/page.html")]
-
-# ---------- утилиты ----------
-def now_moscow_iso():
-    dt = datetime.utcnow()
-    if TZ_MOSCOW:
-        dt = datetime.now(TZ_MOSCOW)
-    return dt.isoformat(timespec="seconds")
-
-def norm_url(u: str) -> str:
-    if not u: return "/"
-    u = u.strip()
-    if not u.startswith("/"): u = "/" + u
-    if not u.endswith("/"): u = u + "/"
-    return u
-
-def split_pipes(s: str):
-    if not s: return []
-    return [x.strip() for x in s.split("|") if x.strip()]
-
-def paragraphize(text: str) -> str:
-    if not text: return ""
-    parts = [p.strip() for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
-    if not parts: return f"<p>{html.escape(text.strip())}</p>"
-    return "".join(f"<p>{html.escape(p)}</p>" for p in parts)
-
-def listify(items, cls="list"):
-    if not items: return ""
-    return "<ul class=\"%s\">%s</ul>" % (cls, "".join(f"<li>{html.escape(i)}</li>" for i in items))
-
-def chips(items, cls="chips"):
-    if not items: return ""
-    return "<div class=\"%s\">%s</div>" % (cls, "".join(f"<span class=\"chip\">{html.escape(i)}</span>" for i in items))
-
-def code_chips(items, cls="chips"):
-    if not items: return ""
-    return "<div class=\"%s\">%s</div>" % (cls, "".join(f"<span class=\"chip\"><code>{html.escape(i)}</code></span>" for i in items))
-
-def human_from_slug(url: str) -> str:
-    slug = url.strip("/").split("/")[-1]
-    slug = slug.replace("-", " ").replace("_", " ")
-    return slug.capitalize() if slug else "Смотреть"
-
-def faq_json_ld(pairs):
-    if not pairs: return ""
-    js = {"@context":"https://schema.org","@type":"FAQPage",
-          "mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in pairs if q and a]}
-    return '<script type="application/ld+json">' + html.escape(json.dumps(js, ensure_ascii=False, separators=(",",":"))) + "</script>"
-
-def render(template: str, ctx: dict) -> str:
-    html_out = template
-    for k, v in ctx.items():
-        html_out = html_out.replace("{{" + k + "}}", v)
-    return re.sub(r"\{\{[a-zA-Z0-9_\-]+\}\}", "", html_out)
-
-# ---------- индексация заголовков уже сгенерированных страниц ----------
-H1_RE = re.compile(r"<h1[^>]*>(.*?)</h1>", re.I|re.S)
-TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I|re.S)
-
-def strip_tags(s: str) -> str:
-    return re.sub(r"<[^>]+>", "", s or "").strip()
-
-def scan_titles_from_repo():
-    res = {}
-    for base in ("chat", "guides", "pages"):
-        p = OUT_ROOT / base
-        if not p.exists(): continue
-        for idx in p.rglob("index.html"):
-            try:
-                raw = idx.read_text(encoding="utf-8", errors="ignore")
-            except Exception:
-                continue
-            h1 = H1_RE.search(raw)
-            t = TITLE_RE.search(raw)
-            text = strip_tags(h1.group(1) if h1 else (t.group(1) if t else ""))
-            if not text: continue
-            url = "/" + idx.parent.as_posix().strip("/") + "/"
-            res[url] = text
-    return res
-
-def parse_internal_links(raw: str, title_index: dict):
-    if not raw: return []
-    pairs = []
-    if "||" in raw:
-        chunks = [c.strip() for c in raw.split("||") if c.strip()]
-        i = 0
-        while i < len(chunks):
-            href = norm_url(chunks[i]); i += 1
-            anchor = chunks[i] if i < len(chunks) else ""
-            i += 1
-            if not anchor: anchor = title_index.get(href) or human_from_slug(href)
-            pairs.append((href, anchor))
-    else:
-        for href in split_pipes(raw):
-            href = norm_url(href)
-            anchor = title_index.get(href) or human_from_slug(href)
-            pairs.append((href, anchor))
-    return pairs
-
-def render_internal_links(links):
-    if not links: return ""
-    cards = []
-    for href, anchor in links:
-        cards.append(f'''<a class="card" href="{html.escape(href)}">
-  <span class="card-title">{html.escape(anchor)}</span>
-  <span class="card-more">Открыть →</span>
-</a>''')
-    return '<div class="grid-cards">\n' + "\n".join(cards) + "\n</div>"
-
-# ---------- шаблон ----------
-def load_template():
-    for p in TEMPLATE_CANDIDATES:
-        if p.exists(): return p.read_text(encoding="utf-8")
-    return """<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<title>{{meta_title}}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="{{meta_description}}">
-<meta name="keywords" content="{{meta_keywords}}">
-<link rel="canonical" href="{{canonical}}">
-<meta property="og:type" content="article">
-<meta property="og:locale" content="ru_RU">
-<meta property="og:title" content="{{meta_title}}">
-<meta property="og:description" content="{{meta_description}}">
-<meta property="og:url" content="{{canonical}}">
-<meta name="robots" content="index,follow">
-<meta name="sitemap:changefreq" content="{{changefreq}}">
-<meta name="sitemap:priority" content="{{priority}}">
-<style>
-:root{--bg:#0b0b0f;--panel:#101018;--line:#222232;--muted:#a9a9bd;--text:#e9e9ee;--accent:#ff5b7f}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-.container{max-width:880px;margin:0 auto;padding:20px}
-.header{display:flex;gap:16px;justify-content:space-between;align-items:center;margin:6px 0 18px}
-.brand{font-weight:700;letter-spacing:.2px}
-.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 16px;border-radius:12px;box-shadow:0 6px 16px rgba(255,91,127,.25)}
-.btn:hover{opacity:.95}
-.lead{color:var(--muted);margin:8px 0 4px}
-h1{font-size:28px;margin:8px 0 8px}
-h2{font-size:22px;margin:22px 0 8px}
-section{margin:14px 0 16px}
-.list{list-style:disc;padding-left:20px}
-.grid-2{display:grid;gap:14px}
-@media(min-width:760px){.grid-2{grid-template-columns:1fr 1fr}}
-.card-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
-.chip{display:inline-flex;align-items:center;border:1px solid var(--line);background:#111119;border-radius:999px;padding:6px 10px}
-.grid-cards{display:grid;gap:12px}
-@media(min-width:760px){.grid-cards{grid-template-columns:repeat(3,1fr)}}
-.card{display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-.card:hover{border-color:#3a3a55}
-.card-title{font-weight:600}
-.card-more{opacity:.7}
-details.faq{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:8px 12px}
-details.faq summary{cursor:pointer;font-weight:600}
-.small{opacity:.6;font-size:12px}
-hr{border:0;border-top:1px solid var(--line);margin:18px 0}
-</style>
-{{faq_json_ld}}
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <div class="brand">Luna Chat</div>
-    <a class="btn" href="{{cta_url}}" target="_blank" rel="nofollow noopener">{{cta_text}}</a>
-  </div>
-
-  <h1>{{h1}}</h1>
-  <p class="lead">{{lead}}</p>
-
-  <section class="card-panel">
-    <div class="chips">{{badges_html}}</div>
-    {{intro_html}}
-  </section>
-
-  <section>
-    <h2>Что внутри</h2>
-    {{bullets_html}}
-  </section>
-
-  <section>
-    <h2>Подсказки и примеры</h2>
-    {{examples_html}}
-  </section>
-
-  <section>
-    <h2>{{h2a_title}}</h2>
-    {{h2a_text_html}}
-  </section>
-  <section>
-    <h2>{{h2b_title}}</h2>
-    {{h2b_text_html}}
-  </section>
-  <section>
-    <h2>{{h2c_title}}</h2>
-    {{h2c_text_html}}
-  </section>
-  <section>
-    <h2>{{h2d_title}}</h2>
-    {{h2d_text_html}}
-  </section>
-
-  <div class="grid-2">
-    <section class="card-panel">
-      <h2 style="margin-top:0">Что делать</h2>
-      {{tips_do_html}}
-    </section>
-    <section class="card-panel">
-      <h2 style="margin-top:0">Чего избегать</h2>
-      {{tips_avoid_html}}
-    </section>
-  </div>
-
-  <section>
-    <h2>Сценарии</h2>
-    <div class="card-panel">{{scenario1_block}}</div>
-    <div class="card-panel">{{scenario2_block}}</div>
-    <div class="card-panel">{{scenario3_block}}</div>
-  </section>
-
-  <section>
-    <h2>Частые вопросы</h2>
-    {{faq_html}}
-  </section>
-
-  <section>
-    <h2>Ещё по теме</h2>
-    {{internal_links_html}}
-  </section>
-
-  <p><a class="btn" href="{{cta_url}}" target="_blank" rel="nofollow noopener">{{cta_text}}</a></p>
-
-  <hr>
-  <p class="small">18+. Используйте уважительно. Обновлено: {{lastmod}}</p>
-</div>
-</body>
-</html>
+"""
+Генератор страниц из нового CSV (расширенный формат).
+— Компактные, «плиточные» блоки.
+— Нормальные анкоры перелинковки (url|title).
+— Кнопка CTA ведёт на TELEGRAM_URL (env) или дефолтную ссылку.
+— Каноникал, OpenGraph, JSON-LD.
 """
 
-# ---------- генерация ----------
-def main():
-    # CSV
-    csv_path = next((p for p in CSV_CANDIDATES if p.exists()), None)
-    if not csv_path:
-        raise SystemExit("[ERR] CSV not found (pages.csv or data/pages.csv)")
+import csv, os, re, html, json
+from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-    rows = []
-    with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
-        rows = list(csv.DictReader(f))
+# --- Параметры окружения ---
+ROOT = Path(__file__).resolve().parents[1]        # корень каталога ai/
+SITE_BASE = os.getenv("SITE_BASE", "https://gorod-legends.ru").rstrip("/")
+TELEGRAM_URL = os.getenv("TELEGRAM_URL", "https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi")
+TZ = ZoneInfo("Europe/Moscow")
 
-    # Заголовки уже существующих HTML
-    title_index = scan_titles_from_repo()
+# CSV может лежать в ./pages.csv или ./data/pages.csv
+CSV_CANDIDATES = [ROOT / "pages.csv", ROOT / "data/pages.csv"]
+CSV_PATH = next((p for p in CSV_CANDIDATES if p.exists()), None)
+if not CSV_PATH:
+    raise SystemExit("[ERR] CSV not found: pages.csv or data/pages.csv")
 
-    # Заголовки из CSV имеют приоритет
-    for r in rows:
-        url = norm_url(r.get("url") or "")
-        title = (r.get("title") or r.get("h1") or "").strip()
-        if url and title:
-            title_index[url] = title
+OUT_DIR = ROOT / "chat"     # все страницы раздела «чат» здесь
+ASSETS_CSS = "assets/chat.css"
+ASSETS_JS  = "assets/chat.js"
 
-    template = load_template()
-    lastmod = now_moscow_iso()
+# --- Утилиты парсинга полей CSV ---
 
-    for r in rows:
-        url = norm_url(r.get("url") or "")
-        out_dir = OUT_ROOT / Path(url.strip("/"))
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / "index.html"
+def split_list(s: str) -> list[str]:
+    s = (s or "").strip()
+    if not s:
+        return []
+    return [x.strip() for x in s.split("|") if x.strip()]
 
-        title = (r.get("title") or "").strip()
-        h1 = (r.get("h1") or title or "").strip()
+def para(text: str) -> str:
+    """Разбить на абзацы по \n и обернуть в <p>"""
+    t = (text or "").strip()
+    if not t:
+        return ""
+    parts = [f"<p>{html.escape(p.strip())}</p>" for p in re.split(r"\n{2,}|\r?\n", t) if p.strip()]
+    return "\n".join(parts)
 
-        meta_title = (r.get("meta_title") or title or h1 or "").strip()
-        meta_description = (r.get("meta_description") or r.get("description") or "").strip()
-        meta_keywords = ",".join(split_pipes(r.get("tags") or ""))
+def parse_internal_links(s: str) -> list[dict]:
+    """
+    Поддержка двух форматов:
+    1) "/chat/foo/|Название||/chat/bar/|Другое"
+    2) "/chat/foo/|/chat/bar/" (устаревший — анкором станет сам url)
+    Разделитель между парами — '||'
+    Если '||' не найдено, пытаемся по одному '|' (старый CSV).
+    """
+    s = (s or "").strip()
+    if not s:
+        return []
+    items = []
+    if "||" in s:
+        pairs = [p for p in s.split("||") if p.strip()]
+        for p in pairs:
+            if "|" in p:
+                href, text = p.split("|", 1)
+                items.append({"href": href.strip(), "text": text.strip() or href.strip()})
+    else:
+        # старый стиль: просто список URL через '|'
+        for href in split_list(s):
+            items.append({"href": href, "text": href})
+    return items
 
-        lead = (r.get("lead") or meta_description or "").strip()
-        intro_html = paragraphize(r.get("intro") or "")
+def safe_slug(url: str, slug: str) -> str:
+    """Вернуть чистый slug. Если в CSV есть полный url — вытащим последний сегмент."""
+    if slug:
+        return slug.strip().strip("/")
+    u = (url or "").strip()
+    if not u:
+        return ""
+    tail = u.rstrip("/").split("/")[-1]
+    return tail
 
-        badges_html = chips(split_pipes(r.get("bullets") or ""))  # быстрые бейджи над вводным текстом
-        bullets_html = listify(split_pipes(r.get("bullets") or ""), cls="list")
-        examples_html = code_chips(split_pipes(r.get("examples") or ""))
+def out_path_for(url: str, slug: str) -> Path:
+    s = safe_slug(url, slug)
+    if not s:
+        raise ValueError("slug is empty")
+    return OUT_DIR / s / "index.html"
 
-        tips_do_html = listify(split_pipes(r.get("tips_do") or ""), cls="list")
-        tips_avoid_html = listify(split_pipes(r.get("tips_avoid") or ""), cls="list")
+def now_iso() -> str:
+    return datetime.now(TZ).isoformat(timespec="seconds")
 
-        h2a_title = (r.get("h2a_title") or "").strip()
-        h2a_text_html = paragraphize(r.get("h2a_text") or "")
-        h2b_title = (r.get("h2b_title") or "").strip()
-        h2b_text_html = paragraphize(r.get("h2b_text") or "")
-        h2c_title = (r.get("h2c_title") or "").strip()
-        h2c_text_html = paragraphize(r.get("h2c_text") or "")
-        h2d_title = (r.get("h2d_title") or "").strip()
-        h2d_text_html = paragraphize(r.get("h2d_text") or "")
+# --- Рендеринг готовых блоков ---
 
-        # сценарии — в отдельные панели, чтобы компактно
-        s1t, s1 = (r.get("scenario1_title") or "").strip(), paragraphize(r.get("scenario1_text") or "")
-        s2t, s2 = (r.get("scenario2_title") or "").strip(), paragraphize(r.get("scenario2_text") or "")
-        s3t, s3 = (r.get("scenario3_title") or "").strip(), paragraphize(r.get("scenario3_text") or "")
-        scenario1_block = (f"<h3 style='margin-top:0'>{html.escape(s1t)}</h3>{s1}") if (s1t or s1) else ""
-        scenario2_block = (f"<h3 style='margin-top:0'>{html.escape(s2t)}</h3>{s2}") if (s2t or s2) else ""
-        scenario3_block = (f"<h3 style='margin-top:0'>{html.escape(s3t)}</h3>{s3}") if (s3t or s3) else ""
+def render_badges(items: list[str]) -> str:
+    if not items: return ""
+    return '<div class="pill-row">' + "".join(f'<span class="pill">{html.escape(x)}</span>' for x in items) + "</div>"
 
-        # FAQ
-        faq_pairs = []
-        for i in range(1, 7):
-            q = (r.get(f"faq{i}_q") or "").strip()
-            a = (r.get(f"faq{i}_a") or "").strip()
-            if q and a: faq_pairs.append((q, a))
-        faq_html = "\n".join(
-            f'<details class="faq"><summary>{html.escape(q)}</summary><div class="answer">{paragraphize(a)}</div></details>'
-            for q, a in faq_pairs
+def render_list(items: list[str]) -> str:
+    if not items: return ""
+    li = "".join(f"<li>{html.escape(x)}</li>" for x in items)
+    return f"<ul class='ul'>{li}</ul>"
+
+def render_chips(items: list[str]) -> str:
+    if not items: return ""
+    return '<div class="chips">' + "".join(f'<span class="chip">{html.escape(x)}</span>' for x in items) + "</div>"
+
+def render_related(links: list[dict]) -> str:
+    if not links: return ""
+    s = "".join(f'<a class="chip link" href="{html.escape(l["href"])}">{html.escape(l["text"])}</a>' for l in links)
+    return f'<div class="related">{s}</div>'
+
+def render_scenarios(rows: list[tuple[str, str]]) -> str:
+    rows = [(t, d) for (t, d) in rows if (t or d)]
+    if not rows: return ""
+    cards = []
+    for t, d in rows:
+        cards.append(
+            f"""<div class="card">
+    <div class="card-title">{html.escape(t or "Сценарий")}</div>
+    <div class="card-text">{para(d)}</div>
+</div>"""
         )
-        faq_schema = faq_json_ld(faq_pairs)
+    return '<div class="grid-3">' + "".join(cards) + "</div>"
 
-        # Перелинковка с нормальными анкорами
-        internal_links = parse_internal_links(r.get("internal_links") or "", title_index)
-        internal_links_html = render_internal_links(internal_links)
+def render_faq(qas: list[tuple[str, str]]) -> str:
+    qas = [(q, a) for (q, a) in qas if (q or a)]
+    if not qas: return ""
+    blocks = []
+    for q, a in qas:
+        blocks.append(
+            f"""<details class="faq">
+  <summary>{html.escape(q or "Вопрос")}</summary>
+  <div class="faq-a">{para(a)}</div>
+</details>"""
+        )
+    return "<section class='faq-wrap'>" + "".join(blocks) + "</section>"
 
-        changefreq = (r.get("changefreq") or "weekly").strip()
-        priority = (r.get("priority") or "0.7").strip()
-        canonical = (r.get("canonical") or (SITE_BASE + url)).strip()
+def json_ld(site_base: str, url_path: str, meta_title: str, meta_desc: str) -> str:
+    data = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "url": f"{site_base}{url_path}",
+        "name": meta_title,
+        "description": meta_desc,
+        "inLanguage": "ru",
+        "dateModified": now_iso(),
+    }
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
 
-        cta_text = (r.get("cta") or "Открыть чат в Telegram").strip()
-        cta_url = (r.get("cta_url") or os.environ.get("BOT_URL") or BOT_URL_DEFAULT).strip()
+def render_page(row: dict) -> str:
+    # поля CSV
+    url           = row.get("url","").strip()
+    title         = row.get("title","").strip()
+    meta_title    = row.get("meta_title", title).strip() or title
+    meta_desc     = row.get("meta_description", "").strip()
+    h1            = row.get("h1", title).strip() or title
+    intro         = row.get("intro","").strip()
+    cta_text      = row.get("cta", "Открыть чат в Telegram").strip() or "Открыть чат в Telegram"
+    bullets       = split_list(row.get("bullets",""))
+    examples      = split_list(row.get("examples",""))
+    tags          = split_list(row.get("tags",""))
+    tips_do       = split_list(row.get("tips_do",""))
+    tips_avoid    = split_list(row.get("tips_avoid",""))
+    h2a_title     = row.get("h2a_title","").strip()
+    h2a_text      = row.get("h2a_text","").strip()
+    h2b_title     = row.get("h2b_title","").strip()
+    h2b_text      = row.get("h2b_text","").strip()
+    h2c_title     = row.get("h2c_title","").strip()
+    h2c_text      = row.get("h2c_text","").strip()
+    h2d_title     = row.get("h2d_title","").strip()
+    h2d_text      = row.get("h2d_text","").strip()
+    scenarios = [
+        (row.get("scenario1_title","").strip(), row.get("scenario1_text","").strip()),
+        (row.get("scenario2_title","").strip(), row.get("scenario2_text","").strip()),
+        (row.get("scenario3_title","").strip(), row.get("scenario3_text","").strip()),
+    ]
+    faqs = [
+        (row.get("faq1_q","").strip(), row.get("faq1_a","").strip()),
+        (row.get("faq2_q","").strip(), row.get("faq2_a","").strip()),
+        (row.get("faq3_q","").strip(), row.get("faq3_a","").strip()),
+        (row.get("faq4_q","").strip(), row.get("faq4_a","").strip()),
+        (row.get("faq5_q","").strip(), row.get("faq5_a","").strip()),
+        (row.get("faq6_q","").strip(), row.get("faq6_a","").strip()),
+    ]
+    related       = parse_internal_links(row.get("internal_links",""))
+    canonical     = (row.get("canonical","").strip() or f"{SITE_BASE}{url}")
 
-        ctx = {
-            "meta_title": html.escape(meta_title),
-            "meta_description": html.escape(meta_description),
-            "meta_keywords": html.escape(meta_keywords),
-            "canonical": html.escape(canonical),
-            "changefreq": html.escape(changefreq),
-            "priority": html.escape(priority),
-            "h1": html.escape(h1),
-            "lead": html.escape(lead),
-            "intro_html": intro_html,
-            "badges_html": badges_html,
-            "bullets_html": bullets_html,
-            "examples_html": examples_html,
-            "tips_do_html": tips_do_html,
-            "tips_avoid_html": tips_avoid_html,
-            "h2a_title": html.escape(h2a_title),
-            "h2a_text_html": h2a_text_html,
-            "h2b_title": html.escape(h2b_title),
-            "h2b_text_html": h2b_text_html,
-            "h2c_title": html.escape(h2c_title),
-            "h2c_text_html": h2c_text_html,
-            "h2d_title": html.escape(h2d_title),
-            "h2d_text_html": h2d_text_html,
-            "scenario1_block": scenario1_block,
-            "scenario2_block": scenario2_block,
-            "scenario3_block": scenario3_block,
-            "faq_html": faq_html,
-            "faq_json_ld": faq_schema,
-            "internal_links_html": internal_links_html,
-            "cta_text": html.escape(cta_text),
-            "cta_url": html.escape(cta_url),
-            "lastmod": html.escape(now_moscow_iso()),
-        }
+    # шапка и hero
+    head = f"""<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>{html.escape(meta_title)}</title>
+<meta name="description" content="{html.escape(meta_desc)}" />
+<link rel="canonical" href="{html.escape(canonical)}" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{html.escape(meta_title)}" />
+<meta property="og:description" content="{html.escape(meta_desc)}" />
+<meta property="og:url" content="{html.escape(canonical)}" />
+<link rel="stylesheet" href="/{ASSETS_CSS}">
+<script defer src="/{ASSETS_JS}"></script>
+{json_ld(SITE_BASE, url, meta_title, meta_desc)}
+</head>
+<body class="theme-dark">
+<header class="site-top">
+  <div class="container">
+    <a class="brand" href="/">Luna Chat</a>
+    <a class="btn primary sticky-cta" href="{html.escape(TELEGRAM_URL)}">Открыть чат в Telegram</a>
+  </div>
+</header>
 
-        html_final = render(load_template(), ctx)
-        out_path.write_text(html_final, encoding="utf-8")
-        print(f"[OK] {url} -> {out_path}")
+<main class="container">
+  <section class="hero">
+    <h1>{html.escape(h1)}</h1>
+    <p class="lead">{html.escape(intro)}</p>
+    {render_badges(bullets[:4] or tags[:4])}
+    <div class="hero-cta">
+      <a class="btn primary" href="{html.escape(TELEGRAM_URL)}">{html.escape(cta_text)}</a>
+    </div>
+  </section>
+"""
+    # тело
+    body = []
 
-    print(f"\nDone. Generated {len(rows)} page(s).")
+    # карточка-пояснение под бейджами (если есть текст)
+    if any([h2a_text, h2b_text]):
+        body.append('<section class="note">' + para("Современная модель поддерживает дружелюбный 18+ диалог. Вы задаёте тон и границы, а система бережно подстраивается.") + "</section>")
+
+    # блок «Что внутри»
+    what_inside = tips = ""
+    if bullets:
+        what_inside = f"""
+<section>
+  <h2>Что внутри</h2>
+  {render_list(bullets)}
+</section>
+"""
+    # «Подсказки и примеры»
+    examples_html = ""
+    if examples:
+        examples_html = f"""
+<section>
+  <h2>Подсказки и примеры</h2>
+  {render_chips(examples)}
+</section>
+"""
+    # три тематических блока h2*
+    def h2_block(title, text):
+        if not (title or text): return ""
+        return f"<section><h2>{html.escape(title or '')}</h2>{para(text)}</section>"
+
+    thematic = "".join([
+        h2_block(h2a_title, h2a_text),
+        h2_block(h2b_title, h2b_text),
+        h2_block(h2c_title, h2c_text),
+        h2_block(h2d_title, h2d_text),
+    ])
+
+    # «Сценарии»
+    scen = ""
+    if any(t for (t, _) in scenarios):
+        scen = "<section><h2>Сценарии</h2>" + render_scenarios(scenarios) + "</section>"
+
+    # do/avoid
+    if tips_do or tips_avoid:
+        tips = "<section class='two-col'>"
+        if tips_do:
+            tips += "<div><h3>Стоит делать</h3>" + render_list(tips_do) + "</div>"
+        if tips_avoid:
+            tips += "<div><h3>Чего избегать</h3>" + render_list(tips_avoid) + "</div>"
+        tips += "</section>"
+
+    # FAQ
+    faq_html = render_faq(faqs)
+
+    # Перелинковка
+    related_html = ""
+    if related:
+        related_html = "<section><h2>Ещё по теме</h2>" + render_related(related) + "</section>"
+
+    body.append(what_inside)
+    body.append(examples_html)
+    body.append(thematic)
+    body.append(scen)
+    body.append(tips)
+    body.append(faq_html)
+    body.append(related_html)
+
+    # футер
+    foot = f"""
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <small>© 2025 Luna Chat • Уважайте границы, 18+</small>
+  </div>
+</footer>
+</body></html>
+"""
+    return head + "\n".join([b for b in body if b]) + foot
+
+# --- Главный проход по CSV ---
+
+def main():
+    print(f"[i] CSV: {CSV_PATH}")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    with CSV_PATH.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    if not rows:
+        raise SystemExit("[ERR] CSV has no rows")
+
+    for r in rows:
+        try:
+            out_path = out_path_for(r.get("url",""), r.get("slug",""))
+        except Exception as e:
+            print(f"[skip] row without slug/url: {e}")
+            continue
+
+        html_page = render_page(r)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html_page, encoding="utf-8")
+        print("[ok]", out_path.relative_to(ROOT))
+
+    # Положим ассеты, если вдруг забыты
+    assets_dir = ROOT / "assets"
+    assets_dir.mkdir(exist_ok=True)
+    css_path = assets_dir / "chat.css"
+    js_path = assets_dir / "chat.js"
+    if not css_path.exists():
+        css_path.write_text(DEFAULT_CSS, encoding="utf-8")
+        print("[i] created assets/chat.css")
+    if not js_path.exists():
+        js_path.write_text(DEFAULT_JS, encoding="utf-8")
+        print("[i] created assets/chat.js")
+
+# --- Встроенные минимальные ассеты по умолчанию ---
+
+DEFAULT_CSS = r"""
+:root{--bg:#0f0f12;--panel:#15161b;--text:#e7e7ea;--muted:#a6a7ad;--brand:#e3566a;--brand-2:#ff6b8a;--border:#262732}
+*{box-sizing:border-box}
+body.theme-dark{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+a{color:var(--brand);text-decoration:none}
+.container{max-width:72ch;margin:0 auto;padding:24px}
+.site-top{position:sticky;top:0;background:rgba(15,15,18,.75);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border);z-index:30}
+.site-top .container{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.brand{font-weight:700;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:14px;border:1px solid transparent;background:var(--panel);color:#fff}
+.btn.primary{background:linear-gradient(180deg,var(--brand-2),var(--brand));box-shadow:0 6px 20px rgba(227,86,106,.35)}
+.sticky-cta{position:relative}
+@media (max-width:720px){.sticky-cta{position:fixed;right:16px;top:12px}}
+.hero h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,34px);line-height:1.2}
+.lead{color:var(--muted);margin:0 0 16px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 6px}
+.pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#1b1c22;border:1px solid var(--border);color:#cfd0d5;font-size:.9rem}
+.hero-cta{margin:18px 0 6px}
+.note{background:var(--panel);border:1px solid var(--border);padding:16px;border-radius:16px;margin:16px 0}
+h2{margin:28px 0 8px;font-size:1.25rem}
+h3{margin:14px 0 6px;font-size:1.05rem}
+.ul{padding-left:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:#16171d;border-radius:12px;padding:6px 10px}
+.chip.link{color:#dfe0e6}
+.grid-3{display:grid;gap:12px;grid-template-columns:repeat(3,1fr);margin:12px 0}
+@media (max-width:920px){.grid-3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
+.card-title{font-weight:600;margin-bottom:6px}
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media (max-width:920px){.two-col{grid-template-columns:1fr}}
+.faq-wrap{margin:10px 0 24px}
+.faq{background:#121318;border:1px solid var(--border);border-radius:12px;margin:8px 0;padding:0}
+.faq>summary{list-style:none;cursor:pointer;padding:10px 14px;font-weight:600}
+.faq[open]>summary{border-bottom:1px solid var(--border)}
+.faq .faq-a{padding:12px 14px;color:#cfd0d5}
+.site-foot{border-top:1px solid var(--border);margin-top:32px}
+small{color:var(--muted)}
+"""
+
+DEFAULT_JS = r"""
+// ничего критичного: нативные <details> для FAQ.
+// можно добавить автокопирование текста чипов по клику, если потребуется.
+"""
 
 if __name__ == "__main__":
     main()
