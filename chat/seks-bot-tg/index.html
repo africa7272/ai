@@ -6,49 +6,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Как запустить секс-бота в Telegram 18+, задать тон и остаться в рамках безопасности.">
 <meta name="keywords" content="18+,телеграм,бот,ИИ,виртуальная подруга">
-<meta name="robots" content="index,follow">
 <link rel="canonical" href="https://gorod-legends.ru/chat/seks-bot-tg/">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="Секс-бот в Telegram: быстрый старт 18+">
 <meta property="og:description" content="Как запустить секс-бота в Telegram 18+, задать тон и остаться в рамках безопасности.">
 <meta property="og:url" content="https://gorod-legends.ru/chat/seks-bot-tg/">
+<meta name="robots" content="index,follow">
 <meta name="sitemap:changefreq" content="weekly">
 <meta name="sitemap:priority" content="0.7">
 <style>
-body{margin:0;background:#0b0b0f;color:#e8e8ee;font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
-.wrap{max-width:960px;margin:0 auto;padding:24px}
-.header{display:flex;justify-content:space-between;align-items:center;margin:10px 0 24px}
-.brand{font-weight:700;color:#f3f3f7}
-.cta{display:inline-block;background:#e34b5a;color:#fff;padding:10px 16px;border-radius:12px;text-decoration:none}
-h1{font-size:28px;margin:8px 0 16px}
-h2{font-size:22px;margin:28px 0 12px}
-section{margin:20px 0}
-.list, .tips{list-style:disc;padding-left:20px}
-.examples li code{background:#15151c;padding:6px 8px;border-radius:8px;display:inline-block}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;padding:0;list-style:none}
-.tags li{background:#15151c;border:1px solid #262633;border-radius:999px;padding:6px 10px}
-.faq{background:#101018;border:1px solid #242432;border-radius:12px;margin:10px 0;padding:10px 14px}
-.faq summary{cursor:pointer;font-weight:600}
-.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:6px 0 24px}
-.related-card{display:flex;justify-content:space-between;align-items:center;text-decoration:none;background:#111119;border:1px solid #232334;border-radius:14px;padding:14px;color:#e8e8ee}
-.related-card:hover{border-color:#3a3a55}
-.related-title{font-weight:600}
-.related-more{opacity:.75}
+:root{--bg:#0b0b0f;--panel:#101018;--line:#222232;--muted:#a9a9bd;--text:#e9e9ee;--accent:#ff5b7f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.container{max-width:880px;margin:0 auto;padding:20px}
+.header{display:flex;gap:16px;justify-content:space-between;align-items:center;margin:6px 0 18px}
+.brand{font-weight:700;letter-spacing:.2px}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 16px;border-radius:12px;box-shadow:0 6px 16px rgba(255,91,127,.25)}
+.btn:hover{opacity:.95}
+.lead{color:var(--muted);margin:8px 0 4px}
+h1{font-size:28px;margin:8px 0 8px}
+h2{font-size:22px;margin:22px 0 8px}
+section{margin:14px 0 16px}
+.list{list-style:disc;padding-left:20px}
+.grid-2{display:grid;gap:14px}
+@media(min-width:760px){.grid-2{grid-template-columns:1fr 1fr}}
+.card-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--line);background:#111119;border-radius:999px;padding:6px 10px}
+.grid-cards{display:grid;gap:12px}
+@media(min-width:760px){.grid-cards{grid-template-columns:repeat(3,1fr)}}
+.card{display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card:hover{border-color:#3a3a55}
+.card-title{font-weight:600}
+.card-more{opacity:.7}
+details.faq{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:8px 12px}
+details.faq summary{cursor:pointer;font-weight:600}
 .small{opacity:.6;font-size:12px}
-hr{border:0;border-top:1px solid #232334;margin:24px 0}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 </style>
 <script type="application/ld+json">{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Это бесплатно?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Базовый вход — да.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Можно ли сменить стиль?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Да, напишите, что хотите спокойнее или игривее.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Доступно в любое время?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Да, 24/7.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Как прекратить диалог?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Напишите «стоп», это всегда уважается.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Есть темы-табу?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Любые нелегальные и токсичные темы запрещены.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Что с безопасностью?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Не раскрывайте личную информацию и не переходите в сторонние чаты.&quot;}}]}</script>
 </head>
 <body>
-<div class="wrap">
+<div class="container">
   <div class="header">
     <div class="brand">Luna Chat</div>
-    <a class="cta" href="https://t.me" target="_blank" rel="nofollow noopener">Открыть чат в Telegram</a>
+    <a class="btn" href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" target="_blank" rel="nofollow noopener">Открыть чат в Telegram</a>
   </div>
 
   <h1>Секс-бот в Telegram 18+</h1>
-  <section class="intro"><p>Один клик — и диалог открыт. Важно лишь проговорить рамки, выбрать стиль общения и помнить о приватности.</p></section>
+  <p class="lead">Как запустить секс-бота в Telegram 18+, задать тон и остаться в рамках безопасности.</p>
+
+  <section class="card-panel">
+    <div class="chips"><div class="chips"><span class="chip">Запуск за минуту</span><span class="chip">Контроль интенсивности</span><span class="chip">Анонимность</span><span class="chip">24/7</span></div></div>
+    <p>Один клик — и диалог открыт. Важно лишь проговорить рамки, выбрать стиль общения и помнить о приватности.</p>
+  </section>
 
   <section>
     <h2>Что внутри</h2>
@@ -57,106 +69,76 @@ hr{border:0;border-top:1px solid #232334;margin:24px 0}
 
   <section>
     <h2>Подсказки и примеры</h2>
-    <ul class="examples"><li><code>Привет! Держим мягкий 18+ тон без подробностей?</code></li><li><code>Если что — стоп по первому слову, ок?</code></li><li><code>Выбираем: игра слов или добрые комплименты?</code></li></ul>
+    <div class="chips"><span class="chip"><code>Привет! Держим мягкий 18+ тон без подробностей?</code></span><span class="chip"><code>Если что — стоп по первому слову, ок?</code></span><span class="chip"><code>Выбираем: игра слов или добрые комплименты?</code></span></div>
   </section>
 
   <section>
     <h2>Подготовка за 60 секунд</h2>
     <p>Проверьте, что входите из Telegram, продумайте цель («мягкий флирт/дружеский диалог») и одну стартовую фразу.</p>
   </section>
-
   <section>
     <h2>Первое впечатление</h2>
     <p>Приветствие + выбор из двух — лучшая формула для начала. Так собеседнице проще ориентироваться.</p>
   </section>
-
   <section>
     <h2>Приватность и 18+</h2>
     <p>Сервис для взрослых. Не делитесь своими данными, финансовой информацией и геолокацией.</p>
   </section>
-
   <section>
     <h2>Мини-гайд по тону</h2>
     <p>Держите язык нейтральным, избегайте прямоты. При дискомфорте — сразу стоп и пауза.</p>
   </section>
 
-  <section>
-    <h2>Простой старт</h2>
-    <p>«Привет! Давай мягко, без откровенностей. Предпочтёшь игру слов или спокойный разговор?»</p>
-  </section>
+  <div class="grid-2">
+    <section class="card-panel">
+      <h2 style="margin-top:0">Что делать</h2>
+      <ul class="list"><li>Сразу оговаривать рамки</li><li>Проверять комфорт</li><li>Писать коротко</li><li>Ставить паузы</li></ul>
+    </section>
+    <section class="card-panel">
+      <h2 style="margin-top:0">Чего избегать</h2>
+      <ul class="list"><li>Давить на ответ</li><li>Просить личные фото</li><li>Переходить на личности</li><li>Грубить</li></ul>
+    </section>
+  </div>
 
   <section>
-    <h2>Флирт-ритм</h2>
-    <p>Два коротких намёка и вопрос — идеальный темп на первых шагах.</p>
-  </section>
-
-  <section>
-    <h2>Сценарий «Вечер»</h2>
-    <p>Опишите атмосферу (музыка, чай), но без деталей — только настроение и согласие.</p>
-  </section>
-
-  <section>
-    <h2>Советы</h2>
-    <div class="grid">
-      <h3>Что делать</h3>
-      <ul class="tips"><li>Сразу оговаривать рамки</li><li>Проверять комфорт</li><li>Писать коротко</li><li>Ставить паузы</li></ul>
-      <h3>Чего избегать</h3>
-      <ul class="tips"><li>Давить на ответ</li><li>Просить личные фото</li><li>Переходить на личности</li><li>Грубить</li></ul>
-    </div>
+    <h2>Сценарии</h2>
+    <div class="card-panel"><h3 style='margin-top:0'>Простой старт</h3><p>«Привет! Давай мягко, без откровенностей. Предпочтёшь игру слов или спокойный разговор?»</p></div>
+    <div class="card-panel"><h3 style='margin-top:0'>Флирт-ритм</h3><p>Два коротких намёка и вопрос — идеальный темп на первых шагах.</p></div>
+    <div class="card-panel"><h3 style='margin-top:0'>Сценарий «Вечер»</h3><p>Опишите атмосферу (музыка, чай), но без деталей — только настроение и согласие.</p></div>
   </section>
 
   <section>
     <h2>Частые вопросы</h2>
-    <details class="faq">
-  <summary>Это бесплатно?</summary>
-  <div class="answer"><p>Базовый вход — да.</p></div>
-</details>
-<details class="faq">
-  <summary>Можно ли сменить стиль?</summary>
-  <div class="answer"><p>Да, напишите, что хотите спокойнее или игривее.</p></div>
-</details>
-<details class="faq">
-  <summary>Доступно в любое время?</summary>
-  <div class="answer"><p>Да, 24/7.</p></div>
-</details>
-<details class="faq">
-  <summary>Как прекратить диалог?</summary>
-  <div class="answer"><p>Напишите «стоп», это всегда уважается.</p></div>
-</details>
-<details class="faq">
-  <summary>Есть темы-табу?</summary>
-  <div class="answer"><p>Любые нелегальные и токсичные темы запрещены.</p></div>
-</details>
-<details class="faq">
-  <summary>Что с безопасностью?</summary>
-  <div class="answer"><p>Не раскрывайте личную информацию и не переходите в сторонние чаты.</p></div>
-</details>
+    <details class="faq"><summary>Это бесплатно?</summary><div class="answer"><p>Базовый вход — да.</p></div></details>
+<details class="faq"><summary>Можно ли сменить стиль?</summary><div class="answer"><p>Да, напишите, что хотите спокойнее или игривее.</p></div></details>
+<details class="faq"><summary>Доступно в любое время?</summary><div class="answer"><p>Да, 24/7.</p></div></details>
+<details class="faq"><summary>Как прекратить диалог?</summary><div class="answer"><p>Напишите «стоп», это всегда уважается.</p></div></details>
+<details class="faq"><summary>Есть темы-табу?</summary><div class="answer"><p>Любые нелегальные и токсичные темы запрещены.</p></div></details>
+<details class="faq"><summary>Что с безопасностью?</summary><div class="answer"><p>Не раскрывайте личную информацию и не переходите в сторонние чаты.</p></div></details>
   </section>
 
   <section>
     <h2>Ещё по теме</h2>
-    <div class="related-grid">
-<a class="related-card" href="/chat/znakomstvo-v-telegram-s-devushkoi/">
-  <span class="related-title">Znakomstvo v telegram s devushkoi</span>
-  <span class="related-more">Открыть →</span>
+    <div class="grid-cards">
+<a class="card" href="/chat/znakomstvo-v-telegram-s-devushkoi/">
+  <span class="card-title">Знакомство в Telegram с девушкой</span>
+  <span class="card-more">Открыть →</span>
 </a>
-<a class="related-card" href="/chat/flirt-v-telegram/">
-  <span class="related-title">Flirt v telegram</span>
-  <span class="related-more">Открыть →</span>
+<a class="card" href="/chat/flirt-v-telegram/">
+  <span class="card-title">Флирт в Telegram</span>
+  <span class="card-more">Открыть →</span>
 </a>
-<a class="related-card" href="/chat/chat-bez-registracii/">
-  <span class="related-title">Chat bez registracii</span>
-  <span class="related-more">Открыть →</span>
+<a class="card" href="/chat/chat-bez-registracii/">
+  <span class="card-title">Чат с девушкой без регистрации</span>
+  <span class="card-more">Открыть →</span>
 </a>
 </div>
   </section>
 
-  <hr>
-  <section>
-    <ul class="tags"><li>#18+</li><li>#телеграм</li><li>#бот</li><li>#ИИ</li><li>#виртуальная подруга</li></ul>
-  </section>
+  <p><a class="btn" href="https://t.me/luciddreams?start=_tgr_ChFKPawxOGRi" target="_blank" rel="nofollow noopener">Открыть чат в Telegram</a></p>
 
-  <p class="small">Обновлено: 2025-09-10T23:46:15+03:00</p>
+  <hr>
+  <p class="small">18+. Используйте уважительно. Обновлено: 2025-09-11T00:52:01+03:00</p>
 </div>
 </body>
 </html>
